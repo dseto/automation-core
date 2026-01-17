@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "UI Map Schema",
+  "type": "object",
+  "additionalProperties": {
+    "type": "object",
+    "properties": {
+      "__meta": {
+        "type": "object",
+        "properties": {
+          "route": {
+            "type": "string"
+          },
+          "anchor": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "patternProperties": {
+      "^(?!__meta$).+$": {
+        "type": "string"
+      }
+    },
+    "additionalProperties": false
+  }
+}

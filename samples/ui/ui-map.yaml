@@ -1,0 +1,13 @@
+LoginPage:
+  __meta:
+    route: /login
+    anchor: login-title
+  Usuario: login-user
+  Senha: login-pass
+  Entrar: login-submit
+
+DashboardPage:
+  __meta:
+    route: /home
+    anchor: dashboard-welcome-title
+  TituloBoasVindas: dashboard-welcome-title

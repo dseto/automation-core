@@ -1,0 +1,23 @@
+
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Automation.Reqnroll</AssemblyName>
+    <RootNamespace>Automation.Reqnroll</RootNamespace>
+    <IsPackable>true</IsPackable>
+    <PackageId>Company.Automation.Reqnroll</PackageId>
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Automation.Core\Automation.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BoDi" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="Reqnroll" />
+    <PackageReference Include="Reqnroll.xUnit" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" />
+  </ItemGroup>
+</Project>
