@@ -61,6 +61,7 @@ public sealed class BasicSteps
     }
 
     [Then(@"a rota deve ser ""(.*)""")]
+    [Given(@"a rota deve ser ""(.*)""")]
     public void EntaoARotaDeveSer(string route)
     {
         _rt.Debug.MaybePauseEachStep($"route {route}");
@@ -71,6 +72,7 @@ public sealed class BasicSteps
     }
 
     [Then(@"o elemento ""(.*)"" deve estar visível")]
+    [Given(@"o elemento ""(.*)"" deve estar visível")]
     public void EntaoOElementoDeveEstarVisivel(string element)
     {
         _rt.Debug.MaybePauseEachStep($"visible {element}");

@@ -20,7 +20,7 @@ public class Login_com_sucesso
         var logger = loggerFactory.CreateLogger("E2E");
 
         var uiMapPath = Path.GetFullPath(@".\samples\ui\ui-map.yaml");
-        var map = new UiMapLoader().LoadFromFile(uiMapPath);
+        var map = UiMapLoader.LoadFromFile(uiMapPath);
 
         var settings = RunSettings.FromEnvironment() with { WaitAngular = false, Headless = true };
 

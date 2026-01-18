@@ -1,16 +1,10 @@
-# 04 — Contratos (MVP)
+# Delta – UI Map Contract
 
-## data-testid
-- obrigatório em elementos interativos e âncoras
-- estável, sem IDs dinâmicos
+## New Official Format
+- __meta block
+- inline elements with testId
+- legacy support
 
-## ui-map.yaml
-- PageName -> FriendlyName -> testid
-- `__meta.route` e `__meta.anchor` permitidos
-
-## Steps suportados no MVP (validator + reqnroll)
-- Dado que estou na tela "{PageName}"
-- Quando eu preencho o campo "{Element}" com "{Value}"
-- Quando eu clico no botão "{Element}"
-- Então a rota deve ser "{Route}"
-- Então o elemento "{Element}" deve estar visível
+Rules:
+- __meta excluded from element counting
+- Pages must have at least one element

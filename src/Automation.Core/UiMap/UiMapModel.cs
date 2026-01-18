@@ -2,15 +2,19 @@ using System.Collections.Generic;
 
 namespace Automation.Core.UiMap;
 
+/// <summary>
+/// In-memory representation of ui-map.yaml.
+/// </summary>
 public sealed class UiMapModel
 {
     public Dictionary<string, UiPage> Pages { get; } = new(StringComparer.OrdinalIgnoreCase);
+    public Dictionary<string, UiPage> Modals { get; } = new(StringComparer.OrdinalIgnoreCase);
 
     public UiPage GetPageOrThrow(string pageName)
     {
-        if (!Pages.TryGetValue(pageName, out var page))
-            throw new KeyNotFoundException($"Page '{pageName}' was not found in ui-map.");
-        return page;
+        if (Pages.TryGetValue(pageName, out var page)) return page;
+        if (Modals.TryGetValue(pageName, out var modal)) return modal;
+        throw new KeyNotFoundException($"Page '{pageName}' was not found in ui-map.");
     }
 }
 

@@ -3,7 +3,7 @@ using Automation.Core.Configuration;
 using Automation.Core.Driver;
 using Automation.Core.UiMap;
 using Automation.Reqnroll.Runtime;
-using BoDi;
+using Reqnroll.BoDi;
 using Microsoft.Extensions.Logging;
 using Reqnroll;
 
@@ -32,8 +32,8 @@ public sealed class RuntimeHooks
         var logger = loggerFactory.CreateLogger("Automation");
 
         var settings = RunSettings.FromEnvironment();
-        var uiMapPath = Environment.GetEnvironmentVariable("UI_MAP_PATH") ?? @".\samples\ui\ui-map.yaml";
-        var map = new UiMapLoader().LoadFromFile(uiMapPath);
+        var uiMapPath = ResolveUiMapPath();
+        var map = UiMapLoader.LoadFromFile(uiMapPath);
 
         var driver = new EdgeDriverFactory(logger).Create(settings);
 
@@ -47,5 +47,44 @@ public sealed class RuntimeHooks
     public void AfterScenario()
     {
         _rt?.Dispose();
+    }
+
+    private static string ResolveUiMapPath()
+    {
+        // 1) explicit override
+        var env = Environment.GetEnvironmentVariable("UI_MAP_PATH");
+        if (!string.IsNullOrWhiteSpace(env) && File.Exists(env))
+            return env;
+
+        // 2) common relative locations (project root)
+        var candidates = new[]
+        {
+            Path.Combine("ui", "ui-map.yaml"),
+            Path.Combine("samples", "ui", "ui-map.yaml"),
+            "ui-map.yaml"
+        };
+
+        // 3) search upwards from base directory and current directory
+        var starts = new[] { AppContext.BaseDirectory, Directory.GetCurrentDirectory() }
+            .Where(p => !string.IsNullOrWhiteSpace(p))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        foreach (var start in starts)
+        {
+            var dir = new DirectoryInfo(start);
+            for (var i = 0; i < 10 && dir != null; i++, dir = dir.Parent)
+            {
+                foreach (var rel in candidates)
+                {
+                    var full = Path.GetFullPath(Path.Combine(dir.FullName, rel));
+                    if (File.Exists(full))
+                        return full;
+                }
+            }
+        }
+
+        // 4) last resort: keep previous default so error message stays familiar
+        return @".\samples\ui\ui-map.yaml";
     }
 }

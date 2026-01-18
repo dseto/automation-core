@@ -86,15 +86,17 @@ public sealed class WaitService
     public IWebElement WaitVisibleByCss(IWebDriver driver, string css)
     {
         var wait = new WebDriverWait(new SystemClock(), driver, TimeSpan.FromMilliseconds(_settings.StepTimeoutMs), TimeSpan.FromMilliseconds(200));
-        return wait.Until(d =>
+        var el = wait.Until<IWebElement?>(d =>
         {
             try
             {
-                var el = d.FindElement(By.CssSelector(css));
-                return el.Displayed ? el : null;
+                var found = d.FindElement(By.CssSelector(css));
+                return found.Displayed ? found : null;
             }
             catch { return null; }
         });
+
+        return el ?? throw new WebDriverTimeoutException($"Element '{css}' was not visible within timeout.");
     }
 
     public IWebElement WaitClickableByCss(IWebDriver driver, string css)

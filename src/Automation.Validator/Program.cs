@@ -49,7 +49,7 @@ static Command BuildValidate(Option<string> uiMapOpt, Option<string> featuresOpt
         try
         {
             var (mapPath, featuresPath) = Normalize(uiMap, features);
-            var map = new UiMapLoader().LoadFromFile(mapPath);
+            var map = UiMapLoader.LoadFromFile(mapPath);
 
             var report = Validator.Validate(map, featuresPath, explainPlan: false);
             report.PrintToConsole();
@@ -77,7 +77,7 @@ static Command BuildPlan(Option<string> uiMapOpt, Option<string> featuresOpt)
         try
         {
             var (mapPath, featuresPath) = Normalize(uiMap, features);
-            var map = new UiMapLoader().LoadFromFile(mapPath);
+            var map = UiMapLoader.LoadFromFile(mapPath);
 
             var report = Validator.Validate(map, featuresPath, explainPlan: true);
             report.PrintToConsole();
