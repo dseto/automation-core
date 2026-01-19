@@ -1,0 +1,67 @@
+# 07 - Validação de Contratos e Estratégia de Testes
+
+## Validação de Contratos (Shift-Left)
+
+### Automation.Validator
+Ferramenta CLI que valida integridade de contratos antes da execução. Executa em CI/CD como pré-flight check.
+
+### Checagens de UiMap
+Todas as páginas têm pelo menos um elemento. Todos os testIds são únicos por página. Todas as rotas são válidas (começam com "/"). Não há elementos órfãos (sem página pai).
+
+### Checagens de DataMap
+Todos os contextos têm pelo menos um objeto de dados. Todas as chaves de datasets são únicas. Não há referências circulares (A referencia B que referencia A). Todos os valores são strings ou dicionários válidos.
+
+### Checagens de Gherkin
+Todas as páginas referenciadas existem no UiMap. Todos os elementos referenciados existem na página. Todas as chaves de dados existem no DataMap. Não há steps desconhecidos (fora do catálogo).
+
+### Execução
+```bash
+automation-validator validate --ui-map ui-map.yaml --data-map data-map.yaml --features features/
+```
+
+## Estratégia de Testes
+
+### Pirâmide de Testes
+A base da pirâmide são testes unitários do Core (validação de resolvers). O meio são testes de integração (Gherkin contra aplicação piloto). O topo são testes de fumaça em produção (validação de fluxos críticos).
+
+### Tags para Organização
+`@smoke`: Testes rápidos que cobrem fluxos críticos. `@regressao`: Testes que rodam em toda madrugada. `@positive`: Testes de sucesso. `@negative`: Testes de erro. `@ignore`: Testes em desenvolvimento (pulados).
+
+### Execução Filtrada
+```bash
+# Apenas testes de fumaça
+dotnet test --filter "Category=smoke"
+
+# Apenas testes positivos
+dotnet test --filter "Category=positive"
+
+# Tudo exceto @ignore
+dotnet test --filter "Category!=ignore"
+```
+
+## Critérios de Qualidade
+
+### Cobertura Mínima
+Cada página deve ter pelo menos um teste de sucesso. Cada fluxo crítico deve ter um teste positivo e um negativo. Cada elemento deve ser validado em pelo menos um teste.
+
+### Tempo de Execução
+Testes de fumaça devem rodar em menos de 5 minutos. Testes de regressão devem rodar em menos de 30 minutos. Se exceder, considere paralelização ou otimização.
+
+### Taxa de Falha
+Taxa de falha flaky (intermitente) deve ser menor que 2%. Se exceder, investigar waits e estabilidade. Falhas reais devem ser corrigidas no mesmo dia.
+
+## Integração com CI/CD
+
+### Pipeline Recomendado
+1. **Checkout:** Clonar repositório.
+2. **Restore:** `dotnet restore`.
+3. **Validate:** `automation-validator validate`.
+4. **Build:** `dotnet build`.
+5. **Test:** `dotnet test --filter "Category=smoke"`.
+6. **Report:** Gerar relatório de cobertura.
+
+### Variáveis de Ambiente
+`BASE_URL`: URL da aplicação. `BROWSER`: "chrome" ou "edge". `HEADLESS`: "true" ou "false". `ENVIRONMENT`: "default", "homolog", "prod".
+
+### Artefatos
+Logs de teste devem ser armazenados em `bin/Debug/net8.0/Logs/`. Screenshots em falha em `bin/Debug/net8.0/Evidence/`.

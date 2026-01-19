@@ -12,7 +12,8 @@ public sealed record RunSettings(
     bool PauseEachStep,
     bool WaitAngular,
     int AngularTimeoutMs,
-    int StepTimeoutMs)
+    int StepTimeoutMs,
+    string EnvironmentName)
 {
     public static RunSettings FromEnvironment()
     {
@@ -46,7 +47,8 @@ public sealed record RunSettings(
             PauseEachStep: GetBool("PAUSE_EACH_STEP", false),
             WaitAngular: GetBool("WAIT_ANGULAR", true),
             AngularTimeoutMs: GetInt("ANGULAR_TIMEOUT_MS", 5000),
-            StepTimeoutMs: GetInt("STEP_TIMEOUT_MS", 10000)
+            StepTimeoutMs: GetInt("STEP_TIMEOUT_MS", 20000),
+            EnvironmentName: Get("TEST_ENV", "default")
         );
     }
 }

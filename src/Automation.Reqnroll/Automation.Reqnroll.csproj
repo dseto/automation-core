@@ -1,11 +1,11 @@
-
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>Automation.Reqnroll</AssemblyName>
     <RootNamespace>Automation.Reqnroll</RootNamespace>
     <IsPackable>true</IsPackable>
     <PackageId>Company.Automation.Reqnroll</PackageId>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
+    <Description>Automation Reqnroll - BDD Steps for Zero Code Platform</Description>
   </PropertyGroup>
 
   <ItemGroup>

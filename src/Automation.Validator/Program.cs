@@ -1,244 +1,200 @@
 using System.CommandLine;
-using System.Text.RegularExpressions;
-using Automation.Core.UiMap;
-using Automation.Core.Resolution;
+using Automation.Validator.Models;
+using Automation.Validator.Services;
+using Automation.Validator.Validators;
 
-var root = new RootCommand("Automation Validator (doctor/validate/plan)");
+var rootCommand = new RootCommand("Automation.Validator - Validador de Contratos para Testes de UI");
 
-var uiMapOpt = new Option<string>("--ui-map", description: "Path to ui-map.yaml") { IsRequired = false };
-var featuresOpt = new Option<string>("--features", description: "Path to folder with .feature files") { IsRequired = false };
+// Comando: validate
+var validateCommand = new Command("validate", "Valida UiMap, DataMap e Feature Files");
 
-root.AddCommand(BuildDoctor());
-root.AddCommand(BuildValidate(uiMapOpt, featuresOpt));
-root.AddCommand(BuildPlan(uiMapOpt, featuresOpt));
+var uiMapOption = new Option<string>(
+    new[] { "--ui-map", "-u" },
+    "Caminho para o arquivo ui-map.yaml"
+);
 
-return await root.InvokeAsync(args);
+var dataMapOption = new Option<string>(
+    new[] { "--data-map", "-d" },
+    "Caminho para o arquivo data-map.yaml"
+);
 
-static Command BuildDoctor()
+var featuresOption = new Option<string>(
+    new[] { "--features", "-f" },
+    "Caminho para o diretório de features (*.feature)"
+);
+
+var jsonOutputOption = new Option<bool>(
+    new[] { "--json", "-j" },
+    "Gerar saída em JSON"
+);
+
+validateCommand.AddOption(uiMapOption);
+validateCommand.AddOption(dataMapOption);
+validateCommand.AddOption(featuresOption);
+validateCommand.AddOption(jsonOutputOption);
+
+validateCommand.SetHandler(async (uiMapPath, dataMapPath, featuresPath, jsonOutput) =>
 {
-    var cmd = new Command("doctor", "Checks local prerequisites (Edge/driver/env vars).");
-    cmd.SetHandler(() =>
+    await ValidateCommand(uiMapPath, dataMapPath, featuresPath, jsonOutput);
+}, uiMapOption, dataMapOption, featuresOption, jsonOutputOption);
+
+// Comando: doctor
+var doctorCommand = new Command("doctor", "Diagnóstico de problemas comuns");
+
+var projectPathOption = new Option<string>(
+    new[] { "--path", "-p" },
+    "Caminho do projeto (padrão: diretório atual)"
+) { IsRequired = false };
+
+doctorCommand.AddOption(projectPathOption);
+
+doctorCommand.SetHandler(async (projectPath) =>
+{
+    await DoctorCommand(projectPath ?? ".");
+}, projectPathOption);
+
+// Comando: plan
+var planCommand = new Command("plan", "Planejar implementação de automação");
+
+var appUrlOption = new Option<string>(
+    new[] { "--url", "-u" },
+    "URL da aplicação para análise"
+);
+
+planCommand.AddOption(appUrlOption);
+
+planCommand.SetHandler(async (appUrl) =>
+{
+    await PlanCommand(appUrl);
+}, appUrlOption);
+
+rootCommand.AddCommand(validateCommand);
+rootCommand.AddCommand(doctorCommand);
+rootCommand.AddCommand(planCommand);
+
+await rootCommand.InvokeAsync(args);
+
+// Implementação dos comandos
+
+async Task ValidateCommand(string? uiMapPath, string? dataMapPath, string? featuresPath, bool jsonOutput)
+{
+    try
     {
-        try
+        var loader = new YamlLoader();
+        var reportService = new ReportService();
+        var combinedResult = ValidationResult.Success();
+
+        // Validar UiMap
+        if (!string.IsNullOrEmpty(uiMapPath))
         {
-            Console.WriteLine("Doctor report:");
-            Console.WriteLine($"- OS: {Environment.OSVersion}");
-            Console.WriteLine($"- BASE_URL: {Environment.GetEnvironmentVariable("BASE_URL") ?? "(not set)"}");
-            Console.WriteLine($"- UI_MAP_PATH: {Environment.GetEnvironmentVariable("UI_MAP_PATH") ?? "(not set)"}");
-            Console.WriteLine();
-            Console.WriteLine("NOTE: For E2E you need msedgedriver compatible with Edge available (PATH or Selenium Manager).");
-            Environment.Exit(0);
+            var uiMap = loader.LoadUiMap(uiMapPath);
+            var uiValidator = new UiMapValidator();
+            var uiResult = uiValidator.Validate(uiMap, uiMapPath);
+            
+            foreach (var error in uiResult.Errors)
+                combinedResult.AddError(error);
+            foreach (var warning in uiResult.Warnings)
+                combinedResult.AddWarning(warning);
         }
-        catch (Exception ex)
+
+        // Validar DataMap
+        if (!string.IsNullOrEmpty(dataMapPath))
         {
-            Console.WriteLine($"Doctor error: {ex.Message}");
-            Environment.Exit(3);
+            var dataMap = loader.LoadDataMap(dataMapPath);
+            var dataValidator = new DataMapValidator();
+            var dataResult = dataValidator.Validate(dataMap, dataMapPath);
+            
+            foreach (var error in dataResult.Errors)
+                combinedResult.AddError(error);
+            foreach (var warning in dataResult.Warnings)
+                combinedResult.AddWarning(warning);
         }
-    });
-    return cmd;
-}
 
-static Command BuildValidate(Option<string> uiMapOpt, Option<string> featuresOpt)
-{
-    var cmd = new Command("validate", "Validates ui-map + features using MVP parser.");
-    cmd.AddOption(uiMapOpt);
-    cmd.AddOption(featuresOpt);
-
-    cmd.SetHandler((string? uiMap, string? features) =>
-    {
-        try
+        // Validar Features
+        if (!string.IsNullOrEmpty(featuresPath) && !string.IsNullOrEmpty(uiMapPath) && !string.IsNullOrEmpty(dataMapPath))
         {
-            var (mapPath, featuresPath) = Normalize(uiMap, features);
-            var map = UiMapLoader.LoadFromFile(mapPath);
+            var uiMap = loader.LoadUiMap(uiMapPath);
+            var dataMap = loader.LoadDataMap(dataMapPath);
+            var gherkinValidator = new GherkinValidator();
 
-            var report = Validator.Validate(map, featuresPath, explainPlan: false);
-            report.PrintToConsole();
-
-            Environment.Exit(report.HasErrors ? 2 : 0);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Validation error: {ex.Message}");
-            Environment.Exit(3);
-        }
-    }, uiMapOpt, featuresOpt);
-
-    return cmd;
-}
-
-static Command BuildPlan(Option<string> uiMapOpt, Option<string> featuresOpt)
-{
-    var cmd = new Command("plan", "Prints explain plan (resolution) for features.");
-    cmd.AddOption(uiMapOpt);
-    cmd.AddOption(featuresOpt);
-
-    cmd.SetHandler((string? uiMap, string? features) =>
-    {
-        try
-        {
-            var (mapPath, featuresPath) = Normalize(uiMap, features);
-            var map = UiMapLoader.LoadFromFile(mapPath);
-
-            var report = Validator.Validate(map, featuresPath, explainPlan: true);
-            report.PrintToConsole();
-
-            Environment.Exit(report.HasErrors ? 2 : 0);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Plan error: {ex.Message}");
-            Environment.Exit(3);
-        }
-    }, uiMapOpt, featuresOpt);
-
-    return cmd;
-}
-
-static (string mapPath, string featuresPath) Normalize(string? uiMap, string? features)
-{
-    var mapPath = uiMap ?? ".\\\\samples\\\\ui\\\\ui-map.yaml";
-    var featuresPath = features ?? ".\\\\samples\\\\features";
-    if (!File.Exists(mapPath)) throw new FileNotFoundException("ui-map not found", mapPath);
-    if (!Directory.Exists(featuresPath)) throw new DirectoryNotFoundException($"features folder not found: {featuresPath}");
-    return (mapPath, featuresPath);
-}
-
-static class Validator
-{
-    private static readonly Regex GivenPage   = new(@"^\s*(Dado|Given)\s+que\s+estou\s+na\s+tela\s+""(?<page>[^""]+)""", RegexOptions.IgnoreCase);
-    private static readonly Regex WhenFill    = new(@"^\s*(Quando|When|E|And)\s+eu\s+preencho\s+o\s+campo\s+""(?<el>[^""]+)""\s+com\s+""(?<val>[^""]*)""", RegexOptions.IgnoreCase);
-    private static readonly Regex WhenClick   = new(@"^\s*(Quando|When|E|And)\s+eu\s+clico\s+no\s+bot[aã]o\s+""(?<el>[^""]+)""", RegexOptions.IgnoreCase);
-    private static readonly Regex ThenVisible = new(@"^\s*(Então|Then|E|And)\s+o\s+elemento\s+""(?<el>[^""]+)""\s+deve\s+estar\s+vis[ií]vel", RegexOptions.IgnoreCase);
-    private static readonly Regex ThenRoute   = new(@"^\s*(Então|Then|E|And)\s+a\s+rota\s+deve\s+ser\s+""(?<route>[^""]+)""", RegexOptions.IgnoreCase);
-
-    public static ValidationReport Validate(UiMapModel map, string featuresFolder, bool explainPlan)
-    {
-        var report = new ValidationReport();
-
-        foreach (var file in Directory.EnumerateFiles(featuresFolder, "*.feature", SearchOption.AllDirectories))
-        {
-            var lines = File.ReadAllLines(file);
-            string? currentPage = null;
-
-            for (int i = 0; i < lines.Length; i++)
+            var featureFiles = Directory.GetFiles(featuresPath, "*.feature", SearchOption.AllDirectories);
+            foreach (var featureFile in featureFiles)
             {
-                var line = lines[i].Trim();
-                if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#")) continue;
-
-                var mPage = GivenPage.Match(line);
-                if (mPage.Success)
-                {
-                    currentPage = mPage.Groups["page"].Value;
-                    if (!map.Pages.ContainsKey(currentPage))
-                        report.AddError(file, i + 1, $"Page '{currentPage}' not found in ui-map.");
-                    else if (explainPlan)
-                        report.AddInfo(file, i + 1, $"[PLAN] PageContext = {currentPage}");
-                    continue;
-                }
-
-                string RequirePage()
-                {
-                    if (string.IsNullOrWhiteSpace(currentPage))
-                    {
-                        report.AddError(file, i + 1, "PageContext not set. Add: Dado que estou na tela \"PageName\"");
-                        return "";
-                    }
-                    return currentPage;
-                }
-
-                var mFill = WhenFill.Match(line);
-                if (mFill.Success)
-                {
-                    var page = RequirePage();
-                    var el = mFill.Groups["el"].Value;
-                    if (!string.IsNullOrWhiteSpace(page) && map.Pages.TryGetValue(page, out var p))
-                    {
-                        if (!p.Elements.ContainsKey(el))
-                            report.AddError(file, i + 1, $"Element '{el}' not found in page '{page}'.");
-                        else if (explainPlan)
-                        {
-                            var testId = p.Elements[el];
-                            report.AddInfo(file, i + 1, $"[PLAN] {page}.{el} -> {testId} -> {LocatorFactory.CssByTestId(testId)}");
-                        }
-                    }
-                    continue;
-                }
-
-                var mClick = WhenClick.Match(line);
-                if (mClick.Success)
-                {
-                    var page = RequirePage();
-                    var el = mClick.Groups["el"].Value;
-                    if (!string.IsNullOrWhiteSpace(page) && map.Pages.TryGetValue(page, out var p))
-                    {
-                        if (!p.Elements.ContainsKey(el))
-                            report.AddError(file, i + 1, $"Element '{el}' not found in page '{page}'.");
-                        else if (explainPlan)
-                        {
-                            var testId = p.Elements[el];
-                            report.AddInfo(file, i + 1, $"[PLAN] {page}.{el} -> {testId} -> {LocatorFactory.CssByTestId(testId)}");
-                        }
-                    }
-                    continue;
-                }
-
-                var mVisible = ThenVisible.Match(line);
-                if (mVisible.Success)
-                {
-                    var page = RequirePage();
-                    var el = mVisible.Groups["el"].Value;
-                    if (!string.IsNullOrWhiteSpace(page) && map.Pages.TryGetValue(page, out var p))
-                    {
-                        if (!p.Elements.ContainsKey(el))
-                            report.AddError(file, i + 1, $"Element '{el}' not found in page '{page}'.");
-                        else if (explainPlan)
-                        {
-                            var testId = p.Elements[el];
-                            report.AddInfo(file, i + 1, $"[PLAN] {page}.{el} -> {testId} -> {LocatorFactory.CssByTestId(testId)}");
-                        }
-                    }
-                    continue;
-                }
-
-                var mRoute = ThenRoute.Match(line);
-                if (mRoute.Success)
-                {
-                    if (explainPlan)
-                        report.AddInfo(file, i + 1, $"[PLAN] Expect route contains: {mRoute.Groups["route"].Value}");
-                    continue;
-                }
-
-                if (line.StartsWith("Dado", StringComparison.OrdinalIgnoreCase) ||
-                    line.StartsWith("Quando", StringComparison.OrdinalIgnoreCase) ||
-                    line.StartsWith("Então", StringComparison.OrdinalIgnoreCase) ||
-                    line.StartsWith("E", StringComparison.OrdinalIgnoreCase))
-                {
-                    report.AddError(file, i + 1, $"Unsupported step (MVP): {line}");
-                }
+                var gherkinContent = loader.LoadGherkin(featureFile);
+                var gherkinResult = gherkinValidator.Validate(gherkinContent, uiMap, dataMap, featureFile);
+                
+                foreach (var error in gherkinResult.Errors)
+                    combinedResult.AddError(error);
+                foreach (var warning in gherkinResult.Warnings)
+                    combinedResult.AddWarning(warning);
             }
         }
 
-        return report;
+        if (jsonOutput)
+        {
+            var json = reportService.GenerateJsonReport(combinedResult);
+            Console.WriteLine(json);
+        }
+        else
+        {
+            reportService.PrintConsoleReport(combinedResult, "VALIDAÇÃO DE CONTRATOS");
+        }
+
+        Environment.Exit(combinedResult.IsValid ? 0 : 1);
     }
-}
-
-sealed class ValidationReport
-{
-    private readonly List<ValidationItem> _items = new();
-
-    public bool HasErrors => _items.Any(i => i.Level == "ERROR");
-
-    public void AddError(string file, int line, string message) => _items.Add(new("ERROR", file, line, message));
-    public void AddInfo(string file, int line, string message) => _items.Add(new("INFO", file, line, message));
-
-    public void PrintToConsole()
+    catch (Exception ex)
     {
-        foreach (var i in _items)
-            Console.WriteLine($"{i.Level} {i.File}:{i.Line} - {i.Message}");
-
-        if (!_items.Any())
-            Console.WriteLine("OK (no findings).");
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine($"Erro: {ex.Message}");
+        Console.ResetColor();
+        Environment.Exit(1);
     }
 }
 
-sealed record ValidationItem(string Level, string File, int Line, string Message);
+async Task DoctorCommand(string projectPath)
+{
+    Console.WriteLine("\n🔍 Executando diagnóstico...\n");
+
+    var checks = new List<(string name, bool passed, string message)>();
+
+    // Verificar estrutura de diretórios
+    var hasFeatures = Directory.Exists(Path.Combine(projectPath, "features"));
+    checks.Add(("Diretório 'features/' existe", hasFeatures, hasFeatures ? "✓" : "✗ Crie o diretório 'features/'"));
+
+    var hasUiMap = File.Exists(Path.Combine(projectPath, "ui", "ui-map.yaml"));
+    checks.Add(("Arquivo 'ui/ui-map.yaml' existe", hasUiMap, hasUiMap ? "✓" : "✗ Crie o arquivo 'ui/ui-map.yaml'"));
+
+    var hasDataMap = File.Exists(Path.Combine(projectPath, "data", "data-map.yaml"));
+    checks.Add(("Arquivo 'data/data-map.yaml' existe", hasDataMap, hasDataMap ? "✓" : "✗ Crie o arquivo 'data/data-map.yaml'"));
+
+    var hasReqnroll = File.Exists(Path.Combine(projectPath, "reqnroll.json"));
+    checks.Add(("Arquivo 'reqnroll.json' existe", hasReqnroll, hasReqnroll ? "✓" : "✗ Crie o arquivo 'reqnroll.json'"));
+
+    var hasCsproj = Directory.GetFiles(projectPath, "*.csproj").Any();
+    checks.Add(("Arquivo '.csproj' existe", hasCsproj, hasCsproj ? "✓" : "✗ Crie um projeto .NET"));
+
+    foreach (var (name, passed, message) in checks)
+    {
+        var color = passed ? ConsoleColor.Green : ConsoleColor.Red;
+        Console.ForegroundColor = color;
+        Console.WriteLine($"{message} {name}");
+        Console.ResetColor();
+    }
+
+    var allPassed = checks.All(c => c.passed);
+    Console.WriteLine($"\n{(allPassed ? "✓ Projeto pronto!" : "✗ Corrija os problemas acima")}");
+}
+
+async Task PlanCommand(string appUrl)
+{
+    Console.WriteLine($"\n📋 Plano de Implementação para {appUrl}\n");
+    Console.WriteLine("Passos recomendados:");
+    Console.WriteLine("1. Mapear todas as páginas da aplicação");
+    Console.WriteLine("2. Identificar elementos interativos (inputs, buttons, etc.)");
+    Console.WriteLine("3. Criar ui-map.yaml com páginas e elementos");
+    Console.WriteLine("4. Definir dados de teste em data-map.yaml");
+    Console.WriteLine("5. Escrever cenários em Gherkin (features/)");
+    Console.WriteLine("6. Executar 'automation-validator validate' para validar");
+    Console.WriteLine("7. Rodar testes com 'dotnet test'");
+    Console.WriteLine();
+}

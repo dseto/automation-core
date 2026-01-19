@@ -1,16 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <AssemblyName>Automation.Validator</AssemblyName>
-    <RootNamespace>Automation.Validator</RootNamespace>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Automation.Core\Automation.Core.csproj" />
+    <PackageReference Include="YamlDotNet" />
+    <PackageReference Include="Gherkin" />
+    <PackageReference Include="System.CommandLine" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="System.CommandLine" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" />
-  </ItemGroup>
 </Project>

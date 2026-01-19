@@ -1,10 +1,13 @@
-
+using System;
+using System.IO;
+using System.Linq;
 using Automation.Core.Configuration;
 using Automation.Core.Driver;
 using Automation.Core.UiMap;
 using Automation.Reqnroll.Runtime;
 using Reqnroll.BoDi;
 using Microsoft.Extensions.Logging;
+using OpenQA.Selenium;
 using Reqnroll;
 
 namespace Automation.Reqnroll.Hooks;
@@ -20,14 +23,14 @@ public sealed class RuntimeHooks
     [BeforeScenario(Order = 0)]
     public void BeforeScenario()
     {
-        using var loggerFactory = LoggerFactory.Create(b =>
+        var loggerFactory = LoggerFactory.Create(b =>
         {
             b.AddSimpleConsole(o =>
             {
                 o.SingleLine = true;
                 o.TimestampFormat = "HH:mm:ss ";
             });
-            b.SetMinimumLevel(LogLevel.Information);
+            b.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Information);
         });
         var logger = loggerFactory.CreateLogger("Automation");
 
@@ -35,12 +38,25 @@ public sealed class RuntimeHooks
         var uiMapPath = ResolveUiMapPath();
         var map = UiMapLoader.LoadFromFile(uiMapPath);
 
-        var driver = new EdgeDriverFactory(logger).Create(settings);
+        // Suporta BROWSER=chrome ou BROWSER=edge (default: chrome)
+        var browserType = Environment.GetEnvironmentVariable("BROWSER")?.ToLowerInvariant() ?? "chrome";
+        IWebDriver driver = browserType switch
+        {
+            "edge" => EdgeDriverFactory.Create(settings),
+            _ => ChromeDriverFactory.Create(settings)
+        };
 
         _rt = new AutomationRuntime(settings, map, driver, logger);
-        _rt.Debug.Banner();
-
+        
         _container.RegisterInstanceAs(_rt);
+        _container.RegisterInstanceAs(_rt.PageContext);
+        _container.RegisterInstanceAs(_rt.Waits);
+        _container.RegisterInstanceAs(_rt.Resolver);
+        _container.RegisterInstanceAs(_rt.Data);
+        _container.RegisterInstanceAs(_rt.Driver);
+        _container.RegisterInstanceAs(_rt.Settings);
+        _container.RegisterInstanceAs(_rt.UiMap);
+        _container.RegisterInstanceAs(logger);
     }
 
     [AfterScenario(Order = 100)]
@@ -84,7 +100,6 @@ public sealed class RuntimeHooks
             }
         }
 
-        // 4) last resort: keep previous default so error message stays familiar
-        return @".\samples\ui\ui-map.yaml";
+        return "ui-map.yaml";
     }
 }

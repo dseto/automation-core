@@ -1,38 +1,68 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Automation.Core.UiMap;
 
-/// <summary>
-/// In-memory representation of ui-map.yaml.
-/// </summary>
-public sealed class UiMapModel
+public class UiMapModel
 {
-    public Dictionary<string, UiPage> Pages { get; } = new(StringComparer.OrdinalIgnoreCase);
-    public Dictionary<string, UiPage> Modals { get; } = new(StringComparer.OrdinalIgnoreCase);
+    public Dictionary<string, object> Pages { get; set; } = new();
+    public Dictionary<string, object> Modals { get; set; } = new();
 
     public UiPage GetPageOrThrow(string pageName)
     {
-        if (Pages.TryGetValue(pageName, out var page)) return page;
-        if (Modals.TryGetValue(pageName, out var modal)) return modal;
-        throw new KeyNotFoundException($"Page '{pageName}' was not found in ui-map.");
+        if (Pages.TryGetValue(pageName, out var pageObj) && pageObj is IDictionary pageDict)
+            return new UiPage(pageDict);
+            
+        if (Modals.TryGetValue(pageName, out var modalObj) && modalObj is IDictionary modalDict)
+            return new UiPage(modalDict);
+        
+        throw new ArgumentException($"Página ou Modal '{pageName}' não encontrada no ui-map.yaml.");
     }
 }
 
-public sealed class UiPage
+public class UiPage
 {
-    public UiMeta? Meta { get; set; }
-    public Dictionary<string, string> Elements { get; } = new(StringComparer.OrdinalIgnoreCase);
+    private readonly IDictionary _data;
 
-    public string GetTestIdOrThrow(string friendlyName)
+    public UiPage(IDictionary data)
     {
-        if (!Elements.TryGetValue(friendlyName, out var testId))
-            throw new KeyNotFoundException($"Element '{friendlyName}' was not found in ui-map for this page.");
-        return testId;
+        _data = data;
     }
-}
 
-public sealed class UiMeta
-{
-    public string? Route { get; set; }
-    public string? Anchor { get; set; }
+    public string? Route
+    {
+        get
+        {
+            if (_data.Contains("__meta") && _data["__meta"] is IDictionary meta)
+                return meta.Contains("route") ? meta["route"]?.ToString() : null;
+            return null;
+        }
+    }
+
+    public string? Anchor
+    {
+        get
+        {
+            if (_data.Contains("__meta") && _data["__meta"] is IDictionary meta)
+                return meta.Contains("anchor") ? meta["anchor"]?.ToString() : null;
+            return null;
+        }
+    }
+
+    public string GetTestIdOrThrow(string elementName)
+    {
+        if (_data.Contains(elementName))
+        {
+            var element = _data[elementName];
+            if (element is IDictionary elementDict && elementDict.Contains("test_id"))
+                return elementDict["test_id"]?.ToString();
+            
+            // Suporte para formato simplificado se existir
+            if (element is string testId) return testId;
+        }
+
+        throw new ArgumentException($"Elemento '{elementName}' não encontrado no mapeamento da página.");
+    }
 }
