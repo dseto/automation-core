@@ -8,8 +8,14 @@ O Reqnroll lê o step Gherkin (ex: "Quando eu preencho 'username' com 'admin'").
 ### 2. Resolução de Elemento
 O ElementResolver recebe a referência "username". Consulta `PageContext.CurrentPageName` (ex: "login"). Busca a página no UiMap. Localiza o elemento "username" na página "login". Retorna o CSS locator `[data-testid='page.login.username']`.
 
-### 3. Resolução de Dados
-O DataResolver recebe o valor "admin". Se for um literal (string simples), retorna diretamente. Se for uma referência (ex: "user_admin"), busca no DataMap do contexto atual. Se for um token (ex: `{{cpfs_teste}}`), retorna o próximo item do dataset.
+### 3. Resolução de Dados (Sintaxe Explícita)
+O DataResolver recebe o valor e aplica ordem determinística com prefixos:
+1. Variável de Ambiente (`${...}`)
+2. Dataset (`{{...}}`)
+3. Objeto (`@...`)
+4. Literal (sem prefixo)
+
+Exemplos: `${BASE_URL}`, `{{cpfs_teste}}`, `@user_admin`, `admin`
 
 ### 4. Execução
 O WebDriver usa o CSS locator para encontrar o elemento. Executa a ação (clique, preenchimento, etc.). Captura o resultado.
@@ -43,26 +49,21 @@ function ResolveElement(friendlyName):
 ### Casos Especiais
 Se o elemento não for encontrado na página atual, o resolver tenta buscar em "shared" (elementos globais). Se ainda não encontrar, lança exceção com sugestão de elementos disponíveis.
 
-## Resolução de Dados (DataResolver)
+## Resolução de Dados (DataResolver - Sintaxe Explícita)
 
-### Algoritmo
-```
-function ResolveData(reference):
-  if reference is literal (string):
-    return reference
-  
-  if reference contains "{{" and "}}":
-    datasetName = extract(reference)
-    dataset = DataMap.GetDataset(datasetName)
-    return dataset.GetNext()
-  
-  context = DataMap.GetContext(RunSettings.Environment)
-  dataObject = context.GetObject(reference)
-  return dataObject
-```
+### Algoritmo Determinístico
+A ordem de verificação é fixa:
+1. Variável de Ambiente: `${...}`
+2. Dataset: `{{...}}`
+3. Objeto: `@...`
+4. Literal: sem prefixo
+
+Isso elimina ambiguidade e torna o comportamento previsível.
 
 ### Estratégias de Dataset
-Sequential: Mantém índice interno, incrementa a cada acesso. Random: Seleciona aleatoriamente. Unique: Garante que não há repetição dentro de um cenário.
+- Sequential: Mantém índice interno, incrementa a cada acesso
+- Random: Seleciona aleatoriamente
+- Unique: Garante que não há repetição dentro de um cenário
 
 ## Resolução de Rota (PageContext)
 

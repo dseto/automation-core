@@ -23,39 +23,73 @@ public class DataResolver
     {
         if (string.IsNullOrWhiteSpace(dataKey)) return null;
 
+        // 1. Checa por referência de objeto (@)
+        if (dataKey.StartsWith("@"))
+            return ResolveObjectReference(dataKey);
+
+        // 2. Checa por referência de dataset ({{...}})
+        if (dataKey.StartsWith("{{") && dataKey.EndsWith("}}"))
+            return ResolveDatasetReference(dataKey);
+
+        // 3. Checa por variável de ambiente (${...})
+        if (dataKey.StartsWith("${") && dataKey.EndsWith("}"))
+            return ResolveEnvironmentVariable(dataKey);
+
+        // 4. Se nenhum prefixo corresponde, trata como literal
+        return dataKey;
+    }
+
+    private object ResolveObjectReference(string input)
+    {
+        var key = input.Substring(1);
         var env = _settings.EnvironmentName?.ToLower() ?? "default";
-        
-        // 1. Tentar resolver do contexto atual
+
         if (_model.Contexts != null)
         {
             var contextObj = GetFromDictionary(_model.Contexts, env);
             if (contextObj is IDictionary context)
             {
-                var result = GetFromDictionary(context, dataKey);
+                var result = GetFromDictionary(context, key);
                 if (result != null) return result;
             }
         }
 
-        // Fallback para 'default'
         if (env != "default" && _model.Contexts != null)
         {
             var defaultContextObj = GetFromDictionary(_model.Contexts, "default");
             if (defaultContextObj is IDictionary defaultContext)
             {
-                var result = GetFromDictionary(defaultContext, dataKey);
+                var result = GetFromDictionary(defaultContext, key);
                 if (result != null) return result;
             }
         }
 
-        // 2. Tentar resolver de um DataSet
-        if (_model.Datasets != null)
-        {
-            var dataSetObj = GetFromDictionary(_model.Datasets, dataKey);
-            if (dataSetObj is IDictionary dataSet)
-                return ResolveFromDataSet(dataKey, dataSet);
-        }
+        throw new InvalidOperationException($"Objeto '@{key}' não encontrado no DataMap.");
+    }
 
-        return dataKey;
+    private object ResolveDatasetReference(string input)
+    {
+        var key = input.Substring(2, input.Length - 4);
+
+        if (_model.Datasets == null)
+            throw new InvalidOperationException($"Dataset '{{{{{key}}}}}' não encontrado: nenhum dataset definido.");
+
+        var dataSetObj = GetFromDictionary(_model.Datasets, key);
+        if (dataSetObj is not IDictionary dataSet)
+            throw new InvalidOperationException($"Dataset '{{{{{key}}}}}' não encontrado no DataMap.");
+
+        return ResolveFromDataSet(key, dataSet);
+    }
+
+    private object ResolveEnvironmentVariable(string input)
+    {
+        var key = input.Substring(2, input.Length - 3);
+        var value = Environment.GetEnvironmentVariable(key);
+
+        if (value == null)
+            throw new InvalidOperationException($"Variável de ambiente '${{{key}}}' não encontrada. Defina antes de executar os testes.");
+
+        return value;
     }
 
     private object GetFromDictionary(IDictionary dict, string key)

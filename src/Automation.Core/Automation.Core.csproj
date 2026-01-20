@@ -1,17 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>Automation.Core</AssemblyName>
     <RootNamespace>Automation.Core</RootNamespace>
     <IsPackable>true</IsPackable>
     <PackageId>Company.Automation.Core</PackageId>
     <Version>0.2.0</Version>
     <Description>Automation Core - Zero Code Platform for UI Testing</Description>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="YamlDotNet" />
     <PackageReference Include="Selenium.WebDriver" />
-    <PackageReference Include="Selenium.Support" />
   </ItemGroup>
 </Project>

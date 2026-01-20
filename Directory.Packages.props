@@ -19,6 +19,10 @@
     <PackageVersion Include="Reqnroll" Version="2.2.1" />
     <PackageVersion Include="Reqnroll.xUnit" Version="2.2.1" />
     <PackageVersion Include="BoDi" Version="1.5.0" />
+    <PackageVersion Include="Gherkin" Version="27.0.0" />
+    
+    <!-- CLI -->
+    <PackageVersion Include="System.CommandLine" Version="2.0.0-beta5.25277.114" />
     
     <!-- Testing -->
     <PackageVersion Include="xunit" Version="2.9.3" />

@@ -19,6 +19,11 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4602256A-CC1A-43F7-825C-210E0B3A9654} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{B169ADCC-8773-41B9-9181-255DB4C23D9C} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{AB24CA3A-D409-2671-5E02-51227F1CFC18} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{4602256A-CC1A-43F7-825C-210E0B3A9654}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4602256A-CC1A-43F7-825C-210E0B3A9654}.Debug|Any CPU.Build.0 = Debug|Any CPU
@@ -28,9 +33,9 @@ Global
 		{B169ADCC-8773-41B9-9181-255DB4C23D9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B169ADCC-8773-41B9-9181-255DB4C23D9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B169ADCC-8773-41B9-9181-255DB4C23D9C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{970FCEEC-D2A9-485D-A692-4058EAF3AB07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{970FCEEC-D2A9-485D-A692-4058EAF3AB07}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{970FCEEC-D2A9-485D-A692-4058EAF3AB07}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{970FCEEC-D2A9-485D-A692-4058EAF3AB07}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB24CA3A-D409-2671-5E02-51227F1CFC18}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB24CA3A-D409-2671-5E02-51227F1CFC18}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB24CA3A-D409-2671-5E02-51227F1CFC18}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB24CA3A-D409-2671-5E02-51227F1CFC18}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

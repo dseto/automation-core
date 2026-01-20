@@ -1,83 +1,58 @@
-using System.CommandLine;
 using Automation.Validator.Models;
 using Automation.Validator.Services;
 using Automation.Validator.Validators;
 
-var rootCommand = new RootCommand("Automation.Validator - Validador de Contratos para Testes de UI");
+// Parse command line arguments
+var commandArgs = Environment.GetCommandLineArgs().Skip(1).ToArray();
 
-// Comando: validate
-var validateCommand = new Command("validate", "Valida UiMap, DataMap e Feature Files");
-
-var uiMapOption = new Option<string>(
-    new[] { "--ui-map", "-u" },
-    "Caminho para o arquivo ui-map.yaml"
-);
-
-var dataMapOption = new Option<string>(
-    new[] { "--data-map", "-d" },
-    "Caminho para o arquivo data-map.yaml"
-);
-
-var featuresOption = new Option<string>(
-    new[] { "--features", "-f" },
-    "Caminho para o diretório de features (*.feature)"
-);
-
-var jsonOutputOption = new Option<bool>(
-    new[] { "--json", "-j" },
-    "Gerar saída em JSON"
-);
-
-validateCommand.AddOption(uiMapOption);
-validateCommand.AddOption(dataMapOption);
-validateCommand.AddOption(featuresOption);
-validateCommand.AddOption(jsonOutputOption);
-
-validateCommand.SetHandler(async (uiMapPath, dataMapPath, featuresPath, jsonOutput) =>
+if (commandArgs.Length == 0 || commandArgs[0] == "help" || commandArgs[0] == "--help" || commandArgs[0] == "-h")
 {
-    await ValidateCommand(uiMapPath, dataMapPath, featuresPath, jsonOutput);
-}, uiMapOption, dataMapOption, featuresOption, jsonOutputOption);
+    PrintHelp();
+    return 0;
+}
 
-// Comando: doctor
-var doctorCommand = new Command("doctor", "Diagnóstico de problemas comuns");
+var command = commandArgs[0];
 
-var projectPathOption = new Option<string>(
-    new[] { "--path", "-p" },
-    "Caminho do projeto (padrão: diretório atual)"
-) { IsRequired = false };
-
-doctorCommand.AddOption(projectPathOption);
-
-doctorCommand.SetHandler(async (projectPath) =>
+try
 {
-    await DoctorCommand(projectPath ?? ".");
-}, projectPathOption);
-
-// Comando: plan
-var planCommand = new Command("plan", "Planejar implementação de automação");
-
-var appUrlOption = new Option<string>(
-    new[] { "--url", "-u" },
-    "URL da aplicação para análise"
-);
-
-planCommand.AddOption(appUrlOption);
-
-planCommand.SetHandler(async (appUrl) =>
+    return command switch
+    {
+        "validate" => await ValidateCommand(commandArgs.Skip(1).ToArray()),
+        "doctor" => await DoctorCommand(commandArgs.Skip(1).ToArray()),
+        "plan" => await PlanCommand(commandArgs.Skip(1).ToArray()),
+        _ => HandleUnknownCommand(command)
+    };
+}
+catch (Exception ex)
 {
-    await PlanCommand(appUrl);
-}, appUrlOption);
-
-rootCommand.AddCommand(validateCommand);
-rootCommand.AddCommand(doctorCommand);
-rootCommand.AddCommand(planCommand);
-
-await rootCommand.InvokeAsync(args);
+    Console.ForegroundColor = ConsoleColor.Red;
+    Console.WriteLine($"❌ Erro: {ex.Message}");
+    Console.ResetColor();
+    return 1;
+}
 
 // Implementação dos comandos
 
-async Task ValidateCommand(string? uiMapPath, string? dataMapPath, string? featuresPath, bool jsonOutput)
+async Task<int> ValidateCommand(string[] cmdArgs)
 {
+    string? uiMapPath = null;
+    string? dataMapPath = null;
+    string? featuresPath = null;
+    bool jsonOutput = false;
+
+    // Parse arguments
+    for (int i = 0; i < cmdArgs.Length; i++)
+    {
+        if ((cmdArgs[i] == "--ui-map" || cmdArgs[i] == "-u") && i + 1 < cmdArgs.Length)
+            uiMapPath = cmdArgs[++i];
+        else if ((cmdArgs[i] == "--data-map" || cmdArgs[i] == "-d") && i + 1 < cmdArgs.Length)
+            dataMapPath = cmdArgs[++i];
+        else if ((cmdArgs[i] == "--features" || cmdArgs[i] == "-f") && i + 1 < cmdArgs.Length)
+            featuresPath = cmdArgs[++i];
+        else if (cmdArgs[i] == "--json" || cmdArgs[i] == "-j")
+            jsonOutput = true;
+    }
+
     try
     {
         var loader = new YamlLoader();
@@ -140,19 +115,28 @@ async Task ValidateCommand(string? uiMapPath, string? dataMapPath, string? featu
             reportService.PrintConsoleReport(combinedResult, "VALIDAÇÃO DE CONTRATOS");
         }
 
-        Environment.Exit(combinedResult.IsValid ? 0 : 1);
+        return combinedResult.IsValid ? 0 : 1;
     }
     catch (Exception ex)
     {
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine($"Erro: {ex.Message}");
+        Console.WriteLine($"❌ Erro na validação: {ex.Message}");
         Console.ResetColor();
-        Environment.Exit(1);
+        return 1;
     }
 }
 
-async Task DoctorCommand(string projectPath)
+async Task<int> DoctorCommand(string[] cmdArgs)
 {
+    string projectPath = ".";
+
+    // Parse arguments
+    for (int i = 0; i < cmdArgs.Length; i++)
+    {
+        if ((cmdArgs[i] == "--path" || cmdArgs[i] == "-p") && i + 1 < cmdArgs.Length)
+            projectPath = cmdArgs[++i];
+    }
+
     Console.WriteLine("\n🔍 Executando diagnóstico...\n");
 
     var checks = new List<(string name, bool passed, string message)>();
@@ -183,10 +167,21 @@ async Task DoctorCommand(string projectPath)
 
     var allPassed = checks.All(c => c.passed);
     Console.WriteLine($"\n{(allPassed ? "✓ Projeto pronto!" : "✗ Corrija os problemas acima")}");
+
+    return allPassed ? 0 : 1;
 }
 
-async Task PlanCommand(string appUrl)
+async Task<int> PlanCommand(string[] cmdArgs)
 {
+    string appUrl = "";
+
+    // Parse arguments
+    for (int i = 0; i < cmdArgs.Length; i++)
+    {
+        if ((cmdArgs[i] == "--url" || cmdArgs[i] == "-u") && i + 1 < cmdArgs.Length)
+            appUrl = cmdArgs[++i];
+    }
+
     Console.WriteLine($"\n📋 Plano de Implementação para {appUrl}\n");
     Console.WriteLine("Passos recomendados:");
     Console.WriteLine("1. Mapear todas as páginas da aplicação");
@@ -197,4 +192,31 @@ async Task PlanCommand(string appUrl)
     Console.WriteLine("6. Executar 'automation-validator validate' para validar");
     Console.WriteLine("7. Rodar testes com 'dotnet test'");
     Console.WriteLine();
+
+    return 0;
+}
+
+int HandleUnknownCommand(string command)
+{
+    Console.ForegroundColor = ConsoleColor.Yellow;
+    Console.WriteLine($"⚠️  Comando desconhecido: '{command}'");
+    Console.ResetColor();
+    PrintHelp();
+    return 1;
+}
+
+void PrintHelp()
+{
+    Console.WriteLine("\n🤖 Automation.Validator - Validador de Contratos para Testes de UI\n");
+    Console.WriteLine("Uso: automation-validator <comando> [opções]\n");
+    Console.WriteLine("Comandos:");
+    Console.WriteLine("  validate    Valida UiMap, DataMap e Feature Files");
+    Console.WriteLine("  doctor      Diagnóstico de problemas comuns");
+    Console.WriteLine("  plan        Planejar implementação de automação");
+    Console.WriteLine("  help        Exibe esta mensagem de ajuda\n");
+    Console.WriteLine("Exemplos:");
+    Console.WriteLine("  automation-validator validate --ui-map ui-map.yaml --data-map data-map.yaml --features features/");
+    Console.WriteLine("  automation-validator validate -u ui-map.yaml -d data-map.yaml -f features/ --json");
+    Console.WriteLine("  automation-validator doctor --path .");
+    Console.WriteLine("  automation-validator plan --url https://app.example.com\n");
 }

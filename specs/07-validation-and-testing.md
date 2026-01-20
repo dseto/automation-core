@@ -5,14 +5,46 @@
 ### Automation.Validator
 Ferramenta CLI que valida integridade de contratos antes da execução. Executa em CI/CD como pré-flight check.
 
+**Comandos Disponíveis:**
+- `validate`: Valida UiMap, DataMap e Feature Files
+- `doctor`: Diagnóstico de problemas comuns no projeto
+- `plan`: Planejar implementação de automação
+
+**Exemplo de Uso:**
+```bash
+# Validação completa
+automation-validator validate --ui-map ui-map.yaml --data-map data-map.yaml --features features/
+
+# Diagnóstico do projeto
+automation-validator doctor --path .
+
+# Saída em JSON para CI/CD
+automation-validator validate -u ui-map.yaml -d data-map.yaml -f features/ --json
+```
+
 ### Checagens de UiMap
-Todas as páginas têm pelo menos um elemento. Todos os testIds são únicos por página. Todas as rotas são válidas (começam com "/"). Não há elementos órfãos (sem página pai).
+- Todas as páginas têm pelo menos um elemento
+- Todos os testIds são únicos por página
+- Todas as rotas são válidas (começam com "/")
+- Não há elementos órfãos (sem página pai)
+- **Novo:** Validação de Anchor Pattern (páginas com rotas ambíguas devem ter anchor)
+- **Novo:** Detecção de SPAs e modais que precisam de anchor
 
 ### Checagens de DataMap
-Todos os contextos têm pelo menos um objeto de dados. Todas as chaves de datasets são únicas. Não há referências circulares (A referencia B que referencia A). Todos os valores são strings ou dicionários válidos.
+- Todos os contextos têm pelo menos um objeto de dados
+- Todas as chaves de datasets são únicas
+- Não há referências circulares (A referencia B que referencia A)
+- Todos os valores são strings ou dicionários válidos
+- **Novo:** Validação de Sintaxe Explícita (@objeto, {{dataset}}, ${envvar})
+- **Novo:** Detecção de ambiguidade entre literais e referências
 
 ### Checagens de Gherkin
-Todas as páginas referenciadas existem no UiMap. Todos os elementos referenciados existem na página. Todas as chaves de dados existem no DataMap. Não há steps desconhecidos (fora do catálogo).
+- Todas as páginas referenciadas existem no UiMap
+- Todos os elementos referenciados existem na página
+- Todas as chaves de dados existem no DataMap
+- Não há steps desconhecidos (fora do catálogo)
+- **Novo:** Validação de prefixos de sintaxe explícita (@, {{}}, ${})
+- **Novo:** Detecção de referências inválidas ou ambíguas
 
 ### Execução
 ```bash

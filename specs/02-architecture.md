@@ -29,7 +29,7 @@ Camada de bindings que traduz Gherkin em comandos do Core.
 
 **RuntimeHooks:** Inicializa WebDriver e contexto antes de cada cenário. Captura evidências em falha.
 
-### Automation.Validator
+### Automation.Validator (Roadmap)
 CLI que valida integridade de contratos antes da execução (Shift-Left).
 
 ## Fluxo de Execução

@@ -51,6 +51,10 @@ public class UiPage
         }
     }
 
+    public bool HasAnchor => !string.IsNullOrWhiteSpace(Anchor);
+    public bool HasRoute => !string.IsNullOrWhiteSpace(Route);
+    public bool IsIdentifiable => HasRoute || HasAnchor;
+
     public string GetTestIdOrThrow(string elementName)
     {
         if (_data.Contains(elementName))
