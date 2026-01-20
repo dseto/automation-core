@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsTestProject>true</IsTestProject>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Test runner -->
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
+    <PackageReference Include="xunit" Version="2.*" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.*" PrivateAssets="all" />
+
+    <ProjectReference Include="C:\Projetos\automation-core\src\Automation.Core\Automation.Core.csproj" />
+    <ProjectReference Include="C:\Projetos\automation-core\src\Automation.Reqnroll\Automation.Reqnroll.csproj" />
+
+    <!-- Reqnroll (SpecFlow successor) -->
+    <PackageReference Include="Reqnroll.xUnit" Version="2.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- ui-map.yaml -->
+    <None Update="ui\ui-map.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+
+    <!-- data-map.yaml -->
+    <None Update="data\data-map.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+
+    <!-- reqnroll.json -->
+    <None Update="reqnroll.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

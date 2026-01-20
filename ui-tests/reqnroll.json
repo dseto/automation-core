@@ -1,0 +1,8 @@
+{
+  "stepAssemblies": [
+    { "assembly": "Automation.Reqnroll" }
+  ],
+  "bindingCulture": {
+    "name": "pt-BR"
+  }
+}

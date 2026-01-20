@@ -1,0 +1,223 @@
+pages:
+  connectors:
+    __meta:
+      route: /connectors
+      anchor: page.connectors
+    actions:
+      test_id: page.connectors.actions-
+    skeleton:
+      test_id: page.connectors.skeleton
+    table:
+      test_id: page.connectors.table
+
+  dashboard:
+    __meta:
+      route: /dashboard
+      anchor: page.dashboard
+    action-connectors:
+      test_id: page.dashboard.action-connectors
+    action-new-process:
+      test_id: page.dashboard.action-new-process
+    action-preview:
+      test_id: page.dashboard.action-preview
+    action-runner:
+      test_id: page.dashboard.action-runner
+    edit-process:
+      test_id: page.dashboard.edit-process-
+    process:
+      test_id: page.dashboard.process-
+    processes-table:
+      test_id: page.dashboard.processes-table
+    recent-card:
+      test_id: page.dashboard.recent-card
+    skeleton:
+      test_id: page.dashboard.skeleton
+    stat-active:
+      test_id: page.dashboard.stat-active
+    stat-disabled:
+      test_id: page.dashboard.stat-disabled
+    stat-draft:
+      test_id: page.dashboard.stat-draft
+    stat-total:
+      test_id: page.dashboard.stat-total
+    view-all-processes:
+      test_id: page.dashboard.view-all-processes
+
+  login:
+    __meta:
+      route: /login
+      anchor: page.login
+    error:
+      test_id: page.login.error
+    password:
+      test_id: page.login.password
+    submit:
+      test_id: page.login.submit
+    toggle-password:
+      test_id: page.login.toggle-password
+    username:
+      test_id: page.login.username
+
+  preview:
+    __meta:
+      route: /preview
+      anchor: page.preview
+    dsl-text:
+      test_id: page.preview.dsl-text
+    output-schema:
+      test_id: page.preview.output-schema
+    run-button:
+      test_id: page.preview.run-button
+    sample-input:
+      test_id: page.preview.sample-input
+
+  process-editor:
+    __meta:
+      route: /processes/new
+      anchor: page.process-editor
+    add-destination:
+      test_id: page.process-editor.add-destination
+    connector-id:
+      test_id: page.process-editor.connector-id
+    connector-id-error:
+      test_id: page.process-editor.connector-id-error
+    description:
+      test_id: page.process-editor.description
+    id:
+      test_id: page.process-editor.id
+    id-error:
+      test_id: page.process-editor.id-error
+    name:
+      test_id: page.process-editor.name
+    name-error:
+      test_id: page.process-editor.name-error
+    skeleton:
+      test_id: page.process-editor.skeleton
+    status:
+      test_id: page.process-editor.status
+
+  processes:
+    __meta:
+      route: /processes
+      anchor: page.processes
+    actions:
+      test_id: page.processes.actions-
+    paginator:
+      test_id: page.processes.paginator
+    process:
+      test_id: page.processes.process-
+    search:
+      test_id: page.processes.search
+    skeleton:
+      test_id: page.processes.skeleton
+    table:
+      test_id: page.processes.table
+
+  version-editor:
+    __meta:
+      route: /processes/:id/versions/new
+      anchor: page.version-editor
+    ai-panel:
+      test_id: page.version-editor.ai-panel
+    constraints-panel:
+      test_id: page.version-editor.constraints-panel
+    content-type:
+      test_id: page.version-editor.content-type
+    enabled:
+      test_id: page.version-editor.enabled
+    method:
+      test_id: page.version-editor.method
+    path:
+      test_id: page.version-editor.path
+    path-error:
+      test_id: page.version-editor.path-error
+    preview:
+      test_id: page.version-editor.preview
+    preview-tab-csv:
+      test_id: page.version-editor.preview-tab-csv
+    preview-tab-errors:
+      test_id: page.version-editor.preview-tab-errors
+    preview-tab-json:
+      test_id: page.version-editor.preview-tab-json
+    preview-tabs:
+      test_id: page.version-editor.preview-tabs
+    skeleton:
+      test_id: page.version-editor.skeleton
+    version:
+      test_id: page.version-editor.version
+    version-error:
+      test_id: page.version-editor.version-error
+    version-min-error:
+      test_id: page.version-editor.version-min-error
+
+  confirm:
+    __meta:
+      anchor: modal.confirm
+    cancel:
+      test_id: modal.confirm.cancel
+    confirm:
+      test_id: modal.confirm.confirm
+    message:
+      test_id: modal.confirm.message
+    title:
+      test_id: modal.confirm.title
+
+  connector:
+    __meta:
+      anchor: modal.connector
+    api-key-location:
+      test_id: modal.connector.api-key-location
+    api-key-name:
+      test_id: modal.connector.api-key-name
+    api-key-value:
+      test_id: modal.connector.api-key-value
+    api-token:
+      test_id: modal.connector.api-token
+    auth-type:
+      test_id: modal.connector.auth-type
+    base-url:
+      test_id: modal.connector.base-url
+    base-url-error:
+      test_id: modal.connector.base-url-error
+    base-url-pattern-error:
+      test_id: modal.connector.base-url-pattern-error
+    basic-password:
+      test_id: modal.connector.basic-password
+    basic-username:
+      test_id: modal.connector.basic-username
+    cancel:
+      test_id: modal.connector.cancel
+    clear-api-key:
+      test_id: modal.connector.clear-api-key
+    clear-api-token:
+      test_id: modal.connector.clear-api-token
+    clear-basic-password:
+      test_id: modal.connector.clear-basic-password
+    defaults-method:
+      test_id: modal.connector.defaults-method
+    defaults-panel:
+      test_id: modal.connector.defaults-panel
+    defaults-title:
+      test_id: modal.connector.defaults-title
+    defaults-content-type:
+      test_id: modal.connector.defaults-content-type
+    defaults-body:
+      test_id: modal.connector.defaults-body
+    id:
+      test_id: modal.connector.id
+    id-error:
+      test_id: modal.connector.id-error
+    name:
+      test_id: modal.connector.name
+    name-error:
+      test_id: modal.connector.name-error
+    save:
+      test_id: modal.connector.save
+    timeout:
+      test_id: modal.connector.timeout
+    timeout-error:
+      test_id: modal.connector.timeout-error
+    timeout-min-error:
+      test_id: modal.connector.timeout-min-error
+    title:
+      test_id: modal.connector.title

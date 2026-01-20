@@ -1,0 +1,17 @@
+contexts:
+  default:
+    user_admin:
+      username: "admin"
+      password: "ChangeMe123!"
+    
+    invalid_user:
+      username: "usuario_invalido"
+      password: "senha_errada"
+
+datasets:
+  cpfs_teste:
+    strategy: sequential
+    items:
+      - "123.456.789-00"
+      - "987.654.321-11"
+      - "555.666.777-88"
