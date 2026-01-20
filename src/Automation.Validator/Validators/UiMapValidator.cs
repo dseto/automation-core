@@ -38,6 +38,10 @@ public class UiMapValidator
 
     private void ValidatePage(string pageName, UiPage page, string filePath, ValidationResult result)
     {
+        // Determinar se é uma página ou modal baseado no anchor
+        var isModal = page.Anchor?.StartsWith("modal.") == true;
+        var prefix = isModal ? "modal" : "page";
+        
         // Validar que a página tem pelo menos um elemento
         if (page.Elements.Count == 0)
         {
@@ -48,16 +52,16 @@ public class UiMapValidator
             ));
         }
 
-        // Validar rota
-        if (string.IsNullOrWhiteSpace(page.Route))
+        // Validar rota (modais podem não ter rota)
+        if (string.IsNullOrWhiteSpace(page.Route) && !isModal)
         {
-            result.AddError(new ValidationError(
+            result.AddWarning(new ValidationWarning(
                 "UIMAP_PAGE_NO_ROUTE",
-                $"Página '{pageName}' não possui rota definida.",
+                $"Página '{pageName}' não possui rota definida. Se for um modal, defina anchor com prefixo 'modal.'",
                 filePath
             ));
         }
-        else if (!page.Route.StartsWith("/"))
+        else if (!string.IsNullOrWhiteSpace(page.Route) && !page.Route.StartsWith("/") && !page.Route.Contains(":"))
         {
             result.AddError(new ValidationError(
                 "UIMAP_INVALID_ROUTE",
@@ -66,11 +70,21 @@ public class UiMapValidator
             ));
         }
 
+        // Validar anchor
+        if (string.IsNullOrWhiteSpace(page.Anchor))
+        {
+            result.AddWarning(new ValidationWarning(
+                "UIMAP_PAGE_NO_ANCHOR",
+                $"Página '{pageName}' não possui anchor definido. Recomendado para SPAs.",
+                filePath
+            ));
+        }
+
         // Validar elementos
         var testedElements = new HashSet<string>();
         foreach (var (elementName, element) in page.Elements)
         {
-            ValidateElement(pageName, elementName, element, filePath, result);
+            ValidateElement(pageName, elementName, element, prefix, filePath, result);
             testedElements.Add(elementName);
         }
 
@@ -92,7 +106,7 @@ public class UiMapValidator
         }
     }
 
-    private void ValidateElement(string pageName, string elementName, UiElement element, string filePath, ValidationResult result)
+    private void ValidateElement(string pageName, string elementName, UiElement element, string prefix, string filePath, ValidationResult result)
     {
         if (string.IsNullOrWhiteSpace(element.TestId))
         {
@@ -104,9 +118,14 @@ public class UiMapValidator
         }
         else
         {
-            // Validar padrão de testId (deve ser page.pageName.elementName)
-            var expectedPattern = $"page.{pageName}.{elementName}";
-            if (element.TestId != expectedPattern)
+            // Validar padrão de testId (deve ser page.pageName.elementName ou modal.pageName.elementName)
+            var expectedPattern = $"{prefix}.{pageName}.{elementName}";
+            
+            // Aceitar também testIds com sufixo (para elementos dinâmicos como page.dashboard.process-)
+            var testIdBase = element.TestId.TrimEnd('-');
+            var expectedBase = expectedPattern.TrimEnd('-');
+            
+            if (element.TestId != expectedPattern && testIdBase != expectedBase && !element.TestId.StartsWith($"{prefix}.{pageName}."))
             {
                 result.AddWarning(new ValidationWarning(
                     "UIMAP_TESTID_PATTERN",
@@ -119,13 +138,16 @@ public class UiMapValidator
 
     private void ValidateCrossReferences(UiMapModel uiMap, string filePath, ValidationResult result)
     {
-        // Validar que não há rotas duplicadas
+        // Validar que não há rotas duplicadas (exceto rotas vazias para modais)
         var routes = new Dictionary<string, string>();
         foreach (var (pageName, page) in uiMap.Pages)
         {
             if (!string.IsNullOrWhiteSpace(page.Route))
             {
-                if (routes.TryGetValue(page.Route, out var existingPage))
+                // Normalizar rotas com parâmetros (ex: /processes/:id -> /processes/:id)
+                var normalizedRoute = page.Route;
+                
+                if (routes.TryGetValue(normalizedRoute, out var existingPage))
                 {
                     result.AddError(new ValidationError(
                         "UIMAP_DUPLICATE_ROUTE",
@@ -135,7 +157,31 @@ public class UiMapValidator
                 }
                 else
                 {
-                    routes[page.Route] = pageName;
+                    routes[normalizedRoute] = pageName;
+                }
+            }
+        }
+
+        // Validar unicidade global de testIds
+        var globalTestIds = new Dictionary<string, (string page, string element)>();
+        foreach (var (pageName, page) in uiMap.Pages)
+        {
+            foreach (var (elementName, element) in page.Elements)
+            {
+                if (!string.IsNullOrWhiteSpace(element.TestId))
+                {
+                    if (globalTestIds.TryGetValue(element.TestId, out var existing))
+                    {
+                        result.AddError(new ValidationError(
+                            "UIMAP_GLOBAL_DUPLICATE_TESTID",
+                            $"TestId '{element.TestId}' duplicado: usado em '{existing.page}.{existing.element}' e '{pageName}.{elementName}'",
+                            filePath
+                        ));
+                    }
+                    else
+                    {
+                        globalTestIds[element.TestId] = (pageName, elementName);
+                    }
                 }
             }
         }
