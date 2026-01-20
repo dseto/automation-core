@@ -32,7 +32,7 @@ Esta Wiki está organizada nos seguintes documentos:
 | **[05-VALIDATOR-PROJECT.md](05-VALIDATOR-PROJECT.md)** | Detalhamento do `Automation.Validator`, a ferramenta CLI de Shift-Left. |
 | **[06-EXTENSION-GUIDE.md](06-EXTENSION-GUIDE.md)** | **Leitura essencial.** Como estender a plataforma com novos steps, serviços e estratégias. |
 | **[07-CONTRIBUTION-GUIDE.md](07-CONTRIBUTION-GUIDE.md)** | Como contribuir para o desenvolvimento da plataforma, padrões de código e processo de PR. |
-
+| **[08-ESCAPE-HATCH-MECHANISM.md](08-ESCAPE-HATCH-MECHANISM.md)** | Implementação e considerações arquiteturais do mecanismo de execução de JavaScript. |
 ---
 
 ## 💡 Princípios de Design

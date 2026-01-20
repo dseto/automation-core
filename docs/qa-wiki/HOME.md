@@ -22,13 +22,16 @@ Nossa plataforma segue o princípio **"Zero Code"** e utiliza **BDD (Behavior-Dr
 
 ## 🗺️ Mapa da Wiki
 
-| Seção | Foco | Arquivos |
-| :--- | :--- | :--- |
-| **1. Guia Gherkin** | Como escrever cenários `.feature` em PT-BR, tags e a nova sintaxe de dados. | `01-GHERKIN-GUIDE.md` |
-| **2. Guia UiMap** | Como mapear elementos, definir páginas e usar o **Anchor Pattern** para SPAs. | `02-UIMAP-GUIDE.md` |
-| **3. Guia DataMap** | Como gerenciar dados de teste, contextos, objetos (`@`) e datasets (`{{}}`). | `03-DATAMAP-GUIDE.md` |
-| **4. Guia Validator** | Como usar a ferramenta CLI para validar seus arquivos antes de rodar os testes. | `04-VALIDATION-GUIDE.md` |
+Esta Wiki está organizada nos seguintes documentos:
 
+| Documento | Propósito |
+|-----------|----------|
+| **[HOME.md](HOME.md)** | **Você está aqui.** Boas-vindas, princípios fundamentais e mapa da Wiki. |
+| **[01-GHERKIN-GUIDE.md](01-GHERKIN-GUIDE.md)** | Como escrever cenários `.feature` em PT-BR, tags, estrutura de dados e a nova sintaxe de dados. |
+| **[02-UIMAP-GUIDE.md](02-UIMAP-GUIDE.md)** | Como mapear elementos, definir páginas e usar o **Anchor Pattern** para SPAs e modais. |
+| **[03-DATAMAP-GUIDE.md](03-DATAMAP-GUIDE.md)** | Como gerenciar dados de teste, contextos, objetos (`@`) e datasets (`{{}}`). |
+| **[04-VALIDATION-GUIDE.md](04-VALIDATION-GUIDE.md)** | Como usar a ferramenta CLI `Automation.Validator` para validar seus arquivos antes de rodar os testes. |
+| **[05-ESCAPE-HATCH-GUIDE.md](05-ESCAPE-HATCH-GUIDE.md)** | Guia sobre execução de JavaScript (Escape Hatch) como último recurso em cenários complexos. |
 ---
 
 ## 💡 O que há de Novo (Melhorias Críticas)
@@ -42,6 +45,20 @@ Nossa plataforma segue o princípio **"Zero Code"** e utiliza **BDD (Behavior-Dr
 
 ---
 
+## � Como Começar
+
+1.  **Iniciante na plataforma:** Comece com [01-GHERKIN-GUIDE.md](01-GHERKIN-GUIDE.md) para aprender a escrever seus primeiros cenários.
+2.  **Mapeamento de elementos:** Mergulhe em [02-UIMAP-GUIDE.md](02-UIMAP-GUIDE.md) para entender como mapear elementos com `data-testid`.
+3.  **Gerenciar dados de teste:** Consulte [03-DATAMAP-GUIDE.md](03-DATAMAP-GUIDE.md) para aprender a estruturar dados.
+4.  **Validação antes de rodar:** Sempre use [04-VALIDATION-GUIDE.md](04-VALIDATION-GUIDE.md) para validar seus arquivos com a CLI.
+5.  **Casos avançados:** Consulte [05-ESCAPE-HATCH-GUIDE.md](05-ESCAPE-HATCH-GUIDE.md) apenas quando necessário usar JavaScript.
+
+---
+
 ## 📞 Suporte
 
 Em caso de dúvidas, consulte primeiro esta Wiki. Se o problema persistir, entre em contato com a equipe de Automação Core.
+
+---
+
+**Próximo Documento:** [01 - Guia Gherkin](01-GHERKIN-GUIDE.md)
