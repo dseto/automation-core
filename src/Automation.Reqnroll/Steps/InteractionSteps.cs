@@ -29,7 +29,6 @@ public sealed class InteractionSteps
     [When(@"eu digito ""(.*)"" em ""(.*)""")]
     public void QuandoEuPreenchoCom(string elementRef, string dataKey)
     {
-        _rt.Debug.MaybePauseEachStep($"fill {elementRef} with {dataKey}");
         _rt.Waits.WaitDomReady(_rt.Driver);
         _rt.Waits.TryWaitAngularStable(_rt.Driver, out _);
 
@@ -51,7 +50,6 @@ public sealed class InteractionSteps
     [When(@"eu preencho os campos com os dados de ""(.*)""")]
     public void QuandoEuPreenchoCamposComDadosDe(string dataKey)
     {
-        _rt.Debug.MaybePauseEachStep($"fill multiple fields with data from {dataKey}");
         
         var data = _rt.Data.Resolve(dataKey);
         if (data is IDictionary dataMap)
@@ -103,13 +101,33 @@ public sealed class InteractionSteps
     }
 
     /// <summary>
+    /// Preenche um campo com um valor literal (NÃO resolve via DataMap).
+    /// Use quando o valor deve ser usado exatamente como digitado.
+    /// </summary>
+    [When(@"eu preencho ""(.*)"" com valor literal ""(.*)""")]
+    [When(@"eu preencho o campo ""(.*)"" com valor literal ""(.*)""")]
+    public void QuandoEuPreenchoComValorLiteral(string elementRef, string literalValue)
+    {
+        _rt.Waits.WaitDomReady(_rt.Driver);
+        _rt.Waits.TryWaitAngularStable(_rt.Driver, out _);
+
+        var rr = _rt.Resolver.Resolve(elementRef);
+        var el = _rt.Waits.WaitVisibleByCss(_rt.Driver, rr.CssLocator);
+        _rt.Debug.TryHighlight(_rt.Driver, el);
+
+        el.Clear();
+        el.SendKeys(literalValue);
+
+        _rt.Debug.MaybeSlowMo();
+    }
+
+    /// <summary>
     /// Limpa o conteúdo de um campo.
     /// </summary>
     [When(@"eu limpo o campo ""(.*)""")]
     [When(@"eu limpo ""(.*)""")]
     public void QuandoEuLimpoOCampo(string elementRef)
     {
-        _rt.Debug.MaybePauseEachStep($"clear {elementRef}");
         _rt.Waits.WaitDomReady(_rt.Driver);
         _rt.Waits.TryWaitAngularStable(_rt.Driver, out _);
 
@@ -135,7 +153,6 @@ public sealed class InteractionSteps
     [When(@"eu clico no elemento ""(.*)""")]
     public void QuandoEuClicoEm(string elementRef)
     {
-        _rt.Debug.MaybePauseEachStep($"click {elementRef}");
         _rt.Waits.WaitDomReady(_rt.Driver);
         _rt.Waits.TryWaitAngularStable(_rt.Driver, out _);
 
@@ -175,7 +192,6 @@ public sealed class InteractionSteps
     [When(@"eu clico no botão ""(.*)"" e aguardo a rota ""(.*)""")]
     public void QuandoEuClicoEAguardoRota(string elementRef, string expectedRoute)
     {
-        _rt.Debug.MaybePauseEachStep($"click {elementRef} and wait for {expectedRoute}");
         _rt.Waits.WaitDomReady(_rt.Driver);
         _rt.Waits.TryWaitAngularStable(_rt.Driver, out _);
 
@@ -194,7 +210,6 @@ public sealed class InteractionSteps
     [When(@"eu dou duplo clique em ""(.*)""")]
     public void QuandoEuDouDuploCliqueEm(string elementRef)
     {
-        _rt.Debug.MaybePauseEachStep($"double-click {elementRef}");
         _rt.Waits.WaitDomReady(_rt.Driver);
         _rt.Waits.TryWaitAngularStable(_rt.Driver, out _);
 
@@ -219,7 +234,6 @@ public sealed class InteractionSteps
     [When(@"eu seleciono a opção ""(.*)"" em ""(.*)""")]
     public void QuandoEuSelecionoEm(string optionText, string elementRef)
     {
-        _rt.Debug.MaybePauseEachStep($"select {optionText} in {elementRef}");
         _rt.Waits.WaitDomReady(_rt.Driver);
         _rt.Waits.TryWaitAngularStable(_rt.Driver, out _);
 
@@ -239,7 +253,6 @@ public sealed class InteractionSteps
     [When(@"eu seleciono o valor ""(.*)"" em ""(.*)""")]
     public void QuandoEuSelecionoValorEm(string value, string elementRef)
     {
-        _rt.Debug.MaybePauseEachStep($"select value {value} in {elementRef}");
         _rt.Waits.WaitDomReady(_rt.Driver);
         _rt.Waits.TryWaitAngularStable(_rt.Driver, out _);
 
@@ -264,7 +277,6 @@ public sealed class InteractionSteps
     [When(@"eu pressiono ""(.*)""")]
     public void QuandoEuPressionoTecla(string keyName)
     {
-        _rt.Debug.MaybePauseEachStep($"press key {keyName}");
 
         var key = keyName.ToUpperInvariant() switch
         {
@@ -302,7 +314,6 @@ public sealed class InteractionSteps
     [When(@"eu pressiono ""(.*)"" em ""(.*)""")]
     public void QuandoEuPressionoTeclaEm(string keyName, string elementRef)
     {
-        _rt.Debug.MaybePauseEachStep($"press key {keyName} in {elementRef}");
         _rt.Waits.WaitDomReady(_rt.Driver);
 
         var rr = _rt.Resolver.Resolve(elementRef);
@@ -333,7 +344,6 @@ public sealed class InteractionSteps
     [When(@"eu aguardo (\d+) segundos?")]
     public void QuandoEuAguardoSegundos(int seconds)
     {
-        _rt.Debug.MaybePauseEachStep($"wait {seconds}s");
         System.Threading.Thread.Sleep(seconds * 1000);
         _rt.Debug.MaybeSlowMo();
     }
@@ -344,7 +354,6 @@ public sealed class InteractionSteps
     [When(@"eu aguardo o elemento ""(.*)"" estar visível")]
     public void QuandoEuAguardoElementoVisivel(string elementRef)
     {
-        _rt.Debug.MaybePauseEachStep($"wait visible {elementRef}");
         _rt.Waits.WaitDomReady(_rt.Driver);
 
         var rr = _rt.Resolver.Resolve(elementRef);
@@ -360,7 +369,6 @@ public sealed class InteractionSteps
     [When(@"eu aguardo o elemento ""(.*)"" desaparecer")]
     public void QuandoEuAguardoElementoDesaparecer(string elementRef)
     {
-        _rt.Debug.MaybePauseEachStep($"wait not visible {elementRef}");
 
         var rr = _rt.Resolver.Resolve(elementRef);
         _rt.Waits.WaitElementNotVisible(_rt.Driver, rr.CssLocator);
@@ -379,7 +387,6 @@ public sealed class InteractionSteps
     [When(@"eu executo o script JS ""(.*)""")]
     public void QuandoEuExecutoOScriptJS(string script)
     {
-        _rt.Debug.MaybePauseEachStep($"execute global script: {script}");
         _rt.Waits.WaitDomReady(_rt.Driver);
         
         try
@@ -402,7 +409,6 @@ public sealed class InteractionSteps
     [When(@"eu executo o script ""(.*)"" no elemento ""(.*)""")]
     public void QuandoEuExecutoOScriptNoElemento(string script, string elementRef)
     {
-        _rt.Debug.MaybePauseEachStep($"execute script on {elementRef}: {script}");
         _rt.Waits.WaitDomReady(_rt.Driver);
         
         var rr = _rt.Resolver.Resolve(elementRef);
@@ -443,8 +449,14 @@ public sealed class InteractionSteps
             return _rt.Data.Resolve(dataKey)?.ToString() ?? "";
         }
 
-        // 3. Tenta resolver diretamente via DataResolver (Fallback para literal)
-        return _rt.Data.Resolve(value)?.ToString() ?? value;
+        // 3. Suporta @OBJECT_KEY (Referência de objeto no DataMap)
+        if (value.StartsWith("@"))
+        {
+            return _rt.Data.Resolve(value)?.ToString() ?? "";
+        }
+
+        // 4. Valor literal - NÃO re-resolver via DataResolver
+        return value;
     }
 
     #endregion

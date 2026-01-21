@@ -13,7 +13,6 @@ $env:UI_DEBUG = "false"
 $env:SLOWMO_MS = "0"
 $env:HIGHLIGHT = "false"
 $env:PAUSE_ON_FAILURE = "false"
-$env:PAUSE_EACH_STEP = "false"
 
 Write-Host "== Smoke (headless) =="
 dotnet test $TestProject --filter "Category=smoke" -- RunConfiguration.MaxCpuCount=1

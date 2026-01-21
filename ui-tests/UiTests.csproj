@@ -10,15 +10,15 @@
 
   <ItemGroup>
     <!-- Test runner -->
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
-    <PackageReference Include="xunit" Version="2.*" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.*" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
 
-    <ProjectReference Include="C:\Projetos\automation-core\src\Automation.Core\Automation.Core.csproj" />
-    <ProjectReference Include="C:\Projetos\automation-core\src\Automation.Reqnroll\Automation.Reqnroll.csproj" />
+    <ProjectReference Include="..\src\Automation.Core\Automation.Core.csproj" />
+    <ProjectReference Include="..\src\Automation.Reqnroll\Automation.Reqnroll.csproj" />
 
     <!-- Reqnroll (SpecFlow successor) -->
-    <PackageReference Include="Reqnroll.xUnit" Version="2.*" />
+    <PackageReference Include="Reqnroll.xUnit" />
   </ItemGroup>
 
   <ItemGroup>

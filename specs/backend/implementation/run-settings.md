@@ -36,8 +36,6 @@
   Destaca elemento durante interações (quando implementado/ligado).
 - `PAUSE_ON_FAILURE` (bool, default: **UI_DEBUG**)  
   Pausa ao falhar (quando implementado/ligado).
-- `PAUSE_EACH_STEP` (bool, default: `false`)  
-  Pausa entre steps (quando implementado/ligado).
 
 ### Angular / Waits
 - `WAIT_ANGULAR` (bool, default: `true`)  

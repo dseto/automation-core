@@ -1,9 +1,42 @@
 ---
 applyTo: '**'
 ---
-Provide project context and coding guidelines that AI should follow when generating code, answering questions, or reviewing changes.
+# Copilot Instructions — Spec Driven Automation Platform
 
-# Instruções do Projeto — Automation Core (Copilot)
+Este repositório segue **Spec-Driven Design**.
+
+## Fonte de verdade (SSOT)
+Antes de alterar qualquer código, SEMPRE consulte:
+- specs/releases/delta/* (entregas)
+- specs/backend/rules/*
+- specs/backend/implementation/run-settings.md
+- specs/tests/validation/*
+- specs/api/schemas/*
+- specs/api/examples/*
+
+## Fluxo obrigatório
+1. Ler o delta pack da entrega.
+2. Atualizar specs se necessário.
+3. Só então alterar código.
+4. Rodar restore/build/test a cada etapa.
+
+## Regras
+- Mudanças pequenas e rastreáveis.
+- Não quebrar compatibilidade sem delta pack + migration.md.
+- Validator deve refletir as regras do spec.
+- Não adicionar dependência de framework de teste dentro de Automation.Reqnroll.
+
+## Padrões importantes
+- UiMap aceita testId e test_id.
+- DataMap aceita {{dataset}} e valores literais não devem ser reprocessados.
+- Selenium Manager é a fonte de drivers.
+- RunSettings devem refletir specs/backend/implementation/run-settings.md.
+
+## Sempre entregar
+- Lista de arquivos alterados.
+- Resumo das mudanças.
+- Como validar.
+
 
 ## Contexto
 Este repositório implementa um framework corporativo de automação de UI:

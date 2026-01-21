@@ -1,7 +1,7 @@
 using System;
 using Automation.Reqnroll.Runtime;
 using Reqnroll;
-using Xunit;
+using Automation.Reqnroll.Helpers;
 
 namespace Automation.Reqnroll.Steps;
 
@@ -25,10 +25,9 @@ public sealed class ValidationSteps
     [Then(@"a URL deve conter ""(.*)""")]
     public void EntaoARotaDeveSer(string expectedRoute)
     {
-        _rt.Debug.MaybePauseEachStep($"verify route {expectedRoute}");
         _rt.Waits.WaitForUrlContains(_rt.Driver, expectedRoute);
         
-        Assert.Contains(expectedRoute, _rt.Driver.Url, StringComparison.OrdinalIgnoreCase);
+        AssertHelper.Contains(expectedRoute, _rt.Driver.Url, StringComparison.OrdinalIgnoreCase);
         _rt.Debug.MaybeSlowMo();
     }
 
@@ -46,7 +45,6 @@ public sealed class ValidationSteps
     [Given(@"o elemento ""(.*)"" está visível")]
     public void EntaoOElementoDeveEstarVisivel(string elementRef)
     {
-        _rt.Debug.MaybePauseEachStep($"verify visible {elementRef}");
         _rt.Waits.WaitDomReady(_rt.Driver);
         _rt.Waits.TryWaitAngularStable(_rt.Driver, out _);
 
@@ -54,7 +52,7 @@ public sealed class ValidationSteps
         var el = _rt.Waits.WaitVisibleByCss(_rt.Driver, rr.CssLocator);
         _rt.Debug.TryHighlight(_rt.Driver, el);
 
-        Assert.True(el.Displayed, $"Elemento '{elementRef}' deveria estar visível.");
+        AssertHelper.True(el.Displayed, $"Elemento '{elementRef}' deveria estar visível.");
         _rt.Debug.MaybeSlowMo();
     }
 
@@ -65,7 +63,6 @@ public sealed class ValidationSteps
     [Then(@"o elemento ""(.*)"" não está visível")]
     public void EntaoOElementoNaoDeveEstarVisivel(string elementRef)
     {
-        _rt.Debug.MaybePauseEachStep($"verify not visible {elementRef}");
         _rt.Waits.WaitDomReady(_rt.Driver);
 
         var rr = _rt.Resolver.Resolve(elementRef);
@@ -76,7 +73,7 @@ public sealed class ValidationSteps
         }
         catch
         {
-            Assert.Fail($"Elemento '{elementRef}' deveria NÃO estar visível, mas está.");
+            AssertHelper.Fail($"Elemento '{elementRef}' deveria NÃO estar visível, mas está.");
         }
 
         _rt.Debug.MaybeSlowMo();
@@ -88,13 +85,12 @@ public sealed class ValidationSteps
     [Then(@"o elemento ""(.*)"" deve existir")]
     public void EntaoOElementoDeveExistir(string elementRef)
     {
-        _rt.Debug.MaybePauseEachStep($"verify exists {elementRef}");
         _rt.Waits.WaitDomReady(_rt.Driver);
 
         var rr = _rt.Resolver.Resolve(elementRef);
         var elements = _rt.Driver.FindElements(OpenQA.Selenium.By.CssSelector(rr.CssLocator));
 
-        Assert.True(elements.Count > 0, $"Elemento '{elementRef}' deveria existir no DOM.");
+        AssertHelper.True(elements.Count > 0, $"Elemento '{elementRef}' deveria existir no DOM.");
         _rt.Debug.MaybeSlowMo();
     }
 
@@ -104,13 +100,12 @@ public sealed class ValidationSteps
     [Then(@"o elemento ""(.*)"" não deve existir")]
     public void EntaoOElementoNaoDeveExistir(string elementRef)
     {
-        _rt.Debug.MaybePauseEachStep($"verify not exists {elementRef}");
         _rt.Waits.WaitDomReady(_rt.Driver);
 
         var rr = _rt.Resolver.Resolve(elementRef);
         var elements = _rt.Driver.FindElements(OpenQA.Selenium.By.CssSelector(rr.CssLocator));
 
-        Assert.True(elements.Count == 0, $"Elemento '{elementRef}' NÃO deveria existir no DOM.");
+        AssertHelper.True(elements.Count == 0, $"Elemento '{elementRef}' NÃO deveria existir no DOM.");
         _rt.Debug.MaybeSlowMo();
     }
 
@@ -125,14 +120,13 @@ public sealed class ValidationSteps
     [Then(@"o elemento ""(.*)"" contém o texto ""(.*)""")]
     public void EntaoOElementoDeveConterTexto(string elementRef, string expectedText)
     {
-        _rt.Debug.MaybePauseEachStep($"verify text contains {expectedText} in {elementRef}");
         _rt.Waits.WaitDomReady(_rt.Driver);
 
         var rr = _rt.Resolver.Resolve(elementRef);
         var el = _rt.Waits.WaitElementContainsText(_rt.Driver, rr.CssLocator, expectedText);
         _rt.Debug.TryHighlight(_rt.Driver, el);
 
-        Assert.Contains(expectedText, el.Text, StringComparison.OrdinalIgnoreCase);
+        AssertHelper.Contains(expectedText, el.Text, StringComparison.OrdinalIgnoreCase);
         _rt.Debug.MaybeSlowMo();
     }
 
@@ -143,14 +137,13 @@ public sealed class ValidationSteps
     [Then(@"o texto de ""(.*)"" deve ser ""(.*)""")]
     public void EntaoOElementoDeveTerTexto(string elementRef, string expectedText)
     {
-        _rt.Debug.MaybePauseEachStep($"verify text equals {expectedText} in {elementRef}");
         _rt.Waits.WaitDomReady(_rt.Driver);
 
         var rr = _rt.Resolver.Resolve(elementRef);
         var el = _rt.Waits.WaitVisibleByCss(_rt.Driver, rr.CssLocator);
         _rt.Debug.TryHighlight(_rt.Driver, el);
 
-        Assert.Equal(expectedText, el.Text.Trim());
+        AssertHelper.Equal(expectedText, el.Text.Trim());
         _rt.Debug.MaybeSlowMo();
     }
 
@@ -160,14 +153,13 @@ public sealed class ValidationSteps
     [Then(@"o elemento ""(.*)"" não deve conter o texto ""(.*)""")]
     public void EntaoOElementoNaoDeveConterTexto(string elementRef, string text)
     {
-        _rt.Debug.MaybePauseEachStep($"verify text not contains {text} in {elementRef}");
         _rt.Waits.WaitDomReady(_rt.Driver);
 
         var rr = _rt.Resolver.Resolve(elementRef);
         var el = _rt.Waits.WaitVisibleByCss(_rt.Driver, rr.CssLocator);
         _rt.Debug.TryHighlight(_rt.Driver, el);
 
-        Assert.DoesNotContain(text, el.Text, StringComparison.OrdinalIgnoreCase);
+        AssertHelper.DoesNotContain(text, el.Text, StringComparison.OrdinalIgnoreCase);
         _rt.Debug.MaybeSlowMo();
     }
 
@@ -177,7 +169,6 @@ public sealed class ValidationSteps
     [Then(@"o elemento ""(.*)"" deve estar vazio")]
     public void EntaoOElementoDeveEstarVazio(string elementRef)
     {
-        _rt.Debug.MaybePauseEachStep($"verify empty {elementRef}");
         _rt.Waits.WaitDomReady(_rt.Driver);
 
         var rr = _rt.Resolver.Resolve(elementRef);
@@ -187,7 +178,7 @@ public sealed class ValidationSteps
         var text = el.Text?.Trim() ?? "";
         var value = el.GetDomAttribute("value")?.Trim() ?? "";
 
-        Assert.True(string.IsNullOrEmpty(text) && string.IsNullOrEmpty(value),
+        AssertHelper.True(string.IsNullOrEmpty(text) && string.IsNullOrEmpty(value),
             $"Elemento '{elementRef}' deveria estar vazio, mas contém: text='{text}', value='{value}'");
 
         _rt.Debug.MaybeSlowMo();
@@ -204,7 +195,6 @@ public sealed class ValidationSteps
     [Then(@"o atributo ""(.*)"" do elemento ""(.*)"" deve ser ""(.*)""")]
     public void EntaoOAtributoDeveSer(string attributeName, string elementRef, string expectedValue)
     {
-        _rt.Debug.MaybePauseEachStep($"verify attribute {attributeName}={expectedValue} in {elementRef}");
         _rt.Waits.WaitDomReady(_rt.Driver);
 
         var rr = _rt.Resolver.Resolve(elementRef);
@@ -212,7 +202,7 @@ public sealed class ValidationSteps
         _rt.Debug.TryHighlight(_rt.Driver, el);
 
         var actualValue = el.GetDomAttribute(attributeName);
-        Assert.Equal(expectedValue, actualValue);
+        AssertHelper.Equal(expectedValue, actualValue);
 
         _rt.Debug.MaybeSlowMo();
     }
@@ -223,7 +213,6 @@ public sealed class ValidationSteps
     [Then(@"o atributo ""(.*)"" de ""(.*)"" deve conter ""(.*)""")]
     public void EntaoOAtributoDeveConter(string attributeName, string elementRef, string expectedValue)
     {
-        _rt.Debug.MaybePauseEachStep($"verify attribute {attributeName} contains {expectedValue} in {elementRef}");
         _rt.Waits.WaitDomReady(_rt.Driver);
 
         var rr = _rt.Resolver.Resolve(elementRef);
@@ -231,7 +220,7 @@ public sealed class ValidationSteps
         _rt.Debug.TryHighlight(_rt.Driver, el);
 
         var actualValue = el.GetDomAttribute(attributeName) ?? "";
-        Assert.Contains(expectedValue, actualValue, StringComparison.OrdinalIgnoreCase);
+        AssertHelper.Contains(expectedValue, actualValue, StringComparison.OrdinalIgnoreCase);
 
         _rt.Debug.MaybeSlowMo();
     }
@@ -257,14 +246,13 @@ public sealed class ValidationSteps
     [Then(@"o elemento ""(.*)"" está habilitado")]
     public void EntaoOElementoDeveEstarHabilitado(string elementRef)
     {
-        _rt.Debug.MaybePauseEachStep($"verify enabled {elementRef}");
         _rt.Waits.WaitDomReady(_rt.Driver);
 
         var rr = _rt.Resolver.Resolve(elementRef);
         var el = _rt.Waits.WaitVisibleByCss(_rt.Driver, rr.CssLocator);
         _rt.Debug.TryHighlight(_rt.Driver, el);
 
-        Assert.True(el.Enabled, $"Elemento '{elementRef}' deveria estar habilitado.");
+        AssertHelper.True(el.Enabled, $"Elemento '{elementRef}' deveria estar habilitado.");
         _rt.Debug.MaybeSlowMo();
     }
 
@@ -275,14 +263,13 @@ public sealed class ValidationSteps
     [Then(@"o elemento ""(.*)"" está desabilitado")]
     public void EntaoOElementoDeveEstarDesabilitado(string elementRef)
     {
-        _rt.Debug.MaybePauseEachStep($"verify disabled {elementRef}");
         _rt.Waits.WaitDomReady(_rt.Driver);
 
         var rr = _rt.Resolver.Resolve(elementRef);
         var el = _rt.Waits.WaitVisibleByCss(_rt.Driver, rr.CssLocator);
         _rt.Debug.TryHighlight(_rt.Driver, el);
 
-        Assert.False(el.Enabled, $"Elemento '{elementRef}' deveria estar desabilitado.");
+        AssertHelper.False(el.Enabled, $"Elemento '{elementRef}' deveria estar desabilitado.");
         _rt.Debug.MaybeSlowMo();
     }
 
@@ -293,14 +280,13 @@ public sealed class ValidationSteps
     [Then(@"o elemento ""(.*)"" está marcado")]
     public void EntaoOElementoDeveEstarMarcado(string elementRef)
     {
-        _rt.Debug.MaybePauseEachStep($"verify checked {elementRef}");
         _rt.Waits.WaitDomReady(_rt.Driver);
 
         var rr = _rt.Resolver.Resolve(elementRef);
         var el = _rt.Waits.WaitVisibleByCss(_rt.Driver, rr.CssLocator);
         _rt.Debug.TryHighlight(_rt.Driver, el);
 
-        Assert.True(el.Selected, $"Elemento '{elementRef}' deveria estar marcado.");
+        AssertHelper.True(el.Selected, $"Elemento '{elementRef}' deveria estar marcado.");
         _rt.Debug.MaybeSlowMo();
     }
 
@@ -311,14 +297,13 @@ public sealed class ValidationSteps
     [Then(@"o elemento ""(.*)"" não está marcado")]
     public void EntaoOElementoNaoDeveEstarMarcado(string elementRef)
     {
-        _rt.Debug.MaybePauseEachStep($"verify not checked {elementRef}");
         _rt.Waits.WaitDomReady(_rt.Driver);
 
         var rr = _rt.Resolver.Resolve(elementRef);
         var el = _rt.Waits.WaitVisibleByCss(_rt.Driver, rr.CssLocator);
         _rt.Debug.TryHighlight(_rt.Driver, el);
 
-        Assert.False(el.Selected, $"Elemento '{elementRef}' NÃO deveria estar marcado.");
+        AssertHelper.False(el.Selected, $"Elemento '{elementRef}' NÃO deveria estar marcado.");
         _rt.Debug.MaybeSlowMo();
     }
 
@@ -332,13 +317,12 @@ public sealed class ValidationSteps
     [Then(@"devem existir (\d+) elementos? ""(.*)""")]
     public void EntaoDevemExistirElementos(int expectedCount, string elementRef)
     {
-        _rt.Debug.MaybePauseEachStep($"verify count {expectedCount} of {elementRef}");
         _rt.Waits.WaitDomReady(_rt.Driver);
 
         var rr = _rt.Resolver.Resolve(elementRef);
         var elements = _rt.Driver.FindElements(OpenQA.Selenium.By.CssSelector(rr.CssLocator));
 
-        Assert.Equal(expectedCount, elements.Count);
+        AssertHelper.Equal(expectedCount, elements.Count);
         _rt.Debug.MaybeSlowMo();
     }
 

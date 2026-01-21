@@ -6,7 +6,7 @@
 1. **Lint/format** dos specs (YAML/MD).
 2. **Validação do ui-map**:
    - páginas/modais
-   - elementos com `test_id`
+   - elementos com `test_id` / `testId`
 3. **Validação do data-map**:
    - contexts por ambiente
    - datasets com strategy válida

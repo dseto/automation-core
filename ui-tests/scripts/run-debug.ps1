@@ -13,10 +13,8 @@ $env:HEADLESS = "false"
 if (-not $env:SLOWMO_MS) { $env:SLOWMO_MS = "1000" }
 if (-not $env:HIGHLIGHT) { $env:HIGHLIGHT = "true" }
 if (-not $env:PAUSE_ON_FAILURE) { $env:PAUSE_ON_FAILURE = "false" }
-if (-not $env:PAUSE_EACH_STEP) { $env:PAUSE_EACH_STEP = "true" }
 $env:SLOWMO_MS = "1000"
 $env:HIGHLIGHT = "true"
-$env:PAUSE_EACH_STEP = "true"
 Write-Host "== Debug Visual (headed) =="
 Write-Host "UI_DEBUG=$env:UI_DEBUG HEADLESS=$env:HEADLESS SLOWMO_MS=$env:SLOWMO_MS"
 Write-Host "HIGHLIGHT=$env:HIGHLIGHT PAUSE_ON_FAILURE=$env:PAUSE_ON_FAILURE"

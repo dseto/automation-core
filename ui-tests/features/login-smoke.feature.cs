@@ -10,13 +10,15 @@
 // ------------------------------------------------------------------------------
 #region Designer generated code
 #pragma warning disable
-using Reqnroll;
 namespace UiTests.Features
 {
+    using Reqnroll;
+    using System;
+    using System.Linq;
     
     
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "2.0.0.0")]
-    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "2.0.0.0")]
+    [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [Xunit.TraitAttribute("Category", "login")]
     public partial class Login_AcessoAAplicacaoFeature : object, Xunit.IClassFixture<Login_AcessoAAplicacaoFeature.FixtureData>, Xunit.IAsyncLifetime
     {
@@ -26,7 +28,7 @@ namespace UiTests.Features
         private static string[] featureTags = new string[] {
                 "login"};
         
-        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("pt-BR"), "features", "Login - Acesso à aplicação", null, global::Reqnroll.ProgrammingLanguage.CSharp, featureTags);
+        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new System.Globalization.CultureInfo("pt-BR"), "features", "Login - Acesso à aplicação", null, global::Reqnroll.ProgrammingLanguage.CSharp, featureTags);
         
         private Xunit.Abstractions.ITestOutputHelper _testOutputHelper;
         
@@ -38,54 +40,32 @@ namespace UiTests.Features
             this._testOutputHelper = testOutputHelper;
         }
         
-        public static async global::System.Threading.Tasks.Task FeatureSetupAsync()
+        public static async System.Threading.Tasks.Task FeatureSetupAsync()
         {
         }
         
-        public static async global::System.Threading.Tasks.Task FeatureTearDownAsync()
+        public static async System.Threading.Tasks.Task FeatureTearDownAsync()
         {
         }
         
-        public async global::System.Threading.Tasks.Task TestInitializeAsync()
+        public async System.Threading.Tasks.Task TestInitializeAsync()
         {
             testRunner = global::Reqnroll.TestRunnerManager.GetTestRunnerForAssembly(featureHint: featureInfo);
-            try
+            if (((testRunner.FeatureContext != null) 
+                        && (testRunner.FeatureContext.FeatureInfo.Equals(featureInfo) == false)))
             {
-                if (((testRunner.FeatureContext != null) 
-                            && (testRunner.FeatureContext.FeatureInfo.Equals(featureInfo) == false)))
-                {
-                    await testRunner.OnFeatureEndAsync();
-                }
+                await testRunner.OnFeatureEndAsync();
             }
-            finally
+            if ((testRunner.FeatureContext == null))
             {
-                if (((testRunner.FeatureContext != null) 
-                            && testRunner.FeatureContext.BeforeFeatureHookFailed))
-                {
-                    throw new global::Reqnroll.ReqnrollException("Scenario skipped because of previous before feature hook error");
-                }
-                if ((testRunner.FeatureContext == null))
-                {
-                    await testRunner.OnFeatureStartAsync(featureInfo);
-                }
+                await testRunner.OnFeatureStartAsync(featureInfo);
             }
         }
         
-        public async global::System.Threading.Tasks.Task TestTearDownAsync()
+        public async System.Threading.Tasks.Task TestTearDownAsync()
         {
-            if ((testRunner == null))
-            {
-                return;
-            }
-            try
-            {
-                await testRunner.OnScenarioEndAsync();
-            }
-            finally
-            {
-                global::Reqnroll.TestRunnerManager.ReleaseTestRunner(testRunner);
-                testRunner = null;
-            }
+            await testRunner.OnScenarioEndAsync();
+            global::Reqnroll.TestRunnerManager.ReleaseTestRunner(testRunner);
         }
         
         public void ScenarioInitialize(global::Reqnroll.ScenarioInfo scenarioInfo)
@@ -94,17 +74,17 @@ namespace UiTests.Features
             testRunner.ScenarioContext.ScenarioContainer.RegisterInstanceAs<Xunit.Abstractions.ITestOutputHelper>(_testOutputHelper);
         }
         
-        public async global::System.Threading.Tasks.Task ScenarioStartAsync()
+        public async System.Threading.Tasks.Task ScenarioStartAsync()
         {
             await testRunner.OnScenarioStartAsync();
         }
         
-        public async global::System.Threading.Tasks.Task ScenarioCleanupAsync()
+        public async System.Threading.Tasks.Task ScenarioCleanupAsync()
         {
             await testRunner.CollectScenarioErrorsAsync();
         }
         
-        public virtual async global::System.Threading.Tasks.Task FeatureBackgroundAsync()
+        public virtual async System.Threading.Tasks.Task FeatureBackgroundAsync()
         {
 #line 5
   #line hidden
@@ -113,27 +93,12 @@ namespace UiTests.Features
 #line hidden
         }
         
-        async global::System.Threading.Tasks.Task Xunit.IAsyncLifetime.InitializeAsync()
+        async System.Threading.Tasks.Task Xunit.IAsyncLifetime.InitializeAsync()
         {
-            try
-            {
-                await this.TestInitializeAsync();
-            }
-            catch (System.Exception e1)
-            {
-                try
-                {
-                    ((Xunit.IAsyncLifetime)(this)).DisposeAsync();
-                }
-                catch (System.Exception e2)
-                {
-                    throw new System.AggregateException("Test initialization failed", e1, e2);
-                }
-                throw;
-            }
+            await this.TestInitializeAsync();
         }
         
-        async global::System.Threading.Tasks.Task Xunit.IAsyncLifetime.DisposeAsync()
+        async System.Threading.Tasks.Task Xunit.IAsyncLifetime.DisposeAsync()
         {
             await this.TestTearDownAsync();
         }
@@ -142,11 +107,11 @@ namespace UiTests.Features
         [Xunit.TraitAttribute("FeatureTitle", "Login - Acesso à aplicação")]
         [Xunit.TraitAttribute("Description", "Login com credenciais válidas")]
         [Xunit.TraitAttribute("Category", "positive")]
-        public async global::System.Threading.Tasks.Task LoginComCredenciaisValidas()
+        public async System.Threading.Tasks.Task LoginComCredenciaisValidas()
         {
             string[] tagsOfScenario = new string[] {
                     "positive"};
-            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Login com credenciais válidas", null, tagsOfScenario, argumentsOfScenario, featureTags);
 #line 9
   this.ScenarioInitialize(scenarioInfo);
@@ -184,11 +149,11 @@ namespace UiTests.Features
         [Xunit.TraitAttribute("FeatureTitle", "Login - Acesso à aplicação")]
         [Xunit.TraitAttribute("Description", "Login com credenciais inválidas")]
         [Xunit.TraitAttribute("Category", "negative")]
-        public async global::System.Threading.Tasks.Task LoginComCredenciaisInvalidas()
+        public async System.Threading.Tasks.Task LoginComCredenciaisInvalidas()
         {
             string[] tagsOfScenario = new string[] {
                     "negative"};
-            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Login com credenciais inválidas", null, tagsOfScenario, argumentsOfScenario, featureTags);
 #line 17
   this.ScenarioInitialize(scenarioInfo);
@@ -229,11 +194,11 @@ namespace UiTests.Features
         [Xunit.TraitAttribute("FeatureTitle", "Login - Acesso à aplicação")]
         [Xunit.TraitAttribute("Description", "Toggle de visibilidade de senha")]
         [Xunit.TraitAttribute("Category", "interaction")]
-        public async global::System.Threading.Tasks.Task ToggleDeVisibilidadeDeSenha()
+        public async System.Threading.Tasks.Task ToggleDeVisibilidadeDeSenha()
         {
             string[] tagsOfScenario = new string[] {
                     "interaction"};
-            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Toggle de visibilidade de senha", null, tagsOfScenario, argumentsOfScenario, featureTags);
 #line 26
   this.ScenarioInitialize(scenarioInfo);
@@ -270,17 +235,17 @@ namespace UiTests.Features
             await this.ScenarioCleanupAsync();
         }
         
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "2.0.0.0")]
-        [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
+        [System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "2.0.0.0")]
+        [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class FixtureData : object, Xunit.IAsyncLifetime
         {
             
-            async global::System.Threading.Tasks.Task Xunit.IAsyncLifetime.InitializeAsync()
+            async System.Threading.Tasks.Task Xunit.IAsyncLifetime.InitializeAsync()
             {
                 await Login_AcessoAAplicacaoFeature.FeatureSetupAsync();
             }
             
-            async global::System.Threading.Tasks.Task Xunit.IAsyncLifetime.DisposeAsync()
+            async System.Threading.Tasks.Task Xunit.IAsyncLifetime.DisposeAsync()
             {
                 await Login_AcessoAAplicacaoFeature.FeatureTearDownAsync();
             }

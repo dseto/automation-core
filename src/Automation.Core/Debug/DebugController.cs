@@ -99,34 +99,6 @@ public class DebugController
     }
 
     /// <summary>
-    /// Pausa antes de cada step se configurado, com opção de continuar.
-    /// </summary>
-    public void MaybePauseEachStep(string? step = null)
-    {
-        if (!_settings.PauseEachStep)
-            return;
-
-        var stepInfo = string.IsNullOrWhiteSpace(step) ? "" : $" [{step}]";
-        _logger.LogInformation($"⏸️  Pausa antes do step{stepInfo}. Pressione ENTER para continuar...");
-        
-        // Se for headless ou CI, não pausar
-        if (_settings.Headless)
-            return;
-
-        // Ler entrada do console (se disponível)
-        try
-        {
-            Console.ReadLine();
-        }
-        catch
-        {
-            // Se não conseguir ler do console (ex: CI environment), continuar
-        }
-
-        MaybeSlowMo();
-    }
-
-    /// <summary>
     /// Pausa se houver falha e estiver configurado.
     /// </summary>
     public void MaybePauseOnFailure(string? failureMessage = null)

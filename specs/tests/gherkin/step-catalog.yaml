@@ -89,6 +89,7 @@ steps:
 - bdd:
   - When
   patterns:
+  - eu clico em "(.*)"
   - eu clico no botão "(.*)"
   - eu clico no elemento "(.*)"
   handler:
@@ -201,6 +202,20 @@ steps:
   summary: Preenche um campo com as credenciais de usuário (variável TEST_USER).
   parameters:
   - name: elementRef
+    type: string
+- bdd:
+  - When
+  patterns:
+  - eu preencho "(.*)" com valor literal "(.*)"
+  - eu preencho o campo "(.*)" com valor literal "(.*)"
+  handler:
+    file: InteractionSteps.cs
+    method: QuandoEuPreenchoComValorLiteral
+  summary: Preenche um campo com um valor literal sem resolver via DataMap.
+  parameters:
+  - name: elementRef
+    type: string
+  - name: literalValue
     type: string
 - bdd:
   - When

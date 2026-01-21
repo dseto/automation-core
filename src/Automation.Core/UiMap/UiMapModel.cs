@@ -60,8 +60,14 @@ public class UiPage
         if (_data.Contains(elementName))
         {
             var element = _data[elementName];
-            if (element is IDictionary elementDict && elementDict.Contains("test_id"))
-                return elementDict["test_id"]?.ToString();
+            if (element is IDictionary elementDict)
+            {
+                // Suporta tanto testId quanto test_id (compatibilidade)
+                if (elementDict.Contains("testId"))
+                    return elementDict["testId"]?.ToString() ?? throw new ArgumentException($"Elemento '{elementName}' tem testId nulo.");
+                if (elementDict.Contains("test_id"))
+                    return elementDict["test_id"]?.ToString() ?? throw new ArgumentException($"Elemento '{elementName}' tem test_id nulo.");
+            }
             
             // Suporte para formato simplificado se existir
             if (element is string testId) return testId;

@@ -10,11 +10,11 @@
 - `UIMAP_INVALID_ROUTE`  
   `route` existe, mas não começa com `/` e não contém `:`.
 - `UIMAP_ELEMENT_NO_TESTID`  
-  Elemento existe, mas `test_id` está vazio/nulo.
+  Elemento existe, mas `test_id`/`testId` está vazio/nulo.
 - `UIMAP_DUPLICATE_TESTID`  
-  `test_id` duplicado **dentro da mesma página**.
+  `test_id`/`testId` duplicado **dentro da mesma página**.
 - `UIMAP_GLOBAL_DUPLICATE_TESTID`  
-  `test_id` duplicado **entre páginas diferentes**.
+  `test_id`/`testId` duplicado **entre páginas diferentes**.
 - `UIMAP_DUPLICATE_ROUTE`  
   `route` (normalizado) duplicado entre páginas.
 
@@ -26,7 +26,7 @@
 - `UIMAP_PAGE_NO_ANCHOR`  
   Página sem `anchor`.
 - `UIMAP_TESTID_PATTERN`  
-  `test_id` não segue o padrão esperado (o validator sugere padrão por página).
+  `test_id`/`testId` não segue o padrão esperado (o validator sugere padrão por página).
 
 ## Observação sobre schema vs validator
 - O JSON Schema (`api/schemas/uimap.schema.json`) formaliza estrutura.
