@@ -4,6 +4,7 @@ namespace Automation.Core.Configuration;
 
 public sealed record RunSettings(
     string BaseUrl,
+    string Browser,
     bool Headless,
     bool UiDebug,
     int SlowMoMs,
@@ -37,9 +38,11 @@ public sealed record RunSettings(
         if (isCi && uiDebug) uiDebug = false; // debug visual is local-only
         var headless = GetBool("HEADLESS", true);
         if (uiDebug) headless = false; // debug requires headed
+            var browser = Get("BROWSER", "edge");
 
         return new RunSettings(
             BaseUrl: Get("BASE_URL", ""),
+            Browser: browser,
             Headless: headless,
             UiDebug: uiDebug,
             SlowMoMs: GetInt("SLOWMO_MS", uiDebug ? 250 : 0),

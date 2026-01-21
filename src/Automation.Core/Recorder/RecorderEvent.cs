@@ -18,4 +18,7 @@ public sealed class RecorderEvent
 
     [JsonPropertyName("value")]
     public object? Value { get; init; }
+
+    [JsonPropertyName("rawAction")]
+    public object? RawAction { get; init; }
 }

@@ -7,6 +7,7 @@ using System.Threading;
 using Automation.Core.Configuration;
 using Automation.Core.Driver;
 using Automation.Core.Recorder;
+using Automation.Core.Recorder.Draft;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
@@ -31,6 +32,9 @@ public class Program
 
     public static int Main(string[] args)
     {
+      if (args.Length > 0 && args[0].Equals("generate-draft", StringComparison.OrdinalIgnoreCase))
+        return RunGenerateDraft(args.Skip(1).ToArray());
+
         // 1) Verificar se modo exploratório está ativado
         var recordEnabled = Environment.GetEnvironmentVariable("AUTOMATION_RECORD")
                             ?.Equals("true", StringComparison.OrdinalIgnoreCase) ?? false;
@@ -71,11 +75,11 @@ public class Program
         // 6) Iniciar browser
         _logger.LogInformation("Iniciando browser em modo exploratório...");
         
-        var browserType = Environment.GetEnvironmentVariable("BROWSER")?.ToLowerInvariant() ?? "chrome";
+        var browserType = (_settings?.Browser ?? "chrome").ToLowerInvariant();
         _driver = browserType switch
         {
-            "edge" => EdgeDriverFactory.Create(_settings),
-            _ => ChromeDriverFactory.Create(_settings)
+          "edge" => EdgeDriverFactory.Create(_settings),
+          _ => ChromeDriverFactory.Create(_settings)
         };
 
         // 7) Iniciar recorder
@@ -113,6 +117,64 @@ public class Program
 
         // 11) Finalizar
         return Shutdown();
+    }
+
+    private static int RunGenerateDraft(string[] args)
+    {
+      var input = GetArgValue(args, "--input");
+      var output = GetArgValue(args, "--output");
+
+      if (string.IsNullOrWhiteSpace(input) || string.IsNullOrWhiteSpace(output))
+      {
+        Console.WriteLine("Uso: generate-draft --input <session.json> --output <output-dir>");
+        return 1;
+      }
+
+      try
+      {
+        var reader = new SessionReader();
+        var session = reader.Read(input);
+
+        var generator = new DraftGenerator(
+          new SessionSanityChecker(),
+          new ActionGrouper(),
+          new StepInferenceEngine(),
+          new EscapeHatchRenderer(),
+          new DraftWriter());
+
+        var result = generator.Generate(session, output);
+        if (!result.IsSuccess)
+        {
+          Console.WriteLine("[DraftGenerator] Sessão inválida. Draft não gerado.");
+          if (!string.IsNullOrWhiteSpace(result.Warning))
+            Console.WriteLine($"[DraftGenerator] Aviso: {result.Warning}");
+
+          if (!string.IsNullOrWhiteSpace(result.MetadataPath))
+            Console.WriteLine($"[DraftGenerator] Metadata: {result.MetadataPath}");
+
+          return 1;
+        }
+
+        Console.WriteLine($"[DraftGenerator] draft.feature: {result.DraftPath}");
+        Console.WriteLine($"[DraftGenerator] draft.metadata.json: {result.MetadataPath}");
+        return 0;
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine($"[DraftGenerator] Erro: {ex.Message}");
+        return 1;
+      }
+    }
+
+    private static string? GetArgValue(string[] args, string key)
+    {
+      for (var i = 0; i < args.Length - 1; i++)
+      {
+        if (args[i].Equals(key, StringComparison.OrdinalIgnoreCase))
+          return args[i + 1];
+      }
+
+      return null;
     }
 
     private static void WaitForExit()
@@ -174,7 +236,7 @@ public class Program
     if (el.name) result.name = el.name;
     if (el.type) result.type = el.type;
     if (el.getAttribute) {
-      ['role', 'aria-label', 'data-testid'].forEach(attr => {
+      ['role', 'aria-label', 'data-testid', 'formcontrolname', 'placeholder'].forEach(attr => {
         const val = el.getAttribute(attr);
         if (val) result[attr] = val;
       });
@@ -182,12 +244,16 @@ public class Program
     return result;
   }
 
+  function isDynamicId(id) {
+    return /^mat-input-/.test(id) || /^mat-option-/.test(id) || /^cdk-/.test(id);
+  }
+
   function cssPath(el) {
-    if (el.id) return '#' + el.id;
-    if (el.name) return '[name="' + el.name + '"]';
     if (el.getAttribute && el.getAttribute('data-testid')) {
-      return '[data-testid="' + el.getAttribute('data-testid') + '"]';
+      return "[data-testid='" + el.getAttribute('data-testid') + "']";
     }
+    if (el.id && !isDynamicId(el.id)) return '#' + el.id;
+    if (el.name) return "[name='" + el.name + "']";
     return el.tagName.toLowerCase();
   }
 
@@ -295,10 +361,7 @@ public class Program
 
                 if (target == null) continue;
 
-                // Extrair hint (css + text)
-                var css = target.GetValueOrDefault("css")?.ToString() ?? "";
-                var text = target.GetValueOrDefault("text")?.ToString() ?? "";
-                var hint = string.IsNullOrWhiteSpace(text) ? css : $"{css} ('{text}')";
+                var hint = TargetHintBuilder.BuildHint(target);
 
                 // Mapear kind para SessionRecorder (conforme specs/backend/implementation/free-hands-recorder-browser-capture.md)
                 switch (kind)

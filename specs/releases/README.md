@@ -133,4 +133,5 @@ A lista abaixo representa as entregas já criadas no spec deck.
 - 2026-01-20-stabilization-framework — Estabilização do runtime, build e debug (RELEASED v0.3.0 em 2026-01-21)
 - 2026-01-21-free-hands-recorder-session — RF01–RF06 session log (RELEASED v0.4.0 em 2026-01-21)
 - 2026-01-21-free-hands-recorder-exploratory-mode — RF00 exploratory mode (RELEASED v0.4.0 em 2026-01-21)
+- 2026-01-22-free-hands-draft-generator — Draft Generator (RELEASED v0.5.0 em 2026-01-21)
 

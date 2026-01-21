@@ -3,8 +3,8 @@ agent: spec-driven-implementer
 ---
 Você é o spec-driven-implementer.
 
-Objetivo: implementar as correções/melhorias do delta pack
-`specs/releases/delta/2026-01-21-free-hands-recorder-session/`.
+Objetivo: Planejar as correções/melhorias do delta pack
+`specs/releases/delta/2026-01-22-free-hands-draft-generator/`.
 
 Tarefas:
 1) Leia README.md, changes.md e migration.md do delta pack.

@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DraftMetadata",
+  "type": "object",
+  "required": [
+    "sessionId",
+    "inputStatus",
+    "generatedAt",
+    "eventsCount",
+    "actionsCount",
+    "stepsInferredCount",
+    "escapeHatchCount",
+    "warnings"
+  ],
+  "properties": {
+    "sessionId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "inputStatus": {
+      "type": "string",
+      "enum": [
+        "valid",
+        "invalid"
+      ]
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "eventsCount": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "actionsCount": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "stepsInferredCount": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "escapeHatchCount": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "mappings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "eventIndex": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "actionIndex": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "draftLine": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "confidence": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}
