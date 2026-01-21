@@ -12,7 +12,9 @@ public sealed record RunSettings(
     bool WaitAngular,
     int AngularTimeoutMs,
     int StepTimeoutMs,
-    string EnvironmentName)
+    string EnvironmentName,
+    bool RecordEnabled,
+    string RecordOutputDir)
 {
     public static RunSettings FromEnvironment()
     {
@@ -46,7 +48,9 @@ public sealed record RunSettings(
             WaitAngular: GetBool("WAIT_ANGULAR", true),
             AngularTimeoutMs: GetInt("ANGULAR_TIMEOUT_MS", 5000),
             StepTimeoutMs: GetInt("STEP_TIMEOUT_MS", 20000),
-            EnvironmentName: Get("TEST_ENV", "default")
+            EnvironmentName: Get("TEST_ENV", "default"),
+            RecordEnabled: GetBool("AUTOMATION_RECORD", false),
+            RecordOutputDir: Get("RECORD_OUTPUT_DIR", "artifacts/recorder")
         );
     }
 }

@@ -1,6 +1,6 @@
 
 param(
-  [string]$TestProject = "C:\Projetos\metrics-simple-frontend\ui-tests\UiTests.csproj",
+  [string]$TestProject = "$PSScriptRoot\..\UiTests.csproj",
   [string]$Scenario = ""
 )
 

@@ -47,6 +47,12 @@
 - `STEP_TIMEOUT_MS` (int, default: `20000`)  
   Timeout de ações/steps (quando aplicável).
 
+### Recorder (FREE-HANDS)
+- `AUTOMATION_RECORD` (bool, default: `false`)  
+  Habilita gravação de sessão (session.json).
+- `RECORD_OUTPUT_DIR` (string, default: `"artifacts/recorder"`)  
+  Diretório de saída para o session.json.
+
 ## Observações importantes
 - Defaults dependentes de `UI_DEBUG` estão implementados diretamente em `RunSettings.FromEnvironment()`.
 - `BUILD_BUILDID`, `TF_BUILD`, `GITHUB_ACTIONS` podem existir no ambiente (CI), mas **não** são settings do produto.

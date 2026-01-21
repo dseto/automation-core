@@ -12,6 +12,7 @@
     <PackageVersion Include="YamlDotNet" Version="16.2.1" />
     
     <!-- Logging -->
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="9.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="9.0.0" />
     

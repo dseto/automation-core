@@ -40,6 +40,8 @@ public sealed class InteractionSteps
         el.Clear();
         el.SendKeys(value);
 
+        _rt.Recorder?.RecordFill(elementRef, value);
+
         _rt.Debug.MaybeSlowMo();
     }
 
@@ -118,6 +120,8 @@ public sealed class InteractionSteps
         el.Clear();
         el.SendKeys(literalValue);
 
+        _rt.Recorder?.RecordFill(elementRef, literalValue);
+
         _rt.Debug.MaybeSlowMo();
     }
 
@@ -160,8 +164,11 @@ public sealed class InteractionSteps
         var el = _rt.Waits.WaitClickableByCss(_rt.Driver, rr.CssLocator);
         _rt.Debug.TryHighlight(_rt.Driver, el);
 
+        var modalCountBefore = CountModals();
         var previousUrl = _rt.Driver.Url;
         el.Click();
+
+        RecordClickSemantic(el, elementRef);
 
         // Aguarda estabilização após clique
         _rt.Debug.MaybeSlowMo();
@@ -170,6 +177,8 @@ public sealed class InteractionSteps
         try
         {
             _rt.Waits.WaitForUrlChange(_rt.Driver, previousUrl, 2000);
+            var route = new Uri(_rt.Driver.Url).AbsolutePath;
+            _rt.Recorder?.RecordNavigate(route);
             // Se URL mudou, aguarda DOM e Angular
             _rt.Waits.WaitDomReady(_rt.Driver);
             _rt.Waits.TryWaitAngularStable(_rt.Driver, out _);
@@ -181,6 +190,8 @@ public sealed class InteractionSteps
             _rt.Waits.WaitDomReady(_rt.Driver);
             _rt.Waits.TryWaitAngularStable(_rt.Driver, out _);
         }
+
+        RecordModalChanges(modalCountBefore, CountModals());
 
         _rt.Debug.MaybeSlowMo();
     }
@@ -199,7 +210,15 @@ public sealed class InteractionSteps
         var el = _rt.Waits.WaitClickableByCss(_rt.Driver, rr.CssLocator);
         _rt.Debug.TryHighlight(_rt.Driver, el);
 
-        _rt.Waits.WaitForNavigationToRoute(_rt.Driver, () => el.Click(), expectedRoute);
+        var modalCountBefore = CountModals();
+        _rt.Waits.WaitForNavigationToRoute(_rt.Driver, () =>
+        {
+            el.Click();
+            RecordClickSemantic(el, elementRef);
+        }, expectedRoute);
+
+        _rt.Recorder?.RecordNavigate(expectedRoute);
+        RecordModalChanges(modalCountBefore, CountModals());
 
         _rt.Debug.MaybeSlowMo();
     }
@@ -219,6 +238,8 @@ public sealed class InteractionSteps
 
         var actions = new OpenQA.Selenium.Interactions.Actions(_rt.Driver);
         actions.DoubleClick(el).Perform();
+
+        RecordClickSemantic(el, elementRef);
 
         _rt.Debug.MaybeSlowMo();
     }
@@ -244,6 +265,8 @@ public sealed class InteractionSteps
         var select = new OpenQA.Selenium.Support.UI.SelectElement(el);
         select.SelectByText(optionText);
 
+        _rt.Recorder?.RecordSelect(elementRef, optionText);
+
         _rt.Debug.MaybeSlowMo();
     }
 
@@ -262,6 +285,8 @@ public sealed class InteractionSteps
 
         var select = new OpenQA.Selenium.Support.UI.SelectElement(el);
         select.SelectByValue(value);
+
+        _rt.Recorder?.RecordSelect(elementRef, value);
 
         _rt.Debug.MaybeSlowMo();
     }
@@ -329,6 +354,9 @@ public sealed class InteractionSteps
         };
 
         el.SendKeys(key);
+
+        if (key == Keys.Enter)
+            _rt.Recorder?.RecordSubmit(elementRef);
 
         _rt.Debug.MaybeSlowMo();
     }
@@ -457,6 +485,54 @@ public sealed class InteractionSteps
 
         // 4. Valor literal - NÃO re-resolver via DataResolver
         return value;
+    }
+
+    private void RecordClickSemantic(IWebElement el, string elementRef)
+    {
+        if (_rt.Recorder == null) return;
+
+        if (IsToggle(el))
+            _rt.Recorder.RecordToggle(elementRef);
+        else if (IsSubmit(el))
+            _rt.Recorder.RecordSubmit(elementRef);
+        else
+            _rt.Recorder.RecordClick(elementRef);
+    }
+
+    private int CountModals()
+    {
+        try
+        {
+            return _rt.Driver.FindElements(By.CssSelector("[role='dialog'],[aria-modal='true'],.modal")).Count;
+        }
+        catch
+        {
+            return 0;
+        }
+    }
+
+    private void RecordModalChanges(int before, int after)
+    {
+        if (_rt.Recorder == null) return;
+
+        if (after > before)
+            _rt.Recorder.RecordModalOpen("modal");
+        else if (after < before)
+            _rt.Recorder.RecordModalClose("modal");
+    }
+
+    private static bool IsToggle(IWebElement el)
+    {
+        var tag = el.TagName?.ToLowerInvariant();
+        var type = el.GetAttribute("type")?.ToLowerInvariant();
+        return tag == "input" && (type == "checkbox" || type == "radio" || type == "toggle");
+    }
+
+    private static bool IsSubmit(IWebElement el)
+    {
+        var tag = el.TagName?.ToLowerInvariant();
+        var type = el.GetAttribute("type")?.ToLowerInvariant();
+        return (tag == "input" && type == "submit") || (tag == "button" && (type == "submit" || string.IsNullOrEmpty(type)));
     }
 
     #endregion

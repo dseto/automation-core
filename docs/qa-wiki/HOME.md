@@ -32,6 +32,7 @@ Esta Wiki está organizada nos seguintes documentos:
 | **[03-DATAMAP-GUIDE.md](03-DATAMAP-GUIDE.md)** | Como gerenciar dados de teste, contextos, objetos (`@`) e datasets (`{{}}`). |
 | **[04-VALIDATION-GUIDE.md](04-VALIDATION-GUIDE.md)** | Como usar a ferramenta CLI `Automation.Validator` para validar seus arquivos antes de rodar os testes. |
 | **[05-ESCAPE-HATCH-GUIDE.md](05-ESCAPE-HATCH-GUIDE.md)** | Guia sobre execução de JavaScript (Escape Hatch) como último recurso em cenários complexos. |
+| **[06-RECORDER-GUIDE.md](06-RECORDER-GUIDE.md)** | **NOVO:** Guia prático para o FREE-HANDS Recorder (RF00). Explore aplicações manualmente e gere session.json. |
 ---
 
 ## 💡 O que há de Novo (Melhorias Críticas)

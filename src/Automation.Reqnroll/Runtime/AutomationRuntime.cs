@@ -4,6 +4,7 @@ using Automation.Core.Configuration;
 using Automation.Core.DataMap;
 using Automation.Core.Debug;
 using Automation.Core.Evidence;
+using Automation.Core.Recorder;
 using Automation.Core.Resolution;
 using Automation.Core.UiMap;
 using Automation.Core.Waits;
@@ -24,6 +25,7 @@ public sealed class AutomationRuntime : IDisposable
     public WaitService Waits { get; }
     public EvidenceManager Evidence { get; }
     public DebugController Debug { get; }
+    public SessionRecorder? Recorder { get; }
     public ILogger Logger { get; }
     public string RunId { get; } = Guid.NewGuid().ToString("n");
 
@@ -44,6 +46,9 @@ public sealed class AutomationRuntime : IDisposable
         Debug = new DebugController(settings, logger);
         PageContext = new PageContext(map, driver);
         Resolver = new ElementResolver(map, PageContext);
+
+        if (settings.RecordEnabled)
+            Recorder = new SessionRecorder();
     }
 
     public void Dispose()

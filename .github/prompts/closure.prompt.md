@@ -6,7 +6,8 @@ Você é o spec-driven-implementer.
 Objetivo: executar o fechamento da release de forma spec-driven.
 
 Release alvo:
-specs/releases/delta/2026-01-20-stabilization-framework/
+specs/releases/delta/2026-01-21-free-hands-recorder-session
+specs/releases/delta/2026-01-21-free-hands-recorder-exploratory-mode
 
 Tarefas obrigatórias (siga nesta ordem):
 

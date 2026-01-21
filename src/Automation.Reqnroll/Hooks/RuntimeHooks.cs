@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using Automation.Core.Configuration;
 using Automation.Core.Driver;
+using Automation.Core.Recorder;
 using Automation.Core.UiMap;
 using Automation.Reqnroll.Runtime;
 using Reqnroll.BoDi;
@@ -47,6 +48,8 @@ public sealed class RuntimeHooks
         };
 
         _rt = new AutomationRuntime(settings, map, driver, logger);
+
+        _rt.Recorder?.Start();
         
         _container.RegisterInstanceAs(_rt);
         _container.RegisterInstanceAs(_rt.PageContext);
@@ -62,6 +65,21 @@ public sealed class RuntimeHooks
     [AfterScenario(Order = 100)]
     public void AfterScenario()
     {
+        if (_rt?.Recorder != null)
+        {
+            _rt.Recorder.Stop();
+            try
+            {
+                var writer = new SessionWriter();
+                var path = writer.Write(_rt.Recorder.GetSession(), _rt.Settings.RecordOutputDir);
+                _rt.Logger.LogInformation("Recorder session written: {Path}", path);
+            }
+            catch (Exception ex)
+            {
+                _rt.Logger.LogWarning(ex, "Failed to write recorder session.");
+            }
+        }
+
         _rt?.Dispose();
     }
 

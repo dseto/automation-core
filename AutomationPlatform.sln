@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Automation.Reqnroll", "src\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Automation.Validator", "src\Automation.Validator\Automation.Validator.csproj", "{AB24CA3A-D409-2671-5E02-51227F1CFC18}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Automation.RecorderTool", "src\Automation.RecorderTool\Automation.RecorderTool.csproj", "{65D3B714-AC0A-4648-B194-54DB3CFDFF41}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +25,7 @@ Global
 		{4602256A-CC1A-43F7-825C-210E0B3A9654} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{B169ADCC-8773-41B9-9181-255DB4C23D9C} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{AB24CA3A-D409-2671-5E02-51227F1CFC18} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{65D3B714-AC0A-4648-B194-54DB3CFDFF41} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{4602256A-CC1A-43F7-825C-210E0B3A9654}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -37,5 +40,9 @@ Global
 		{AB24CA3A-D409-2671-5E02-51227F1CFC18}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AB24CA3A-D409-2671-5E02-51227F1CFC18}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AB24CA3A-D409-2671-5E02-51227F1CFC18}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65D3B714-AC0A-4648-B194-54DB3CFDFF41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65D3B714-AC0A-4648-B194-54DB3CFDFF41}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65D3B714-AC0A-4648-B194-54DB3CFDFF41}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65D3B714-AC0A-4648-B194-54DB3CFDFF41}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

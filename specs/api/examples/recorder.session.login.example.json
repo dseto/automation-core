@@ -1,0 +1,39 @@
+{
+  "sessionId": "2026-01-21T10:00:00Z",
+  "startedAt": "2026-01-21T10:00:00Z",
+  "endedAt": "2026-01-21T10:00:08Z",
+  "events": [
+    {
+      "t": "00:00.000",
+      "type": "navigate",
+      "route": "/login"
+    },
+    {
+      "t": "00:02.100",
+      "type": "fill",
+      "target": {
+        "hint": "username"
+      },
+      "value": {
+        "literal": "admin"
+      }
+    },
+    {
+      "t": "00:03.000",
+      "type": "fill",
+      "target": {
+        "hint": "password"
+      },
+      "value": {
+        "masked": true
+      }
+    },
+    {
+      "t": "00:04.000",
+      "type": "click",
+      "target": {
+        "hint": "submit"
+      }
+    }
+  ]
+}

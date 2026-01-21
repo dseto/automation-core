@@ -1,7 +1,7 @@
 
 param(
   # Caminho para o projeto de testes (xUnit + Reqnroll bindings)
-  [string]$TestProject = "C:\Projetos\metrics-simple-frontend\ui-tests\UiTests.csproj"
+  [string]$TestProject = "$PSScriptRoot\..\UiTests.csproj"
 )
 
 $ErrorActionPreference = "Stop"

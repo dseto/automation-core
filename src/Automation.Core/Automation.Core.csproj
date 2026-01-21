@@ -5,7 +5,7 @@
     <RootNamespace>Automation.Core</RootNamespace>
     <IsPackable>true</IsPackable>
     <PackageId>Company.Automation.Core</PackageId>
-    <Version>0.2.0</Version>
+    <Version>0.4.0</Version>
     <Description>Automation Core - Zero Code Platform for UI Testing</Description>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
