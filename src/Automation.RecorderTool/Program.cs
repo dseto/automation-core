@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using Automation.Core.Configuration;
 using Automation.Core.Driver;
@@ -87,6 +90,9 @@ public class Program
             _driver.Navigate().GoToUrl(baseUrl);
             _recorder.RecordNavigate(new Uri(baseUrl).AbsolutePath);
             _logger.LogInformation("Navegou para: {Url}", baseUrl);
+            
+            // 8.1) Injetar script de captura de browser (RC01)
+            InjectBrowserCaptureScript();
         }
 
         // 9) Exibir instruções
@@ -111,13 +117,17 @@ public class Program
 
     private static void WaitForExit()
     {
-        // Polling para detectar se o browser foi fechado
+        // Polling para detectar se o browser foi fechado E drenar eventos de browser capture
         while (!_exitEvent.IsSet)
         {
             try
             {
                 // Tenta acessar o driver — se browser foi fechado, lança exceção
                 _ = _driver?.WindowHandles;
+                
+                // RC06: Drenar eventos do buffer JS
+                DrainBrowserEvents();
+                
                 Thread.Sleep(500);
             }
             catch (WebDriverException)
@@ -134,6 +144,194 @@ public class Program
         e.Cancel = true; // Evita término abrupto
         _logger?.LogInformation("CTRL+C detectado. Encerrando...");
         _exitEvent.Set();
+    }
+
+    /// <summary>
+    /// RC01: Injeta script JS no browser que captura eventos DOM (click, fill, submit, navigate)
+    /// Baseado em specs/frontend/notes/free-hands-recorder.injected-script.js
+    /// </summary>
+    private static void InjectBrowserCaptureScript()
+    {
+        if (_driver == null) return;
+
+        // Embed do script de captura (70 linhas ref implementation)
+        const string injectedScript = """
+(function() {
+  if (window.__fhRecorder) return; // Já injetado
+
+  const buffer = [];
+  const fillTimers = new WeakMap();
+  const startTime = Date.now();
+
+  function shortText(el) {
+    const text = (el.textContent || '').trim();
+    return text.length > 80 ? text.substring(0, 77) + '...' : text;
+  }
+
+  function attrs(el) {
+    const result = {};
+    if (el.id) result.id = el.id;
+    if (el.name) result.name = el.name;
+    if (el.type) result.type = el.type;
+    if (el.getAttribute) {
+      ['role', 'aria-label', 'data-testid'].forEach(attr => {
+        const val = el.getAttribute(attr);
+        if (val) result[attr] = val;
+      });
+    }
+    return result;
+  }
+
+  function cssPath(el) {
+    if (el.id) return '#' + el.id;
+    if (el.name) return '[name="' + el.name + '"]';
+    if (el.getAttribute && el.getAttribute('data-testid')) {
+      return '[data-testid="' + el.getAttribute('data-testid') + '"]';
+    }
+    return el.tagName.toLowerCase();
+  }
+
+  function push(kind, targetEl, value) {
+    buffer.push({
+      kind: kind,
+      ts: Date.now() - startTime,
+      target: {
+        tag: targetEl.tagName.toLowerCase(),
+        text: shortText(targetEl),
+        css: cssPath(targetEl),
+        attributes: attrs(targetEl)
+      },
+      value: value || {}
+    });
+  }
+
+  // RC05: Hook History API (SPA navigation)
+  const origPushState = history.pushState;
+  const origReplaceState = history.replaceState;
+  history.pushState = function() {
+    origPushState.apply(this, arguments);
+    push('navigate', document.body, { literal: arguments[2] || location.pathname });
+  };
+  history.replaceState = function() {
+    origReplaceState.apply(this, arguments);
+    push('navigate', document.body, { literal: arguments[2] || location.pathname });
+  };
+  window.addEventListener('popstate', () => {
+    push('navigate', document.body, { literal: location.pathname });
+  });
+
+  // RC02: Capture clicks (bubbling phase)
+  document.addEventListener('click', (e) => {
+    const target = e.target.closest('button, a, [role="button"], input[type="button"], input[type="submit"]') || e.target;
+    push('click', target);
+  }, true);
+
+  // RC03: Capture fills (input/change with debounce)
+  document.addEventListener('input', (e) => {
+    if (!e.target.matches('input, textarea')) return;
+    const el = e.target;
+    if (fillTimers.has(el)) clearTimeout(fillTimers.get(el));
+    fillTimers.set(el, setTimeout(() => {
+      push('fill', el, { literal: el.value });
+      fillTimers.delete(el);
+    }, 400));
+  }, true);
+
+  document.addEventListener('change', (e) => {
+    if (!e.target.matches('select, input[type="checkbox"], input[type="radio"]')) return;
+    push('fill', e.target, { literal: e.target.value || (e.target.checked ? 'checked' : 'unchecked') });
+  }, true);
+
+  // RC04: Capture submit
+  document.addEventListener('submit', (e) => {
+    push('submit', e.target);
+  }, true);
+
+  // RC06: Expose drain API
+  window.__fhRecorder = {
+    version: 'mvp-1',
+    drain: () => buffer.splice(0, buffer.length)
+  };
+})();
+""";
+
+        try
+        {
+            ((IJavaScriptExecutor)_driver).ExecuteScript(injectedScript);
+            _logger?.LogInformation("[BrowserCapture] Script injetado com sucesso.");
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogWarning(ex, "[BrowserCapture] Falha ao injetar script. Captura de eventos pode não funcionar.");
+        }
+    }
+
+    /// <summary>
+    /// RC06: Polling - drena eventos do buffer JS e converte para SessionRecorder
+    /// </summary>
+    private static void DrainBrowserEvents()
+    {
+        if (_driver == null || _recorder == null) return;
+
+        try
+        {
+            var result = ((IJavaScriptExecutor)_driver).ExecuteScript(
+                "return window.__fhRecorder?.drain?.() ?? [];"
+            );
+
+            if (result is not System.Collections.IEnumerable enumerable) return;
+
+            var events = enumerable.Cast<object>().ToList();
+            if (events.Count == 0) return;
+
+            // Converter eventos JS para SessionRecorder
+            foreach (var ev in events)
+            {
+                if (ev is not Dictionary<string, object> dict) continue;
+
+                var kind = dict.GetValueOrDefault("kind")?.ToString();
+                var target = dict.GetValueOrDefault("target") as Dictionary<string, object>;
+                var value = dict.GetValueOrDefault("value") as Dictionary<string, object>;
+
+                if (target == null) continue;
+
+                // Extrair hint (css + text)
+                var css = target.GetValueOrDefault("css")?.ToString() ?? "";
+                var text = target.GetValueOrDefault("text")?.ToString() ?? "";
+                var hint = string.IsNullOrWhiteSpace(text) ? css : $"{css} ('{text}')";
+
+                // Mapear kind para SessionRecorder (conforme specs/backend/implementation/free-hands-recorder-browser-capture.md)
+                switch (kind)
+                {
+                    case "navigate":
+                        var route = value?.GetValueOrDefault("literal")?.ToString() ?? "/";
+                        _recorder.RecordNavigate(route);
+                        break;
+
+                    case "click":
+                        _recorder.RecordClick(hint);
+                        break;
+
+                    case "fill":
+                        var literal = value?.GetValueOrDefault("literal")?.ToString() ?? "";
+                        // TODO: Mascarar password fields (defer para próxima entrega)
+                        _recorder.RecordFill(hint, literal);
+                        break;
+
+                    case "submit":
+                        _recorder.RecordSubmit(hint);
+                        break;
+                }
+            }
+        }
+        catch (WebDriverException)
+        {
+            // Browser pode ter sido fechado durante polling — ignora
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogWarning(ex, "[BrowserCapture] Erro ao drenar eventos.");
+        }
     }
 
     private static int Shutdown()

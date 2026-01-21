@@ -1,15 +1,7 @@
-# FREE-HANDS Recorder — Modo Exploratório (RF00)
-#
-# Este script implementa o modo exploratório PURO:
-# - Browser abre
-# - Usuário interage livremente
-# - SEM dependência de .feature, cenários ou step definitions
-# - Ao encerrar, gera session.json
-#
+# FREE-HANDS Recorder - Modo Exploratorio (RF00)
 # Uso:
 #   . .\_env.ps1
-#   .\run-free-hands.ps1
-#   .\run-free-hands.ps1 -Url "https://meuapp.com" -OutputDir ".\artifacts\recorder-custom"
+#   .\run-free-hands.ps1 -Url "https://example.com" -OutputDir ".\artifacts\recorder-custom"
 
 param(
     [string]$Url = "",
@@ -18,10 +10,10 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-# 1) Carregar variáveis de ambiente base
+# 1) Carregar variaveis base
 . "$PSScriptRoot\_env.ps1"
 
-# 2) Configurar recorder (via env vars — sem hooks)
+# 2) Habilitar recorder (modo exploratorio)
 $env:AUTOMATION_RECORD = "true"
 
 # 3) Diretório de saída
@@ -34,44 +26,35 @@ if ($OutputDir -ne "") {
 # 4) URL inicial
 if ($Url -ne "") {
     $env:BASE_URL = $Url
-} else {
-    if (-not $env:BASE_URL) {
-        Write-Host "[ERRO] BASE_URL não definida. Use: .\run-free-hands.ps1 -Url 'https://...' ou configure em _env.ps1" -ForegroundColor Red
-        exit 1
-    }
+} elseif (-not $env:BASE_URL) {
+    Write-Host "[ERRO] BASE_URL nao definida. Use: .\run-free-hands.ps1 -Url 'https://...' ou configure em _env.ps1" -ForegroundColor Red
+    exit 1
 }
 
-# 5) Garantir modo headed (exploratório requer visualização)
+# 5) Modo headed para exploracao
 $env:HEADLESS = "false"
 $env:UI_DEBUG = "true"
 
-# 6) Criar diretório de saída se não existir
+# 6) Garantir diretorio de saida
 $outputPath = [System.IO.Path]::GetFullPath($env:RECORD_OUTPUT_DIR)
 if (-not (Test-Path $outputPath)) {
     New-Item -ItemType Directory -Path $outputPath -Force | Out-Null
 }
 
-# 7) Exibir configuração
+# 7) Info
 Write-Host ""
-Write-Host "╔════════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-Write-Host "║  FREE-HANDS Recorder — Modo Exploratório (RF00)                ║" -ForegroundColor Cyan
-Write-Host "╚════════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+Write-Host "FREE-HANDS Recorder (RF00)"
+Write-Host "BASE_URL:          $env:BASE_URL"
+Write-Host "RECORD_OUTPUT_DIR: $outputPath"
+Write-Host "BROWSER:           $env:BROWSER"
 Write-Host ""
-Write-Host "Configuração:"
-Write-Host "  BASE_URL:          $env:BASE_URL"
-Write-Host "  RECORD_OUTPUT_DIR: $outputPath"
-Write-Host "  BROWSER:           $env:BROWSER"
-Write-Host ""
-Write-Host "Quando terminar:"
-Write-Host "  • Feche o browser, OU"
-Write-Host "  • Pressione CTRL+C"
+Write-Host "Para encerrar: feche o browser ou CTRL+C"
 Write-Host ""
 
-# 8) Rodar o RecorderTool (entrypoint standalone, sem dependência de testes)
-$projectPath = "$PSScriptRoot\..\..\src\Automation.RecorderTool\Automation.RecorderTool.csproj"
-
+# 8) Rodar RecorderTool
+$projectPath = Join-Path $PSScriptRoot "..\..\src\Automation.RecorderTool\Automation.RecorderTool.csproj"
 if (-not (Test-Path $projectPath)) {
-    Write-Host "[ERRO] Projeto RecorderTool não encontrado em: $projectPath" -ForegroundColor Red
+    Write-Host ("[ERRO] Projeto RecorderTool nao encontrado em: " + $projectPath) -ForegroundColor Red
     exit 1
 }
 

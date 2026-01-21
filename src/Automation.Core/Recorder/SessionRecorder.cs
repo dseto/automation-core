@@ -19,7 +19,7 @@ public sealed class SessionRecorder
             _session = new RecorderSession
             {
                 SessionId = Guid.NewGuid().ToString("n"),
-                StartedAt = DateTimeOffset.UtcNow,
+                StartedAt = DateTimeOffset.Now,
                 Events = new List<RecorderEvent>()
             };
 
@@ -33,7 +33,7 @@ public sealed class SessionRecorder
         {
             if (_session == null) return;
 
-            _session.EndedAt = DateTimeOffset.UtcNow;
+            _session.EndedAt = DateTimeOffset.Now;
             _clock.Stop();
         }
     }

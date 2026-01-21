@@ -25,6 +25,19 @@ if (-not $env:ARTIFACTS_DIR) {
   $env:ARTIFACTS_DIR = (Resolve-Path $artifactsPath).Path
 }
 
+# Recorder output (session.json e artefatos do free-hands)
+if (-not $env:RECORD_OUTPUT_DIR) {
+  $scriptDir = Split-Path -Parent $PSCommandPath
+  if (-not $scriptDir) { $scriptDir = $PSScriptRoot }
+  if (-not $scriptDir) { $scriptDir = (Get-Location).Path }
+  
+  $recorderPath = Join-Path (Split-Path -Parent $scriptDir) "artifacts\recorder"
+  if (-not (Test-Path $recorderPath)) {
+    New-Item -ItemType Directory -Path $recorderPath -Force | Out-Null
+  }
+  $env:RECORD_OUTPUT_DIR = $recorderPath
+}
+
 # (Opcional) credenciais se você tiver bypass login local
 if (-not $env:TEST_USER) { $env:TEST_USER = "admin" }
 if (-not $env:TEST_PASS) { $env:TEST_PASS = "ChangeMe123!" }

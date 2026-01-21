@@ -23,39 +23,63 @@
       "type": "array",
       "minItems": 1,
       "items": {
-        "type": "object",
-        "required": [
-          "t",
-          "type"
-        ],
-        "properties": {
-          "t": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "navigate",
-              "click",
-              "fill",
-              "select",
-              "toggle",
-              "submit",
-              "modal_open",
-              "modal_close"
-            ]
-          },
-          "route": {
-            "type": "string"
-          },
-          "target": {
-            "type": "object"
-          },
-          "value": {
-            "type": "object"
-          }
-        }
+        "$ref": "#/$defs/event"
       }
+    }
+  },
+  "$defs": {
+    "event": {
+      "type": "object",
+      "required": [
+        "t",
+        "type"
+      ],
+      "properties": {
+        "t": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "navigate",
+            "click",
+            "fill",
+            "select",
+            "toggle",
+            "submit",
+            "modal_open",
+            "modal_close"
+          ]
+        },
+        "route": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "target": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": true
+        },
+        "value": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": true
+        },
+        "rawAction": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
     }
   }
 }

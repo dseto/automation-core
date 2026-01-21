@@ -1,0 +1,58 @@
+{
+  "sessionId": "example-manual",
+  "startedAt": "2026-01-21T10:09:06Z",
+  "endedAt": "2026-01-21T10:09:23Z",
+  "events": [
+    {
+      "t": "00:00.100",
+      "type": "navigate",
+      "route": "/login",
+      "target": null,
+      "value": null
+    },
+    {
+      "t": "00:02.200",
+      "type": "fill",
+      "route": null,
+      "target": {
+        "tag": "input",
+        "name": "username",
+        "css": "#username"
+      },
+      "value": {
+        "literal": "admin"
+      }
+    },
+    {
+      "t": "00:03.400",
+      "type": "fill",
+      "route": null,
+      "target": {
+        "tag": "input",
+        "name": "password",
+        "css": "#password"
+      },
+      "value": {
+        "masked": true
+      }
+    },
+    {
+      "t": "00:04.100",
+      "type": "click",
+      "route": null,
+      "target": {
+        "tag": "button",
+        "text": "Entrar",
+        "css": "button[type=submit]"
+      },
+      "value": null
+    },
+    {
+      "t": "00:06.500",
+      "type": "navigate",
+      "route": "/home",
+      "target": null,
+      "value": null
+    }
+  ]
+}

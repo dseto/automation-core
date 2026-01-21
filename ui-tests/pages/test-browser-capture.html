@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste — Browser Capture</title>
+    <style>
+        body { font-family: sans-serif; margin: 40px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { padding: 8px; width: 300px; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        #message { margin-top: 20px; padding: 10px; background: #d4edda; border: 1px solid #c3e6cb; display: none; }
+    </style>
+</head>
+<body>
+    <h1>Teste — Free-Hands Recorder (RC01-RC06)</h1>
+    
+    <form id="testForm" data-testid="test-form">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" data-testid="username-field" />
+        </div>
+        
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" data-testid="email-field" />
+        </div>
+        
+        <div class="form-group">
+            <label for="role">Role</label>
+            <select id="role" name="role" data-testid="role-select">
+                <option value="">Selecione...</option>
+                <option value="admin">Admin</option>
+                <option value="user">User</option>
+                <option value="guest">Guest</option>
+            </select>
+        </div>
+        
+        <button type="submit" data-testid="submit-btn">Enviar</button>
+        <button type="button" id="cancelBtn" data-testid="cancel-btn">Cancelar</button>
+    </form>
+    
+    <div id="message">Formulário submetido com sucesso!</div>
+    
+    <script>
+        document.getElementById('testForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            document.getElementById('message').style.display = 'block';
+        });
+        
+        document.getElementById('cancelBtn').addEventListener('click', () => {
+            document.getElementById('testForm').reset();
+            document.getElementById('message').style.display = 'none';
+        });
+    </script>
+</body>
+</html>

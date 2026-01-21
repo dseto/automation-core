@@ -121,6 +121,9 @@ Sempre que alguém perguntar:
 
 👉 a resposta deve estar **primeiro** aqui, e **depois** no código.
 
+## Anti-Pattern (crítico)
+Não capturar apenas ações originadas de steps/Reqnroll. FREE-HANDS deve capturar eventos manuais no browser.
+
 ---
 
 # 📜 Releases registradas

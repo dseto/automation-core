@@ -32,6 +32,14 @@ Antes de alterar qualquer código, SEMPRE consulte:
 - Selenium Manager é a fonte de drivers.
 - RunSettings devem refletir specs/backend/implementation/run-settings.md.
 
+## Organização de arquivos de teste
+- Todos os testes devem ser criados dentro de `ui-tests/`
+- Scripts PowerShell: `ui-tests/scripts/`
+- Páginas HTML de teste: `ui-tests/pages/`
+- Artifacts/evidências: `ui-tests/artifacts/` (configurar via `$env:RECORD_OUTPUT_DIR`)
+- Features Gherkin: `ui-tests/features/`
+- UI Maps: `ui-tests/ui/`
+
 ## Sempre entregar
 - Lista de arquivos alterados.
 - Resumo das mudanças.
@@ -69,14 +77,15 @@ O spec deck em `specs/` é a fonte única de verdade.
 ## Testes e validação
 Após alterações, garantir:
 - `dotnet build`
-- `dotnet test .\tests\Automation.Core.Tests\Automation.Core.Tests.csproj`
-- `dotnet run --project .\src\Automation.Validator\Automation.Validator.csproj -- validate --ui-map .\samples\ui\ui-map.yaml --features .\samples\features`
+- `dotnet test .\ui-tests\UiTests.csproj`
+- `dotnet run --project .\src\Automation.Validator\Automation.Validator.csproj -- validate --ui-map .\ui-tests\ui\ui-map.yaml --features .\ui-tests\features`
 
 ## Config (env vars)
 Respeitar `RunSettings.FromEnvironment()`:
 - UI_DEBUG, HEADLESS, SLOWMO_MS, HIGHLIGHT, PAUSE_ON_FAILURE
 - WAIT_ANGULAR, ANGULAR_TIMEOUT_MS, STEP_TIMEOUT_MS
 - BASE_URL, UI_MAP_PATH
+- AUTOMATION_RECORD, RECORD_OUTPUT_DIR (padrão: `artifacts/recorder`)
 
 ## Anti-patterns
 - XPath frágil / seletor por texto como padrão
