@@ -1,0 +1,7 @@
+pages:
+  login:
+    __meta:
+      route: /login
+      anchor: doesNotExist
+    username:
+      test_id: login.form.username

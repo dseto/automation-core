@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/uimap.schema.json",
+  "title": "UiMap",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "pages": {
+      "$ref": "#/$defs/pageCollection"
+    },
+    "modals": {
+      "$ref": "#/$defs/pageCollection"
+    }
+  },
+  "anyOf": [
+    {
+      "required": [
+        "pages"
+      ]
+    },
+    {
+      "required": [
+        "modals"
+      ]
+    }
+  ],
+  "$defs": {
+    "pageCollection": {
+      "type": "object",
+      "description": "Dicionário: nome da page/modal -> definição",
+      "additionalProperties": {
+        "$ref": "#/$defs/pageDef"
+      }
+    },
+    "pageDef": {
+      "type": "object",
+      "description": "Definição de uma página/modal. Além de __meta, cada propriedade extra é um elemento (friendly name).",
+      "properties": {
+        "__meta": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "route": {
+              "type": "string",
+              "minLength": 1
+            },
+            "anchor": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      },
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "type": "string",
+            "minLength": 1,
+            "description": "Formato simplificado: o próprio test_id"
+          },
+          {
+            "$ref": "#/$defs/elementDef"
+          }
+        ]
+      }
+    },
+    "elementDef": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "test_id"
+      ],
+      "properties": {
+        "test_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

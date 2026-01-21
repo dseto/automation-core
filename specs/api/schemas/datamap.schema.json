@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/datamap.schema.json",
+  "title": "DataMap",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "contexts": {
+      "type": "object",
+      "description": "Dicionário: environment -> contexto (objeto de chaves)",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "datasets": {
+      "type": "object",
+      "description": "Dicionário: datasetKey -> datasetDef",
+      "additionalProperties": {
+        "$ref": "#/$defs/datasetDef"
+      }
+    }
+  },
+  "required": [
+    "contexts"
+  ],
+  "$defs": {
+    "datasetDef": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "strategy": {
+          "type": "string",
+          "enum": [
+            "sequential",
+            "random",
+            "unique"
+          ],
+          "default": "sequential"
+        },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "required": [
+        "items"
+      ]
+    }
+  }
+}

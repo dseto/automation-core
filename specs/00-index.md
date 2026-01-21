@@ -1,35 +1,25 @@
-# Spec Deck - Automation Platform v2.0
+# Spec Deck (Spec-Driven) — Índice
 
-## Visão Geral
-Especificação técnica completa da plataforma de automação de testes de UI baseada em **Spec-Driven Development (SDD)**. Todos os artefatos são versionados e tratados como código.
+Este spec deck é **SSOT** do produto. Ele substitui o formato sequencial (spec book) por uma estrutura por domínios:
+- `shared/` — vocabulário, modelo de domínio, princípios e convenções.
+- `api/` — contratos externos (OpenAPI/JSON Schemas) e política de versionamento.
+- `backend/` — regras de runtime e arquitetura técnica.
+- `frontend/` — contratos de UI (ui-map) e convenções.
+- `tests/` — critérios executáveis (Gherkin, test data) e política de validação.
+- `ops/` — segurança, compliance, observabilidade e runbooks.
+- `releases/` — delta packs por release.
 
-## Documentos
+> Rastreabilidade: os arquivos originais estão em `_legacy/`.
 
-### Fundação
-1. **01-vision-and-scope.md** - Visão, princípios e escopo da plataforma.
-2. **02-architecture.md** - Arquitetura técnica e componentes principais.
-
-### Contratos (SSOT)
-3. **03-contracts.md** - UiMap, DataMap e Gherkin como contratos formais.
-4. **04-runtime-resolution.md** - Fluxo de resolução em runtime (Element, Data, Wait).
-
-### Implementação
-5. **05-step-catalog.md** - Catálogo completo de steps genéricos.
-6. **06-escape-hatch.md** - Execução de JavaScript para casos complexos.
-
-### Qualidade
-7. **07-validation-and-testing.md** - Validação de contratos e estratégia de testes.
-8. **08-security-and-compliance.md** - Segurança, secrets e conformidade.
-
-### Operação
-9. **09-implementation-guide.md** - Passo a passo para implementar em nova aplicação.
-10. **10-troubleshooting.md** - Guia de diagnóstico e resolução de problemas.
-
-### Futuro
-11. **backlog.md** - Features futuras e roadmap.
-
-## Convenções
-- **YAML:** Contratos (UiMap, DataMap) em YAML com validação de schema.
-- **Gherkin:** Testes em PT-BR com tags para organização.
-- **C#:** Apenas no Core e Reqnroll, nunca em projetos de teste.
-- **LLM-Ready:** Documentos estruturados para consumo por modelos de linguagem.
+## Onde cada capítulo antigo foi parar (resumo)
+- 01 Vision → `shared/vision.md`
+- 02 Architecture → `shared/domain-model.md` e `backend/architecture/system-architecture.md`
+- 03 Contracts → `api/` e `tests/validation/`
+- 04 Runtime Resolution → `backend/rules/`
+- 05 Step Catalog → `tests/gherkin/step-catalog.md`
+- 06 Escape Hatch → `tests/gherkin/escape-hatch.md` + `backend/rules/escape-hatch.md`
+- 07 Validation & Testing → `tests/` + `tests/validation/`
+- 08 Security & Compliance → `ops/security.md` + `ops/compliance.md`
+- 09 Implementation Guide → `backend/implementation/`
+- 10 Troubleshooting → `ops/runbooks/`
+- Backlog → `releases/delta/`

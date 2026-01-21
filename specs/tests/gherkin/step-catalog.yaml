@@ -1,0 +1,485 @@
+version: '1.0'
+language: pt-BR
+source: Automation.Reqnroll/Steps/*.cs
+steps:
+- bdd:
+  - Then
+  patterns:
+  - a rota deve ser "(.*)"
+  - a URL deve conter "(.*)"
+  handler:
+    file: ValidationSteps.cs
+    method: EntaoARotaDeveSer
+  summary: Valida que a URL atual contém a rota especificada.
+  parameters:
+  - name: expectedRoute
+    type: string
+- bdd:
+  - Then
+  patterns:
+  - devem existir (\d+) elementos? "(.*)"
+  handler:
+    file: ValidationSteps.cs
+    method: EntaoDevemExistirElementos
+  summary: Valida a quantidade de elementos encontrados.
+  parameters:
+  - name: expectedCount
+    type: int
+  - name: elementRef
+    type: string
+- bdd:
+  - Then
+  patterns:
+  - estou na página "(.*)"
+  handler:
+    file: NavigationSteps.cs
+    method: EntaoEstouNaPagina
+  summary: null
+  parameters:
+  - name: pageName
+    type: string
+- bdd:
+  - When
+  patterns:
+  - eu aguardo (\d+) segundos?
+  handler:
+    file: InteractionSteps.cs
+    method: QuandoEuAguardoSegundos
+  summary: Aguarda um número específico de segundos. Use com moderação - prefira waits
+    implícitos.
+  parameters:
+  - name: seconds
+    type: int
+- bdd:
+  - When
+  patterns:
+  - eu aguardo o elemento "(.*)" desaparecer
+  handler:
+    file: InteractionSteps.cs
+    method: QuandoEuAguardoElementoDesaparecer
+  summary: Aguarda um elemento desaparecer.
+  parameters:
+  - name: elementRef
+    type: string
+- bdd:
+  - When
+  patterns:
+  - eu aguardo o elemento "(.*)" estar visível
+  handler:
+    file: InteractionSteps.cs
+    method: QuandoEuAguardoElementoVisivel
+  summary: Aguarda um elemento estar visível.
+  parameters:
+  - name: elementRef
+    type: string
+- bdd:
+  - When
+  patterns:
+  - eu clico em "(.*)" e aguardo a rota "(.*)"
+  - eu clico no botão "(.*)" e aguardo a rota "(.*)"
+  handler:
+    file: InteractionSteps.cs
+    method: QuandoEuClicoEAguardoRota
+  summary: Clica em um elemento e aguarda navegação para uma rota específica.
+  parameters:
+  - name: elementRef
+    type: string
+  - name: expectedRoute
+    type: string
+- bdd:
+  - When
+  patterns:
+  - eu clico no botão "(.*)"
+  - eu clico no elemento "(.*)"
+  handler:
+    file: InteractionSteps.cs
+    method: QuandoEuClicoEm
+  summary: null
+  parameters:
+  - name: elementRef
+    type: string
+- bdd:
+  - When
+  patterns:
+  - eu dou duplo clique em "(.*)"
+  handler:
+    file: InteractionSteps.cs
+    method: QuandoEuDouDuploCliqueEm
+  summary: Duplo clique em um elemento.
+  parameters:
+  - name: elementRef
+    type: string
+- bdd:
+  - When
+  patterns:
+  - eu executo o script "(.*)" no elemento "(.*)"
+  handler:
+    file: InteractionSteps.cs
+    method: QuandoEuExecutoOScriptNoElemento
+  summary: 'Executa um script JavaScript em um elemento específico. O elemento é passado
+    como o primeiro argumento (arguments[0]) para o script. Exemplo: Quando eu executo
+    o script "arguments[0].click()" no elemento "submit"'
+  parameters:
+  - name: script
+    type: string
+  - name: elementRef
+    type: string
+- bdd:
+  - When
+  patterns:
+  - eu executo o script JS "(.*)"
+  handler:
+    file: InteractionSteps.cs
+    method: QuandoEuExecutoOScriptJS
+  summary: Executa um script JavaScript genérico no contexto da página. Útil para
+    manipulação de localStorage, sessionStorage ou eventos globais.
+  parameters:
+  - name: script
+    type: string
+- bdd:
+  - When
+  patterns:
+  - eu limpo o campo "(.*)"
+  - eu limpo "(.*)"
+  handler:
+    file: InteractionSteps.cs
+    method: QuandoEuLimpoOCampo
+  summary: Limpa o conteúdo de um campo.
+  parameters:
+  - name: elementRef
+    type: string
+- bdd:
+  - When
+  patterns:
+  - eu preencho "(.*)" com "(.*)"
+  - eu preencho o campo "(.*)" com "(.*)"
+  - eu digito "(.*)" em "(.*)"
+  handler:
+    file: InteractionSteps.cs
+    method: QuandoEuPreenchoCom
+  summary: Preenche um campo com um valor resolvido pelo DataResolver. Suporta literais,
+    variáveis de ambiente ou chaves do DataMap.
+  parameters:
+  - name: elementRef
+    type: string
+  - name: dataKey
+    type: string
+- bdd:
+  - When
+  patterns:
+  - eu preencho "(.*)" com a variável "(.*)"
+  - eu preencho o campo "(.*)" com a variável "(.*)"
+  handler:
+    file: InteractionSteps.cs
+    method: QuandoEuPreenchoComVariavel
+  summary: Preenche um campo com o valor de uma variável de ambiente.
+  parameters:
+  - name: elementRef
+    type: string
+  - name: envVarName
+    type: string
+- bdd:
+  - When
+  patterns:
+  - eu preencho "(.*)" com as credenciais de senha
+  - eu preencho o campo "(.*)" com as credenciais de senha
+  handler:
+    file: InteractionSteps.cs
+    method: QuandoEuPreenchoComCredenciaisDeSenha
+  summary: Preenche um campo com as credenciais de senha (variável TEST_PASS).
+  parameters:
+  - name: elementRef
+    type: string
+- bdd:
+  - When
+  patterns:
+  - eu preencho "(.*)" com as credenciais de usuário
+  - eu preencho o campo "(.*)" com as credenciais de usuário
+  handler:
+    file: InteractionSteps.cs
+    method: QuandoEuPreenchoComCredenciaisDeUsuario
+  summary: Preenche um campo com as credenciais de usuário (variável TEST_USER).
+  parameters:
+  - name: elementRef
+    type: string
+- bdd:
+  - When
+  patterns:
+  - eu preencho os campos com os dados de "(.*)"
+  handler:
+    file: InteractionSteps.cs
+    method: QuandoEuPreenchoCamposComDadosDe
+  summary: Preenche múltiplos campos a partir de um objeto de dados do DataMap. O
+    objeto deve ter chaves que correspondam aos nomes amigáveis no UiMap.
+  parameters:
+  - name: dataKey
+    type: string
+- bdd:
+  - When
+  patterns:
+  - eu pressiono "(.*)" em "(.*)"
+  handler:
+    file: InteractionSteps.cs
+    method: QuandoEuPressionoTeclaEm
+  summary: Pressiona uma tecla em um elemento específico.
+  parameters:
+  - name: keyName
+    type: string
+  - name: elementRef
+    type: string
+- bdd:
+  - When
+  patterns:
+  - eu pressiono a tecla "(.*)"
+  - eu pressiono "(.*)"
+  handler:
+    file: InteractionSteps.cs
+    method: QuandoEuPressionoTecla
+  summary: Pressiona uma tecla especial (Enter, Tab, Escape, etc).
+  parameters:
+  - name: keyName
+    type: string
+- bdd:
+  - When
+  patterns:
+  - eu seleciono "(.*)" em "(.*)"
+  - eu seleciono a opção "(.*)" em "(.*)"
+  handler:
+    file: InteractionSteps.cs
+    method: QuandoEuSelecionoEm
+  summary: Seleciona uma opção em um dropdown pelo texto visível.
+  parameters:
+  - name: optionText
+    type: string
+  - name: elementRef
+    type: string
+- bdd:
+  - When
+  patterns:
+  - eu seleciono o valor "(.*)" em "(.*)"
+  handler:
+    file: InteractionSteps.cs
+    method: QuandoEuSelecionoValorEm
+  summary: Seleciona uma opção em um dropdown pelo valor.
+  parameters:
+  - name: value
+    type: string
+  - name: elementRef
+    type: string
+- bdd:
+  - Then
+  patterns:
+  - o atributo "(.*)" de "(.*)" deve conter "(.*)"
+  handler:
+    file: ValidationSteps.cs
+    method: EntaoOAtributoDeveConter
+  summary: Valida que um elemento tem um atributo que contém um valor.
+  parameters:
+  - name: attributeName
+    type: string
+  - name: elementRef
+    type: string
+  - name: expectedValue
+    type: string
+- bdd:
+  - Then
+  patterns:
+  - o atributo "(.*)" de "(.*)" deve ser "(.*)"
+  - o atributo "(.*)" do elemento "(.*)" deve ser "(.*)"
+  handler:
+    file: ValidationSteps.cs
+    method: EntaoOAtributoDeveSer
+  summary: Valida que um elemento tem um atributo com valor específico.
+  parameters:
+  - name: attributeName
+    type: string
+  - name: elementRef
+    type: string
+  - name: expectedValue
+    type: string
+- bdd:
+  - Then
+  patterns:
+  - o elemento "(.*)" deve conter o texto "(.*)"
+  - o elemento "(.*)" contém o texto "(.*)"
+  handler:
+    file: ValidationSteps.cs
+    method: EntaoOElementoDeveConterTexto
+  summary: Valida que um elemento contém um texto específico.
+  parameters:
+  - name: elementRef
+    type: string
+  - name: expectedText
+    type: string
+- bdd:
+  - Then
+  patterns:
+  - o elemento "(.*)" deve estar desabilitado
+  - o elemento "(.*)" está desabilitado
+  handler:
+    file: ValidationSteps.cs
+    method: EntaoOElementoDeveEstarDesabilitado
+  summary: Valida que um elemento está desabilitado.
+  parameters:
+  - name: elementRef
+    type: string
+- bdd:
+  - Then
+  patterns:
+  - o elemento "(.*)" deve estar habilitado
+  - o elemento "(.*)" está habilitado
+  handler:
+    file: ValidationSteps.cs
+    method: EntaoOElementoDeveEstarHabilitado
+  summary: Valida que um elemento está habilitado.
+  parameters:
+  - name: elementRef
+    type: string
+- bdd:
+  - Then
+  patterns:
+  - o elemento "(.*)" deve estar marcado
+  - o elemento "(.*)" está marcado
+  handler:
+    file: ValidationSteps.cs
+    method: EntaoOElementoDeveEstarMarcado
+  summary: Valida que um checkbox/radio está marcado.
+  parameters:
+  - name: elementRef
+    type: string
+- bdd:
+  - Then
+  patterns:
+  - o elemento "(.*)" deve estar vazio
+  handler:
+    file: ValidationSteps.cs
+    method: EntaoOElementoDeveEstarVazio
+  summary: Valida que um elemento está vazio (sem texto).
+  parameters:
+  - name: elementRef
+    type: string
+- bdd:
+  - Given
+  - Then
+  patterns:
+  - o elemento "(.*)" deve estar visível
+  - o elemento "(.*)" está visível
+  - o elemento "(.*)" deve estar visível
+  - o elemento "(.*)" está visível
+  handler:
+    file: ValidationSteps.cs
+    method: EntaoOElementoDeveEstarVisivel
+  summary: Valida que um elemento está visível na tela. Suporta nomes simples ("username")
+    ou completos ("login.username").
+  parameters:
+  - name: elementRef
+    type: string
+- bdd:
+  - Then
+  patterns:
+  - o elemento "(.*)" deve existir
+  handler:
+    file: ValidationSteps.cs
+    method: EntaoOElementoDeveExistir
+  summary: Valida que um elemento existe no DOM (pode estar oculto).
+  parameters:
+  - name: elementRef
+    type: string
+- bdd:
+  - Then
+  patterns:
+  - o elemento "(.*)" deve ter o texto "(.*)"
+  - o texto de "(.*)" deve ser "(.*)"
+  handler:
+    file: ValidationSteps.cs
+    method: EntaoOElementoDeveTerTexto
+  summary: Valida que um elemento tem exatamente o texto especificado.
+  parameters:
+  - name: elementRef
+    type: string
+  - name: expectedText
+    type: string
+- bdd:
+  - Then
+  patterns:
+  - o elemento "(.*)" não deve conter o texto "(.*)"
+  handler:
+    file: ValidationSteps.cs
+    method: EntaoOElementoNaoDeveConterTexto
+  summary: Valida que um elemento NÃO contém um texto específico.
+  parameters:
+  - name: elementRef
+    type: string
+  - name: text
+    type: string
+- bdd:
+  - Then
+  patterns:
+  - o elemento "(.*)" não deve estar marcado
+  - o elemento "(.*)" não está marcado
+  handler:
+    file: ValidationSteps.cs
+    method: EntaoOElementoNaoDeveEstarMarcado
+  summary: Valida que um checkbox/radio NÃO está marcado.
+  parameters:
+  - name: elementRef
+    type: string
+- bdd:
+  - Then
+  patterns:
+  - o elemento "(.*)" não deve estar visível
+  - o elemento "(.*)" não está visível
+  handler:
+    file: ValidationSteps.cs
+    method: EntaoOElementoNaoDeveEstarVisivel
+  summary: Valida que um elemento NÃO está visível na tela.
+  parameters:
+  - name: elementRef
+    type: string
+- bdd:
+  - Then
+  patterns:
+  - o elemento "(.*)" não deve existir
+  handler:
+    file: ValidationSteps.cs
+    method: EntaoOElementoNaoDeveExistir
+  summary: Valida que um elemento NÃO existe no DOM.
+  parameters:
+  - name: elementRef
+    type: string
+- bdd:
+  - Then
+  patterns:
+  - o valor de "(.*)" deve ser "(.*)"
+  - o campo "(.*)" deve ter o valor "(.*)"
+  handler:
+    file: ValidationSteps.cs
+    method: EntaoOValorDeveSer
+  summary: Valida o valor de um campo de input.
+  parameters:
+  - name: elementRef
+    type: string
+  - name: expectedValue
+    type: string
+- bdd:
+  - Given
+  patterns:
+  - que a aplicação está em "(.*)"
+  handler:
+    file: NavigationSteps.cs
+    method: DadoQueAAplicacaoEstaEm
+  summary: null
+  parameters:
+  - name: url
+    type: string
+- bdd:
+  - Given
+  patterns:
+  - que estou na página "(.*)"
+  handler:
+    file: NavigationSteps.cs
+    method: DadoQueEstouNaPagina
+  summary: null
+  parameters:
+  - name: pageName
+    type: string

@@ -1,0 +1,23 @@
+contexts:
+  default:
+    usuario:
+      nome: Daniel
+      perfil: admin
+    baseUrl: ${BASE_URL}
+  qa:
+    usuario:
+      nome: Daniel QA
+      perfil: admin
+datasets:
+  usuarioValido:
+    strategy: sequential
+    items:
+    - username: user1
+      password: pass1
+    - username: user2
+      password: pass2
+  usuarioUnico:
+    strategy: unique
+    items:
+    - username: uniqueUser
+      password: pass

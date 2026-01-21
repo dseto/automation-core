@@ -1,0 +1,12 @@
+pages:
+  login:
+    __meta:
+      route: /login
+      anchor: form
+    form:
+      test_id: login.form
+    username:
+      test_id: login.form.username
+    password:
+      test_id: login.form.password
+    submit: login.form.submit

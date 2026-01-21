@@ -1,0 +1,17 @@
+openapi: 3.0.3
+info:
+  title: Automation Platform - Contracts API
+  version: 0.1.0
+  description: >
+    Este arquivo é um *placeholder* para contratos formais (se/quando existir API HTTP).
+    O SSOT atual do produto são contratos de arquivos (ui-map, data-map, gherkin).
+servers: []
+paths: {}
+components:
+  schemas:
+    UiMap:
+      type: object
+      description: "Placeholder - ver docs em api/contracts.md"
+    DataMap:
+      type: object
+      description: "Placeholder - ver docs em api/contracts.md"

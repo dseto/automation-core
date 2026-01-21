@@ -1,0 +1,7 @@
+contexts:
+  default: {}
+datasets:
+  usuarios:
+    strategy: shuffle
+    items:
+    - a: 1

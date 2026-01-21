@@ -1,0 +1,5 @@
+pages:
+  login:
+    __meta:
+      route: /login
+    username: {}
