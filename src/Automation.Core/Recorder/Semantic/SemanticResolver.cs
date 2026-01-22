@@ -86,32 +86,36 @@ namespace Automation.Core.Recorder.Semantic
                     {
                         var page = parts[0];
                         var element = parts[1];
-                        try
+                        // Only treat as page.element if page exists in UiMap to avoid misinterpreting testIds like 'page.login.username'
+                        if (_uiMap.Pages.ContainsKey(page))
                         {
-                            var uiPage = _uiMap.GetPageOrThrow(page);
-                            var testId = uiPage.GetTestIdOrThrow(element);
-
-                            step.Status = "resolved";
-                            step.Chosen = new ResolvedChosen { PageKey = page, ElementKey = element, TestId = testId };
-                        }
-                        catch (Exception ex)
-                        {
-                            // key not found
-                            step.Status = "unresolved";
-                            var f = new UiGapFinding
+                            try
                             {
-                                Severity = "error",
-                                Code = "UI_MAP_KEY_NOT_FOUND",
-                                Message = $"Chave '{inputRef}' não encontrada no UiMap.",
-                                DraftLine = stepLine,
-                                InputRef = inputRef,
-                                StepText = stepText
-                            };
-                            findings.Add(f);
-                        }
+                                var uiPage = _uiMap.GetPageOrThrow(page);
+                                var testId = uiPage.GetTestIdOrThrow(element);
 
-                        metadata.Steps.Add(step);
-                        continue;
+                                step.Status = "resolved";
+                                step.Chosen = new ResolvedChosen { PageKey = page, ElementKey = element, TestId = testId };
+                            }
+                            catch (Exception ex)
+                            {
+                                // key not found
+                                step.Status = "unresolved";
+                                var f = new UiGapFinding
+                                {
+                                    Severity = "error",
+                                    Code = "UI_MAP_KEY_NOT_FOUND",
+                                    Message = $"Chave '{inputRef}' não encontrada no UiMap.",
+                                    DraftLine = stepLine,
+                                    InputRef = inputRef,
+                                    StepText = stepText
+                                };
+                                findings.Add(f);
+                            }
+
+                            metadata.Steps.Add(step);
+                            continue;
+                        }
                     }
                 }
 

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>SeguroSim • Login</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="login-page">
+  <div class="login-shell">
+    <div class="login-card">
+      <div class="login-brand">
+        <span class="brand-dot" aria-hidden="true"></span>
+        <div>
+          <div class="brand-title">SeguroSim</div>
+          <div class="brand-subtitle">Acesso ao sistema de cotação (estático)</div>
+        </div>
+      </div>
+
+      <label class="label">Usuário
+        <input class="input" id="loginUser" placeholder="admin" autocomplete="username"/>
+      </label>
+
+      <label class="label">Senha
+        <input class="input" id="loginPass" type="password" placeholder="admin" autocomplete="current-password"/>
+      </label>
+
+      <div class="login-error" id="loginError" hidden>
+        Usuário ou senha inválidos.
+      </div>
+
+      <div class="inline" style="margin-top:12px;justify-content:space-between">
+        <button class="btn ghost" id="btnClear">Limpar</button>
+        <button class="btn primary" id="btnLogin">Entrar</button>
+      </div>
+
+      <div class="helper" style="margin-top:10px">
+        Credenciais válidas: <b>admin / admin</b>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const $ = (s)=>document.querySelector(s);
+  const err = $('#loginError');
+  const user = $('#loginUser');
+  const pass = $('#loginPass');
+
+  function tryLogin(){
+    const u = (user.value||'').trim();
+    const p = (pass.value||'').trim();
+    if(u === 'admin' && p === 'admin'){
+      localStorage.setItem('seguroSimAuth', JSON.stringify({ isLoggedIn:true, user:{ name:'admin' } }));
+      window.location.href = 'app.html#/dashboard';
+    }else{
+      err.hidden = false;
+      err.textContent = 'Usuário ou senha inválidos.';
+    }
+  }
+
+  $('#btnLogin').addEventListener('click', tryLogin);
+  $('#btnClear').addEventListener('click', ()=>{
+    err.hidden = true;
+    user.value='';
+    pass.value='';
+    user.focus();
+  });
+
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter') tryLogin();
+  });
+
+  // If already logged in, go straight to app
+  try{
+    const a = JSON.parse(localStorage.getItem('seguroSimAuth')||'{}');
+    if(a && a.isLoggedIn) window.location.href = 'app.html#/dashboard';
+  }catch{}
+})();
+</script>
+</body>
+</html>
