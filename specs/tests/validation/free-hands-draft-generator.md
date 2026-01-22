@@ -36,3 +36,16 @@ Entrada com:
 - fill → username/password
 - click → submit
 Deve produzir um `draft.feature` equivalente ao exemplo em `specs/api/examples/draft.feature.example.feature`.
+## Gate — Determinismo de rotas e 1 linha (RF12b)
+
+O `draft.feature` gerado DEVE:
+
+- Para qualquer evento `navigate`, materializar exatamente `event.route` no step:
+  - `Dado que estou na página "<route>"`
+- Não conter `\r`/`\n` dentro de parâmetros entre aspas (route/elementRef/value).
+- Materializar `# RAW:` em JSON compacto, sempre em uma única linha.
+
+Sinais de falha:
+- Parser Gherkin quebra por newline dentro de aspas.
+- Step de navegação contém rota diferente de `event.route` (ex.: `/login.html/login`).
+- Linha `# RAW:` contém JSON multi-line.

@@ -280,6 +280,157 @@ namespace Automation.Core.Tests
             Assert.Equal("__page__", s.Chosen!.ElementKey);
         }
 
+        [Fact]
+        public void Navigate_Mapped_Route_Rewrites_Step_To_PageKey()
+        {
+            // Build a UiMap with a page that has __meta.route = "/login.html"
+            var ui = new UiMapModel();
+            var pageDict = new Dictionary<string, object>
+            {
+                ["__meta"] = new Dictionary<string, object>
+                {
+                    ["route"] = "/login.html"
+                }
+            };
+            ui.Pages["login"] = pageDict;
+
+            var draft = "#language: pt\n\nFuncionalidade: X\n\nCenário: Y\n\n  Dado que estou na página \"/login.html\"\n";
+            var metadata = BuildDraftMetadata((0, 7));
+
+            var resolver = new SemanticResolver(ui, null, 5, "draft.feature", "ui-map.yaml");
+            var (resolvedMeta, report, resolvedFeature) = resolver.Resolve(draft, metadata);
+
+            // The resolved feature should contain the page key (login) instead of the literal route
+            Assert.Contains("Dado que estou na página \"login\"", resolvedFeature);
+            Assert.DoesNotContain("/login.html", resolvedFeature);
+        }
+
+        [Fact]
+        public void Resolved_Feature_Includes_BaseUrl_Step_When_PageNavigations_Exist()
+        {
+            var ui = new UiMapModel();
+            var pageDict = new Dictionary<string, object>
+            {
+                ["__meta"] = new Dictionary<string, object>
+                {
+                    ["route"] = "/dashboard"
+                }
+            };
+            ui.Pages["dashboard"] = pageDict;
+
+            var draft = "#language: pt\n\nFuncionalidade: X\n\nCenário: Y\n\n  Dado que estou na página \"/dashboard\"\n";
+            var metadata = BuildDraftMetadata((0, 7));
+
+            var resolver = new SemanticResolver(ui, null, 5, "draft.feature", "ui-map.yaml");
+            var (resolvedMeta, report, resolvedFeature) = resolver.Resolve(draft, metadata);
+
+            // Expect the resolved feature to include an explicit BASE_URL step at the start of the scenario
+            Assert.Contains("Dado que a aplicação está em \"${BASE_URL}\"", resolvedFeature);
+        }
+
+        [Fact]
+        public void Resolved_Feature_Rewrites_Element_Refs_To_ElementKey_When_Resolved()
+        {
+            // UiMap: element 'pass-label' exists with test_id 'login.pass.label'
+            var ui = new UiMapModel();
+            var pageDict = new Dictionary<string, object>
+            {
+                ["pass-label"] = new Dictionary<string, object> { ["testId"] = "login.pass.label" }
+            };
+            ui.Pages["login"] = pageDict;
+
+            var draft = "#language: pt\n\nFuncionalidade: X\n\nCenário: Y\n\n  Quando eu clico em \"login.pass.label\"\n";
+            var metadata = BuildDraftMetadata((0, 7));
+
+            var resolver = new SemanticResolver(ui, null, 5, "draft.feature", "ui-map.yaml");
+            var (resolvedMeta, report, resolvedFeature) = resolver.Resolve(draft, metadata);
+
+            // After resolution we expect the step to use the element key (pass-label) so runtime's ElementResolver can find it
+            Assert.Contains("Quando eu clico em \"login.pass-label\"", resolvedFeature);
+            Assert.DoesNotContain("login.pass.label", resolvedFeature);
+        }
+
+        [Fact]
+        public void Navigate_Uses_Session_Event_Route_When_Present()
+        {
+            // UiMap has page with __meta.route = "/dashboard"
+            var ui = new UiMapModel();
+            var pageDict = new Dictionary<string, object>
+            {
+                ["__meta"] = new Dictionary<string, object>
+                {
+                    ["route"] = "/dashboard"
+                }
+            };
+            ui.Pages["dashboard"] = pageDict;
+
+            // Draft mentions an unknown route but session event carries the canonical route
+            var draft = "#language: pt\n\nFuncionalidade: X\n\nCenário: Y\n\n  Dado que estou na página \"unknown-route\"\n";
+            var metadata = BuildDraftMetadata((0, 7));
+
+            var session = new RecorderSession();
+            session.Events.Add(new RecorderEvent { Type = "navigate", Route = "/dashboard" });
+
+            var resolver = new SemanticResolver(ui, session, 5, "draft.feature", "ui-map.yaml");
+            var (resolvedMeta, report, resolvedFeature) = resolver.Resolve(draft, metadata);
+
+            var s = resolvedMeta.Steps[0];
+            Assert.Equal("resolved", s.Status);
+            Assert.NotNull(s.Chosen);
+            Assert.Equal("dashboard", s.Chosen!.PageKey);
+            Assert.Equal("__page__", s.Chosen!.ElementKey);
+        }
+
+        [Fact]
+        public void Treats_PageElement_WithDots_As_TestId_When_ElementNameMissing()
+        {
+            // Build UiMap where page 'layout' has element 'topbar-menu' with test_id = 'layout.topbar.menu'
+            var ui = new UiMapModel();
+            var pageDict = new Dictionary<string, object>
+            {
+                ["topbar-menu"] = new Dictionary<string, object>
+                {
+                    ["testId"] = "layout.topbar.menu"
+                }
+            };
+            ui.Pages["layout"] = pageDict;
+
+            var draft = "#language: pt\n\nFuncionalidade: X\n\nCenário: Y\n\n  Quando eu clico em \"layout.topbar.menu\"\n";
+            var metadata = BuildDraftMetadata((0, 7));
+
+            var resolver = new SemanticResolver(ui, null, 5, "draft.feature", "ui-map.yaml");
+            var (resolvedMeta, report, resolvedFeature) = resolver.Resolve(draft, metadata);
+
+            var s = resolvedMeta.Steps[0];
+            Assert.Equal("resolved", s.Status);
+            Assert.NotNull(s.Chosen);
+            Assert.Equal("layout", s.Chosen!.PageKey);
+            Assert.Equal("topbar-menu", s.Chosen!.ElementKey);
+            Assert.Equal("layout.topbar.menu", s.Chosen!.TestId);
+        }
+
+        [Fact]
+        public void Navigate_Session_NoRoute_Produces_Info_Finding()
+        {
+            // UiMap with a page
+            var ui = BuildUiMap(new[] { ("home", "btnLogin", "btn-login") });
+            var draft = "#language: pt\n\nFuncionalidade: X\n\nCenário: Y\n\n  Dado que estou na página \"some-route\"\n";
+            var metadata = BuildDraftMetadata((0, 7));
+
+            var session = new RecorderSession();
+            session.Events.Add(new RecorderEvent { Type = "navigate" }); // no Route
+
+            var resolver = new SemanticResolver(ui, session, 5, "draft.feature", "ui-map.yaml");
+            var (resolvedMeta, report, resolvedFeature) = resolver.Resolve(draft, metadata);
+
+            var s = resolvedMeta.Steps[0];
+            Assert.Equal("unresolved", s.Status);
+
+            var info = report.Findings.FirstOrDefault(f => f.DraftLine == 7 && f.Code == "UIGAP_ROUTE_NOT_MAPPED");
+            Assert.NotNull(info);
+            Assert.Equal("info", info.Severity);
+        }
+
         [Theory]
         [InlineData("[data-testid='page.login.username']")]
         [InlineData("[data-testid=\"page.login.username\"]")]

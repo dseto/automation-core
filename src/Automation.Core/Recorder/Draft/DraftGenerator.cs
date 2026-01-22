@@ -207,13 +207,20 @@ public sealed class DraftGenerator
         if (ev == null) return null;
 
         if (ev.Type == "navigate")
-            return $"Dado que estou na página \"{ev.Route ?? "/"}\"";
+        {
+            // Prefer normalized presentation: if the event has url/pathname/fragment, normalize to a canonical relative route
+            var baseUrlEnv = System.Environment.GetEnvironmentVariable("BASE_URL");
+            var canonical = Automation.Core.Recorder.RouteNormalizer.Normalize(ev.Url ?? ev.Route ?? "/", ev.Pathname, ev.Fragment, baseUrlEnv);
+            // Fallback: if normalization produced the root and ev.Route is richer, prefer ev.Route
+            if (canonical == "/" && !string.IsNullOrWhiteSpace(ev.Route) && ev.Route != "/")
+                canonical = ev.Route;
 
-        var target = NormalizeElementRef(TryGetHint(ev.Target));
+            var routeSanitized = SanitizeRouteForDraft(canonical ?? "/");
+            return $"Dado que estou na página \"{routeSanitized}\"";
+        }
+
+        var target = TryGetHint(ev.Target);
         var literal = TryGetLiteral(ev.Value);
-
-        if (string.IsNullOrWhiteSpace(target) || IsGenericHint(target))
-            return null;
 
         return ev.Type switch
         {
@@ -288,6 +295,17 @@ public sealed class DraftGenerator
         }
 
         return null;
+    }
+
+    private static string SanitizeRouteForDraft(string route)
+    {
+        if (string.IsNullOrWhiteSpace(route)) return "/";
+        // Remove CR, convert newlines to space and collapse whitespace
+        var s = route.Replace("\r", "").Replace("\n", " ").Trim();
+        s = System.Text.RegularExpressions.Regex.Replace(s, "\\s+", " ");
+        // Replace double quotes with single quotes to avoid breaking Gherkin
+        s = s.Replace("\"", "'");
+        return s;
     }
 
     private static IEnumerable<string> IndentLines(IEnumerable<string> lines, string indent)

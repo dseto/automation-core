@@ -1,0 +1,579 @@
+pages:
+  login:
+    __meta:
+      route: /login.html
+      anchor: login.page
+    brand:
+      test_id: login.brand
+    card:
+      test_id: login.card
+    clear:
+      test_id: login.clear
+    error:
+      test_id: login.error
+    helper:
+      test_id: login.helper
+    hint:
+      test_id: login.hint
+    mfa:
+      test_id: login.mfa
+    mfa-label:
+      test_id: login.mfa.label
+    page:
+      test_id: login.page
+    pass:
+      test_id: login.pass
+    pass-label:
+      test_id: login.pass.label
+    submit:
+      test_id: login.submit
+    title:
+      test_id: login.title
+    user:
+      test_id: login.user
+    user-label:
+      test_id: login.user.label
+  dashboard:
+    __meta:
+      route: /app.html#/dashboard
+      anchor: dashboard.title
+    card:
+      test_id: dashboard.card
+    go-quote:
+      test_id: dashboard.goQuote
+    kpi-policies:
+      test_id: dashboard.kpi.policies
+    kpi-policies-value:
+      test_id: dashboard.kpi.policies.value
+    kpi-quotes:
+      test_id: dashboard.kpi.quotes
+    kpi-quotes-value:
+      test_id: dashboard.kpi.quotes.value
+    loading:
+      test_id: dashboard.loading
+    modal-cancel:
+      test_id: dashboard.modal.cancel
+    modal-input:
+      test_id: dashboard.modal.input
+    modal-ok:
+      test_id: dashboard.modal.ok
+    modal-text:
+      test_id: dashboard.modal.text
+    open-modal:
+      test_id: dashboard.openModal
+    title:
+      test_id: dashboard.title
+    toast:
+      test_id: dashboard.toast
+  quote:
+    __meta:
+      route: /app.html#/quote
+      anchor: quote.title
+    card:
+      test_id: quote.card
+    client-birth-date:
+      test_id: quote.client.birthDate
+    client-birth-date-label:
+      test_id: quote.client.birthDate.label
+    client-city:
+      test_id: quote.client.city
+    client-city-label:
+      test_id: quote.client.city.label
+    client-city-sugg-:
+      test_id: quote.client.city.sugg.-
+    client-city-suggestions:
+      test_id: quote.client.city.suggestions
+    client-cpf:
+      test_id: quote.client.cpf
+    client-cpf-label:
+      test_id: quote.client.cpf.label
+    client-email:
+      test_id: quote.client.email
+    client-email-label:
+      test_id: quote.client.email.label
+    client-flags:
+      test_id: quote.client.flags
+    client-name:
+      test_id: quote.client.name
+    client-name-label:
+      test_id: quote.client.name.label
+    client-next:
+      test_id: quote.client.next
+    client-optin:
+      test_id: quote.client.optin
+    client-optin-checkbox:
+      test_id: quote.client.optin.checkbox
+    client-vip:
+      test_id: quote.client.vip
+    client-vip-checkbox:
+      test_id: quote.client.vip.checkbox
+    finish-close:
+      test_id: quote.finish.close
+    finish-go-search:
+      test_id: quote.finish.goSearch
+    finish-text:
+      test_id: quote.finish.text
+    product-addons:
+      test_id: quote.product.addons
+    product-addons-glass:
+      test_id: quote.product.addons.glass
+    product-addons-glass-checkbox:
+      test_id: quote.product.addons.glass.checkbox
+    product-addons-roadside:
+      test_id: quote.product.addons.roadside
+    product-addons-roadside-checkbox:
+      test_id: quote.product.addons.roadside.checkbox
+    product-addons-theft:
+      test_id: quote.product.addons.theft
+    product-addons-theft-checkbox:
+      test_id: quote.product.addons.theft.checkbox
+    product-back:
+      test_id: quote.product.back
+    product-coverage:
+      test_id: quote.product.coverage
+    product-coverage-basic:
+      test_id: quote.product.coverage.basic
+    product-coverage-basic-radio:
+      test_id: quote.product.coverage.basic.radio
+    product-coverage-full:
+      test_id: quote.product.coverage.full
+    product-coverage-full-radio:
+      test_id: quote.product.coverage.full.radio
+    product-next:
+      test_id: quote.product.next
+    product-notes:
+      test_id: quote.product.notes
+    product-notes-label:
+      test_id: quote.product.notes.label
+    product-simulate:
+      test_id: quote.product.simulate
+    product-start-date:
+      test_id: quote.product.startDate
+    product-start-date-label:
+      test_id: quote.product.startDate.label
+    product-type:
+      test_id: quote.product.type
+    product-type-label:
+      test_id: quote.product.type.label
+    reset:
+      test_id: quote.reset
+    review-back:
+      test_id: quote.review.back
+    review-client-birth:
+      test_id: quote.review.client.birth
+    review-client-city:
+      test_id: quote.review.client.city
+    review-client-cpf:
+      test_id: quote.review.client.cpf
+    review-client-email:
+      test_id: quote.review.client.email
+    review-client-name:
+      test_id: quote.review.client.name
+    review-finish:
+      test_id: quote.review.finish
+    review-product-addons:
+      test_id: quote.review.product.addons
+    review-product-coverage:
+      test_id: quote.review.product.coverage
+    review-product-start:
+      test_id: quote.review.product.start
+    review-product-type:
+      test_id: quote.review.product.type
+    review-simulation:
+      test_id: quote.review.simulation
+    review-simulation-coverage-:
+      test_id: quote.review.simulation.coverage.-
+    review-simulation-franchise-:
+      test_id: quote.review.simulation.franchise.-
+    review-simulation-grid:
+      test_id: quote.review.simulation.grid
+    review-simulation-none:
+      test_id: quote.review.simulation.none
+    review-simulation-premium:
+      test_id: quote.review.simulation.premium
+    review-simulation-premium-:
+      test_id: quote.review.simulation.premium.-
+    review-simulation-row-:
+      test_id: quote.review.simulation.row.-
+    review-simulation-total-premium:
+      test_id: quote.review.simulation.totalPremium
+    review-simulation-total-row:
+      test_id: quote.review.simulation.totalRow
+    review-summary:
+      test_id: quote.review.summary
+    review-title:
+      test_id: quote.review.title
+    simulation-close:
+      test_id: quote.simulation.close
+    simulation-coverage-:
+      test_id: quote.simulation.coverage.-
+    simulation-franchise-:
+      test_id: quote.simulation.franchise.-
+    simulation-grid:
+      test_id: quote.simulation.grid
+    simulation-installment:
+      test_id: quote.simulation.installment
+    simulation-iof:
+      test_id: quote.simulation.iof
+    simulation-juros:
+      test_id: quote.simulation.juros
+    simulation-parcelas:
+      test_id: quote.simulation.parcelas
+    simulation-payment:
+      test_id: quote.simulation.payment
+    simulation-premium-:
+      test_id: quote.simulation.premium.-
+    simulation-result:
+      test_id: quote.simulation.result
+    simulation-row-:
+      test_id: quote.simulation.row.-
+    simulation-to-review:
+      test_id: quote.simulation.toReview
+    simulation-total-fin:
+      test_id: quote.simulation.totalFin
+    simulation-total-iof:
+      test_id: quote.simulation.totalIof
+    simulation-total-premium:
+      test_id: quote.simulation.totalPremium
+    simulation-total-row:
+      test_id: quote.simulation.totalRow
+    submit:
+      test_id: quote.submit
+    submit-cancel:
+      test_id: quote.submit.cancel
+    submit-confirm:
+      test_id: quote.submit.confirm
+    submit-text:
+      test_id: quote.submit.text
+    tab-body:
+      test_id: quote.tab.body
+    tab-client:
+      test_id: quote.tab.client
+    tab-product:
+      test_id: quote.tab.product
+    tab-review:
+      test_id: quote.tab.review
+    tabs:
+      test_id: quote.tabs
+    title:
+      test_id: quote.title
+    validation-item-:
+      test_id: quote.validation.item.-
+    validation-modal:
+      test_id: quote.validation.modal
+    validation-modal-hint:
+      test_id: quote.validation.modal.hint
+    validation-modal-list:
+      test_id: quote.validation.modal.list
+    validation-modal-ok:
+      test_id: quote.validation.modal.ok
+  search:
+    __meta:
+      route: /app.html#/search
+      anchor: search.title
+    card:
+      test_id: search.card
+    clear:
+      test_id: search.clear
+    filters-box:
+      test_id: search.filters.box
+    filters-include-quotes:
+      test_id: search.filters.includeQuotes
+    filters-include-quotes-checkbox:
+      test_id: search.filters.includeQuotes.checkbox
+    filters-only-recent:
+      test_id: search.filters.onlyRecent
+    filters-only-recent-checkbox:
+      test_id: search.filters.onlyRecent.checkbox
+    open-close:
+      test_id: search.open.close
+    open-detail:
+      test_id: search.open.detail
+    product:
+      test_id: search.product
+    product-label:
+      test_id: search.product.label
+    q:
+      test_id: search.q
+    q-label:
+      test_id: search.q.label
+    results-client-:
+      test_id: search.results.client.-
+    results-empty:
+      test_id: search.results.empty
+    results-id-:
+      test_id: search.results.id.-
+    results-open-:
+      test_id: search.results.open.-
+    results-product-:
+      test_id: search.results.product.-
+    results-row-:
+      test_id: search.results.row.-
+    results-status-:
+      test_id: search.results.status.-
+    results-table:
+      test_id: search.results.table
+    run:
+      test_id: search.run
+    status:
+      test_id: search.status
+    status-label:
+      test_id: search.status.label
+    title:
+      test_id: search.title
+  policies:
+    __meta:
+      route: /policies
+      anchor: policies.title
+    add:
+      test_id: policies.add
+    add-cancel:
+      test_id: policies.add.cancel
+    add-client:
+      test_id: policies.add.client
+    add-confirm:
+      test_id: policies.add.confirm
+    add-form:
+      test_id: policies.add.form
+    add-premium:
+      test_id: policies.add.premium
+    add-product:
+      test_id: policies.add.product
+    add-start:
+      test_id: policies.add.start
+    add-status:
+      test_id: policies.add.status
+    card:
+      test_id: policies.card
+    client-:
+      test_id: policies.client.-
+    delete-:
+      test_id: policies.delete.-
+    delete-cancel:
+      test_id: policies.delete.cancel
+    delete-confirm:
+      test_id: policies.delete.confirm
+    delete-confirm-text:
+      test_id: policies.delete.confirm.text
+    detail:
+      test_id: policies.detail
+    detail-close:
+      test_id: policies.detail.close
+    id-:
+      test_id: policies.id.-
+    open-:
+      test_id: policies.open.-
+    premium-:
+      test_id: policies.premium.-
+    product-:
+      test_id: policies.product.-
+    row-:
+      test_id: policies.row.-
+    save:
+      test_id: policies.save
+    start-:
+      test_id: policies.start.-
+    status-:
+      test_id: policies.status.-
+    table:
+      test_id: policies.table
+    title:
+      test_id: policies.title
+  settings:
+    __meta:
+      route: /app.html#/settings
+      anchor: settings.title
+    card:
+      test_id: settings.card
+    env:
+      test_id: settings.env
+    env-label:
+      test_id: settings.env.label
+    flags:
+      test_id: settings.flags
+    flags-darkmode:
+      test_id: settings.flags.darkmode
+    flags-darkmode-checkbox:
+      test_id: settings.flags.darkmode.checkbox
+    flags-telemetry:
+      test_id: settings.flags.telemetry
+    flags-telemetry-checkbox:
+      test_id: settings.flags.telemetry.checkbox
+    lang:
+      test_id: settings.lang
+    lang-label:
+      test_id: settings.lang.label
+    profile:
+      test_id: settings.profile
+    profile-role-dev:
+      test_id: settings.profile.role.dev
+    profile-role-dev-radio:
+      test_id: settings.profile.role.dev.radio
+    profile-role-label:
+      test_id: settings.profile.role.label
+    profile-role-qa:
+      test_id: settings.profile.role.qa
+    profile-role-qa-radio:
+      test_id: settings.profile.role.qa.radio
+    save:
+      test_id: settings.save
+    title:
+      test_id: settings.title
+  layout:
+    __meta:
+      route: '*'
+      anchor: layout.topbar
+    breadcrumbs:
+      test_id: layout.breadcrumbs
+    main:
+      test_id: layout.main
+    page-actions:
+      test_id: layout.pageActions
+    pagehead:
+      test_id: layout.pagehead
+    sidebar:
+      test_id: layout.sidebar
+    sidebar-footer:
+      test_id: layout.sidebar.footer
+    sidebar-nav:
+      test_id: layout.sidebar.nav
+    sidebar-sub:
+      test_id: layout.sidebar.sub
+    sidebar-title:
+      test_id: layout.sidebar.title
+    topbar:
+      test_id: layout.topbar
+    topbar-brand:
+      test_id: layout.topbar.brand
+    topbar-help:
+      test_id: layout.topbar.help
+    topbar-menu:
+      test_id: layout.topbar.menu
+    topbar-notifications:
+      test_id: layout.topbar.notifications
+    topbar-user:
+      test_id: layout.topbar.user
+  navigation:
+    __meta:
+      route: '*'
+      anchor: nav.dashboard
+    dashboard:
+      test_id: nav.dashboard
+    more:
+      test_id: nav.more
+    policies:
+      test_id: nav.policies
+    quote:
+      test_id: nav.quote
+    search:
+      test_id: nav.search
+    settings:
+      test_id: nav.settings
+  sidebar:
+    __meta:
+      route: '*'
+      anchor: sidebar.env
+    env:
+      test_id: sidebar.env
+    version:
+      test_id: sidebar.version
+  router:
+    __meta:
+      route: '*'
+      anchor: router.outlet
+    outlet:
+      test_id: router.outlet
+  popups:
+    __meta:
+      route: '*'
+      anchor: popup.contextMenu
+    context-menu:
+      test_id: popup.contextMenu
+    context-menu-about:
+      test_id: popup.contextMenu.about
+    context-menu-changelog:
+      test_id: popup.contextMenu.changelog
+    context-menu-shortcuts:
+      test_id: popup.contextMenu.shortcuts
+    notifications:
+      test_id: popup.notifications
+    notifications-close:
+      test_id: popup.notifications.close
+    notifications-list:
+      test_id: popup.notifications.list
+  modal:
+    __meta:
+      route: '*'
+      anchor: modal.container
+    backdrop:
+      test_id: modal.backdrop
+    body:
+      test_id: modal.body
+    close:
+      test_id: modal.close
+    container:
+      test_id: modal.container
+    footer:
+      test_id: modal.footer
+    title:
+      test_id: modal.title
+  loading:
+    __meta:
+      route: '*'
+      anchor: loading.overlay
+    card:
+      test_id: loading.card
+    overlay:
+      test_id: loading.overlay
+    spinner:
+      test_id: loading.spinner
+    text:
+      test_id: loading.text
+  toast:
+    __meta:
+      route: '*'
+      anchor: toast.area
+    area:
+      test_id: toast.area
+    sub:
+      test_id: toast.sub
+    title:
+      test_id: toast.title
+  notifications:
+    __meta:
+      route: '*'
+      anchor: popup.notifications
+    notification-body:
+      test_id: notification-.body
+    notification-meta:
+      test_id: notification-.meta
+    notification-title:
+      test_id: notification-.title
+    notification-toggle-read:
+      test_id: notification-.toggleRead
+  dialogs:
+    __meta:
+      route: '*'
+      anchor: help.body
+    about-ok:
+      test_id: about.ok
+    about-text:
+      test_id: about.text
+    changelog-close:
+      test_id: changelog.close
+    changelog-list:
+      test_id: changelog.list
+    help-body:
+      test_id: help.body
+    help-close:
+      test_id: help.close
+    shortcuts-close:
+      test_id: shortcuts.close
+    shortcuts-list:
+      test_id: shortcuts.list
+  auth:
+    __meta:
+      route: '*'
+      anchor: auth.logout
+    logout:
+      test_id: auth.logout

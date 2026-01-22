@@ -134,3 +134,64 @@
 - Ao exceder o limite:
   - truncar candidatos
   - registrar finding `CANDIDATES_TRUNCATED` com `totalCandidates` e `returnedCandidates`
+
+
+## RF39 — Resolução determinística de rotas de navegação (Normativo)
+
+### Intenção
+Quando um step do draft representa navegação (`Dado que estou na página "<route>"`), o Semantic Resolver deve mapear
+a rota para uma página do UiMap de forma **determinística**, sem heurísticas.
+
+### Regras objetivas
+1) Fonte única:
+   - O Semantic Resolver **DEVE** usar o valor do parâmetro `<route>` do step (que veio de `event.route`) como entrada.
+   - O Semantic Resolver **NÃO DEVE** “corrigir” rotas (ex.: concatenar segmentos, remover subpaths, tentar adivinhar `.html`).
+
+2) Algoritmo de mapeamento (ordem obrigatória):
+   A) **Match por page key (nome da página)**  
+      - Se `<route>` for exatamente igual ao `pageKey` de uma página no UiMap, resolver para essa página.
+   B) **Match por `__meta.route` (comparação exata)**  
+      - Se `<route>` contém `#`, extrair o fragmento (inclui `#`), por exemplo `#/dashboard`.
+      - Derivar `routeKey`:
+        - Se o fragmento começa com `#/`, então `routeKey = fragmento.Substring(1)` → `/dashboard`
+        - Caso contrário, `routeKey = fragmento` sem o `#` inicial, mantendo o restante.
+      - Resolver para a página cujo `__meta.route` seja exatamente `routeKey`.
+   C) **Fallback por pathname completo**
+      - Se `<route>` não contém `#`, ou se o passo B não encontrar match:
+        - Tentar match exato de `<route>` contra `__meta.route`.
+        - (Isto cobre apps que usam rotas “full path” como `/app.html` no UiMap.)
+
+3) Resultado quando não mapear:
+   - Se nenhum match ocorrer, o resolver **DEVE** emitir um finding:
+     - `code`: `UIGAP_ROUTE_NOT_MAPPED`
+     - `severity`: `info`
+   - O step permanece **unresolved** em nível de página (sem `chosen.pageKey`).
+
+### Exemplo normativo (UiMap + route → resolução)
+
+**Input (step do draft)**
+```gherkin
+Dado que estou na página "/app.html#/dashboard"
+```
+
+**UiMap (trecho)**
+```yaml
+pages:
+  dashboard:
+    __meta:
+      route: "/dashboard"
+```
+
+**Output (metadados de resolução)**
+- `chosen.pageKey = "dashboard"`
+- `confidence = 1.0` (determinístico)
+- `status = "resolved"`
+
+### Critérios de aceite
+- [ ] Se o UiMap tem `__meta.route="/dashboard"`, o step `/app.html#/dashboard` resolve para `dashboard`.
+- [ ] Se não houver match, é emitido `UIGAP_ROUTE_NOT_MAPPED` (info) e nenhuma página é escolhida.
+- [ ] Não existem tentativas de “adivinhar” (ex.: `/login.html` → `/login` sem regra explícita).
+
+### Anti-exemplo (proibido)
+- Resolver `/login.html` para uma página com `__meta.route="/login"` **sem** match exato ou regra normativa adicional.
+

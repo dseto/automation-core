@@ -61,13 +61,16 @@ public sealed class SessionRecorder
         }
     }
 
-    public void RecordNavigate(string route)
+    public void RecordNavigate(string route, string? url = null, string? pathname = null, string? fragment = null)
     {
         AddEvent(new RecorderEvent
         {
             T = Now(),
             Type = TypeValue(RecorderEventType.Navigate),
-            Route = route
+            Route = route,
+            Url = url,
+            Pathname = pathname,
+            Fragment = fragment
         });
     }
 

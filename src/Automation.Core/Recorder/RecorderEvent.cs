@@ -13,6 +13,15 @@ public sealed class RecorderEvent
     [JsonPropertyName("route")]
     public string? Route { get; init; }
 
+    [JsonPropertyName("url")]
+    public string? Url { get; init; }
+
+    [JsonPropertyName("pathname")]
+    public string? Pathname { get; init; }
+
+    [JsonPropertyName("fragment")]
+    public string? Fragment { get; init; }
+
     [JsonPropertyName("target")]
     public object? Target { get; init; }
 

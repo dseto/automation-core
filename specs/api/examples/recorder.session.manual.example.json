@@ -6,9 +6,12 @@
     {
       "t": "00:00.100",
       "type": "navigate",
-      "route": "/login",
+      "route": "/insurance-quote-spa-static/app.html#/dashboard",
       "target": null,
-      "value": null
+      "value": null,
+      "url": "http://localhost/insurance-quote-spa-static/app.html#/dashboard",
+      "pathname": "/insurance-quote-spa-static/app.html",
+      "fragment": "#/dashboard"
     },
     {
       "t": "00:02.200",

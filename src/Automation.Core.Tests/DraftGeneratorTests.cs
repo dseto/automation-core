@@ -89,6 +89,76 @@ namespace Automation.Core.Tests
         }
 
         [Fact]
+        public void Navigate_Route_Sanitized_For_Draft()
+        {
+            // Unit test the sanitizer directly via reflection (avoids draft generation sanity flakiness)
+            var raw = "/path\nwith\nnewline/\"quote\"#frag";
+            var mi = typeof(Automation.Core.Recorder.Draft.DraftGenerator).GetMethod("SanitizeRouteForDraft", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!;
+            var sanitized = (string)mi.Invoke(null, new object[] { raw })!;
+            Assert.Equal("/path with newline/'quote'#frag", sanitized);
+        }
+
+        [Fact]
+        public void Navigate_With_Absolute_FilePath_Route_Is_Normalized_In_Draft()
+        {
+            var session = new Automation.Core.Recorder.RecorderSession();
+            session.SessionId = "S-file-route";
+            session.StartedAt = System.DateTimeOffset.Now;
+            session.EndedAt = System.DateTimeOffset.Now;
+            session.Events = new System.Collections.Generic.List<Automation.Core.Recorder.RecorderEvent>();
+
+            // Simulate a legacy recorded session where route was stored as an absolute file path
+            session.Events.Add(new Automation.Core.Recorder.RecorderEvent { T = "00:00.000", Type = "navigate", Route = "C:/Projetos/automation-core/ui-tests/pages/index.html#frag" });
+            // Add a semantic event (click) so the session passes sanity checks for draft generation
+            session.Events.Add(new Automation.Core.Recorder.RecorderEvent { T = "00:01.000", Type = "click", Target = new System.Collections.Generic.Dictionary<string, object?> { ["hint"] = "div" } });
+
+            var dir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            Directory.CreateDirectory(dir);
+
+            var gen = new Automation.Core.Recorder.Draft.DraftGenerator(
+                new Automation.Core.Recorder.Draft.SessionSanityChecker(),
+                new Automation.Core.Recorder.Draft.ActionGrouper(),
+                new Automation.Core.Recorder.Draft.StepInferenceEngine(),
+                new Automation.Core.Recorder.Draft.EscapeHatchRenderer(),
+                new Automation.Core.Recorder.Draft.DraftWriter());
+
+            var result = gen.Generate(session, dir);
+            Assert.True(result.IsSuccess, $"Generation failed: {result.Warning}");
+
+            var draft = File.ReadAllText(Path.Combine(dir, "draft.feature"));
+            // Expect the generated draft to contain the normalized tail (index.html#frag) and not the absolute drive prefix
+            Assert.Contains("Dado que estou na página \"/index.html#frag\"", draft);
+            Assert.DoesNotContain("C:/Projetos", draft);
+
+            Directory.Delete(dir, true);
+        }
+
+        [Fact]
+        public void ActionGrouper_Orders_Events_And_Indexes_By_Score()
+        {
+            var session = new Automation.Core.Recorder.RecorderSession();
+            session.SessionId = "S-order";
+            session.StartedAt = System.DateTimeOffset.Now;
+            session.EndedAt = System.DateTimeOffset.Now;
+            session.Events = new System.Collections.Generic.List<Automation.Core.Recorder.RecorderEvent>();
+
+            // click (generic) then fill (with data-testid) — fill should be primary
+            session.Events.Add(new Automation.Core.Recorder.RecorderEvent { T = "00:00.000", Type = "click", Target = new System.Collections.Generic.Dictionary<string, object?> { ["hint"] = "div" } });
+            session.Events.Add(new Automation.Core.Recorder.RecorderEvent { T = "00:00.500", Type = "fill", Target = new System.Collections.Generic.Dictionary<string, object?> { ["hint"] = "[data-testid='page.login.username']", ["attributes"] = new System.Collections.Generic.Dictionary<string, object?> { ["data-testid"] = "page.login.username" } }, Value = new System.Collections.Generic.Dictionary<string, object?> { ["literal"] = "x" } });
+
+            var grouper = new Automation.Core.Recorder.Draft.ActionGrouper();
+            var actions = grouper.Group(session);
+
+            // click + fill should be merged into a single grouped action
+            Assert.Equal(1, System.Linq.Enumerable.Count(actions));
+            var action = System.Linq.Enumerable.First(actions);
+
+            // PrimaryEvent should be the fill and its corresponding EventIndex should be 1
+            Assert.Equal("fill", action.PrimaryEvent?.Type);
+            Assert.Equal(1, action.EventIndexes.First());
+        }
+
+        [Fact]
         public void ActionGrouper_Merges_GenericClickAndDataTestIdFill()
         {
             var session = new Automation.Core.Recorder.RecorderSession();

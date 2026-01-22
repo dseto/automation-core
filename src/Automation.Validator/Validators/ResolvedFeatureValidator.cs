@@ -103,11 +103,24 @@ namespace Automation.Validator.Validators
                             continue;
                         }
 
-                        // Find the draft step text in resolved lines after lastFoundIndex
+                        // Find the draft step text in resolved lines after lastFoundIndex.
+                        // Accept either the original draft step text OR a substituted navigation step that uses the resolved page key (e.g., Dado que estou na página "login").
                         bool found = false;
+                        // build alternative draft text when chosen.pageKey exists (for navigation substitutions)
+                        string? altDraftText = null;
+                        if (step.TryGetProperty("chosen", out var chosenEl) && chosenEl.ValueKind == JsonValueKind.Object && chosenEl.TryGetProperty("pageKey", out var pageKeyEl) && pageKeyEl.ValueKind == JsonValueKind.String)
+                        {
+                            var pageKey = pageKeyEl.GetString();
+                            if (!string.IsNullOrWhiteSpace(pageKey) && draftStepText.IndexOf("estou na página", StringComparison.OrdinalIgnoreCase) >= 0)
+                            {
+                                altDraftText = System.Text.RegularExpressions.Regex.Replace(draftStepText, "\"([^\"]+)\"", $"\"{pageKey}\"");
+                            }
+                        }
+
                         for (int i = lastFoundIndex + 1; i < resolvedLines.Count; i++)
                         {
-                            if (resolvedLines[i].TrimEnd().Equals(draftStepText, StringComparison.Ordinal))
+                            var candidate = resolvedLines[i].TrimEnd();
+                            if (candidate.Equals(draftStepText, StringComparison.Ordinal) || (altDraftText != null && candidate.Equals(altDraftText, StringComparison.Ordinal)))
                             {
                                 found = true;
                                 lastFoundIndex = i;

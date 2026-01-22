@@ -55,7 +55,8 @@
           "type": [
             "string",
             "null"
-          ]
+          ],
+          "description": "Rota canônica determinística: pathname + fragment (quando fragment != null)."
         },
         "target": {
           "type": [
@@ -82,9 +83,43 @@
           "type": "integer",
           "minimum": 0,
           "description": "Tempo de inatividade (idle) desde o evento anterior, em milissegundos. Emitido apenas quando acima do threshold configurado."
+        },
+        "url": {
+          "type": "string",
+          "description": "URL absoluta observada pelo browser no momento do navigate."
+        },
+        "pathname": {
+          "type": "string",
+          "description": "Pathname normalizado (sempre inicia com '/')."
+        },
+        "fragment": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Fragmento (inclui '#') quando presente; null quando ausente."
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "navigate"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "route",
+              "url",
+              "pathname",
+              "fragment"
+            ]
+          }
+        }
+      ]
     }
   }
 }

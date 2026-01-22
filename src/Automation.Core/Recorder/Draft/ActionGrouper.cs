@@ -190,7 +190,8 @@ public sealed class ActionGrouper
                 .ToList();
 
             var events = ordered.Select(e => e.Event).ToList();
-            var indexes = _entries.Select(e => e.Index).ToList();
+            // Ensure indexes align with the ordered events (PrimaryEvent should correspond to indexes[0])
+            var indexes = ordered.Select(e => e.Index).ToList();
             var rawScript = ordered.Select(e => e.RawScript).FirstOrDefault(s => !string.IsNullOrWhiteSpace(s));
 
             return new DraftAction(events, indexes, rawScript);

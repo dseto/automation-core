@@ -6,7 +6,10 @@
     {
       "t": "00:00.000",
       "type": "navigate",
-      "route": "/login"
+      "route": "/login",
+      "url": "http://localhost/login",
+      "pathname": "/login",
+      "fragment": null
     },
     {
       "t": "00:02.100",

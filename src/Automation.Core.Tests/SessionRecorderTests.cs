@@ -72,4 +72,23 @@ public class SessionRecorderTests
         Assert.True(attrs.ContainsKey("data-testid"));
         Assert.Equal("page.login.username", attrs["data-testid"]);
     }
+
+    [Fact]
+    public void RecordNavigate_PopulatesUrl_Pathname_Fragment()
+    {
+        var recorder = new SessionRecorder();
+        recorder.Start();
+
+        recorder.RecordNavigate("/login", "http://host/login#x", "/login", "#x");
+
+        var session = recorder.GetSession();
+        Assert.Single(session.Events);
+
+        var ev = session.Events[0];
+        Assert.Equal("navigate", ev.Type);
+        Assert.Equal("/login", ev.Route);
+        Assert.Equal("http://host/login#x", ev.Url);
+        Assert.Equal("/login", ev.Pathname);
+        Assert.Equal("#x", ev.Fragment);
+    }
 }

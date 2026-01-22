@@ -189,7 +189,7 @@ Regras de formatação:
 
 2) **Padrão de steps (compatível com o catálogo atual do Automation.Reqnroll)**
 - Navegação (quando houver `navigate`):
-  - `Dado que estou na página "<path>"`
+  - `Dado que estou na página "<route>"`
 - Clique:
   - `Quando eu clico em "<elementRef>"`
 - Preenchimento:
@@ -213,6 +213,50 @@ Critério de aceite: o `draft.feature` deve passar no parser do Reqnroll (Gherki
 
 
 ---
+## RF12b — Determinismo de rotas e sanitização de 1 linha (Normativo)
+
+### Intenção
+Evitar falhas de parse do Gherkin e garantir que a navegação reproduza **exatamente** a rota capturada, sem inferências.
+
+### Regras objetivas
+1) Para todo evento `navigate`:
+   - O Draft Generator **DEVE** usar `event.route` como fonte única para o step:
+     - `Dado que estou na página "<route>"`
+   - O Draft Generator **NÃO DEVE** tentar reconstruir/“corrigir” rotas a partir de `url`, `pathname`, `fragment` ou heurísticas.
+
+2) Sanitização mínima (compatibilidade Gherkin) — **sem mudar semântica**
+   - O valor escrito entre aspas **DEVE** estar em **uma única linha**:
+     - colapsar qualquer whitespace (`\s+`) em um único espaço
+     - aplicar `trim` (remover espaços no início/fim)
+   - Substituir aspas duplas internas (`"`) por aspas simples (`'`).
+
+3) Higiene de hints e blocos `# RAW:`:
+   - Qualquer `target.hint` e qualquer JSON serializado em `# RAW:` **DEVE** ser materializado em **uma única linha** (sem `\r`/`\n`).
+   - Para `# RAW:`, o JSON **DEVE** estar no formato compacto (sem pretty-print), preservando o conteúdo, apenas removendo quebras.
+
+### Exemplo normativo
+
+**Entrada (`session.json`)**
+```json
+{ "t":"00:00.000", "type":"navigate", "route":"/app.html#/dashboard", "url":"http://localhost/app.html#/dashboard", "pathname":"/app.html", "fragment":"#/dashboard" }
+```
+
+**Saída (`draft.feature`)**
+```gherkin
+Dado que estou na página "/app.html#/dashboard"
+```
+
+### Critérios de aceite
+- [ ] `draft.feature` não contém steps com quebras de linha internas em parâmetros.
+- [ ] O step de navegação sempre reflete `event.route` (após sanitização mínima).
+- [ ] Linhas `# RAW:` são JSON compacto em uma única linha.
+- [ ] O arquivo passa no parser Gherkin/Reqnroll.
+
+### Anti-exemplo (proibido)
+- Gerar `Dado que estou na página "/login.html/login"` por inferência.
+- Gerar qualquer step contendo `\n` dentro das aspas.
+
+
 ## RF13 — Escape hatch automático (Normativo)
 **Quando não for possível inferir um step para uma ação/grupo, o sistema DEVE inserir TODO + RAW** no `draft.feature`,
 preservando evidência suficiente para depuração.

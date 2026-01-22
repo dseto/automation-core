@@ -13,5 +13,3 @@ Regras:
 - Se algo falhar, corrija antes de seguir.
 - No final, liste todos os arquivos alterados e confirme os comandos e resultados.
 
-Comece pela etapa 1 do plano.
-

@@ -43,9 +43,57 @@ o Recorder DEVE registrar `rawAction.kind="js"` e `rawAction.script="<script exe
 ## RF01 — Início e fim automático da sessão
 Quando `AUTOMATION_RECORD=true`, iniciar a gravação antes da primeira interação relevante e encerrar ao final.
 
-## RF02 — Navegação
-Toda mudança de rota/página relevante gera `navigate` com `route`.
+## RF02 — Navegação (Normativo)
 
+### Intenção
+Garantir que toda navegação capturada pelo Recorder produza **rotas determinísticas e explícitas** no `session.json`,
+evitando qualquer inferência/“adivinhação” posterior no Draft Generator e no Semantic Resolver.
+
+### Regras objetivas
+1) Todo evento com `"type": "navigate"` **DEVE** incluir:
+   - `url` (string): URL absoluta observada pelo browser (ex.: `http://localhost/app.html#/dashboard`).
+   - `pathname` (string): caminho do documento (ex.: `/app.html`).
+   - `fragment` (string|null): fragmento (inclui `#`), ou `null` quando não houver (ex.: `#/dashboard`).
+   - `route` (string): **forma canônica determinística** = `pathname` + (`fragment` se existir).
+     - Ex.: `pathname=/app.html` e `fragment=#/dashboard` → `route=/app.html#/dashboard`
+     - Ex.: `pathname=/login.html` e `fragment=null` → `route=/login.html`
+
+2) Normalização obrigatória (sem heurística):
+   - `route` **DEVE** começar com `/`.
+   - `route` **NÃO PODE** conter prefixos locais/FS (ex.: `file:///`, `C:\`, `/Users/...`).
+   - `route` **NÃO PODE** conter whitespace (inclui `\r`, `\n`, `\t`). Caso a fonte contenha whitespace, o Recorder **DEVE** colapsar para um único espaço e então remover espaços à esquerda/direita (trim).
+
+3) Compatibilidade:
+   - O Recorder **PODE** continuar emitindo `"route"` para consumidores antigos; porém, após este delta, o contrato normativo passa a exigir também `url`, `pathname` e `fragment` para `navigate`.
+
+### Exemplo normativo (entrada → saída)
+
+**Entrada observada (runtime/browser)**
+- `window.location.href = "http://localhost/insurance-quote-spa-static/app.html#/dashboard"`
+- `window.location.pathname = "/insurance-quote-spa-static/app.html"` *(exemplo quando o app está em subpath)*
+- `window.location.hash = "#/dashboard"`
+
+**Evento `navigate` (session.json)**
+```json
+{
+  "t": "00:00.000",
+  "type": "navigate",
+  "url": "http://localhost/insurance-quote-spa-static/app.html#/dashboard",
+  "pathname": "/insurance-quote-spa-static/app.html",
+  "fragment": "#/dashboard",
+  "route": "/insurance-quote-spa-static/app.html#/dashboard"
+}
+```
+
+### Critérios de aceite
+- [ ] Para qualquer `navigate`, `route == pathname + fragment` (quando `fragment` != null) ou `route == pathname` (quando `fragment` == null).
+- [ ] `route` não contém `file:///` nem caminhos locais e não possui `\r`/`\n`.
+- [ ] O `session.json` gerado valida contra `specs/api/schemas/recorder.session.schema.json`.
+
+### Anti-exemplo (proibido)
+- `route: "file:///C:/Projetos/app.html#/dashboard"` (prefixo local/FS).
+- `route: "/login.html/login"` (concatenado por inferência).
+- `route` contendo `\n` (quebra o parser Gherkin quando transcrito).
 ## RF03 — Click
 Clique em elemento interativo gera `click` com `target`. Se realizado por JS, preencher `rawAction`.
 

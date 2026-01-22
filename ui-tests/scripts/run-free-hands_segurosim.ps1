@@ -4,7 +4,7 @@
 #   .\run-free-hands.ps1 -Url "https://example.com" -OutputDir ".\artifacts\recorder-custom"
 
 param(
-    [string]$Url = "C:\Projetos\automation-core\ui-tests\pages\insurance-quote-spa-static\login.html",
+    [string]$Url = "http://localhost/insurance-quote-spa-static",
     [string]$OutputDir = "C:\Projetos\automation-core\ui-tests\artifacts\seguro-sim"
 )
 

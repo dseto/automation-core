@@ -95,7 +95,9 @@ public class Program
         if (!string.IsNullOrWhiteSpace(baseUrl))
         {
             _driver.Navigate().GoToUrl(baseUrl);
-            _recorder.RecordNavigate(new Uri(baseUrl).AbsolutePath);
+            var ab = new Uri(baseUrl);
+            var initialRoute = ab.AbsolutePath + (string.IsNullOrEmpty(ab.Fragment) ? string.Empty : ab.Fragment);
+            _recorder.RecordNavigate(initialRoute, ab.AbsoluteUri, ab.AbsolutePath, string.IsNullOrEmpty(ab.Fragment) ? null : ab.Fragment);
             _logger.LogInformation("Navegou para: {Url}", baseUrl);
             
             // 8.1) Injetar script de captura de browser (RC01)
@@ -399,14 +401,14 @@ public class Program
   const origReplaceState = history.replaceState;
   history.pushState = function() {
     origPushState.apply(this, arguments);
-    push('navigate', document.body, { literal: arguments[2] || location.pathname });
+    push('navigate', document.body, { literal: arguments[2] || location.pathname, url: location.href, pathname: location.pathname, fragment: (location.hash || null) });
   };
   history.replaceState = function() {
     origReplaceState.apply(this, arguments);
-    push('navigate', document.body, { literal: arguments[2] || location.pathname });
+    push('navigate', document.body, { literal: arguments[2] || location.pathname, url: location.href, pathname: location.pathname, fragment: (location.hash || null) });
   };
   window.addEventListener('popstate', () => {
-    push('navigate', document.body, { literal: location.pathname });
+    push('navigate', document.body, { literal: location.pathname, url: location.href, pathname: location.pathname, fragment: (location.hash || null) });
   });
 
   // RC02: Capture clicks (bubbling phase)
@@ -443,7 +445,7 @@ public class Program
   };
 
   // Emit initial navigate event for current document (helps capture full navigations)
-  try { push('navigate', document.body, { literal: location.pathname + (location.hash || '') }); } catch(e) { }
+  try { push('navigate', document.body, { literal: location.pathname + (location.hash || ''), url: location.href, pathname: location.pathname, fragment: (location.hash || null) }); } catch(e) { }
 })();
 """;
 
@@ -503,8 +505,16 @@ public class Program
                 switch (kind)
                 {
                     case "navigate":
-                        var route = value?.GetValueOrDefault("literal")?.ToString() ?? "/";
-                        _recorder.RecordNavigate(route);
+                        var rawRoute = value?.GetValueOrDefault("literal")?.ToString() ?? "/";
+                        var url = value?.GetValueOrDefault("url")?.ToString();
+                        var pathname = value?.GetValueOrDefault("pathname")?.ToString();
+                        var fragment = value?.GetValueOrDefault("fragment")?.ToString();
+
+                        // Normalize route to canonical relative form (pathname + fragment, prefer .html tail)
+                        var baseUrlEnv = Environment.GetEnvironmentVariable("BASE_URL");
+                        var canonical = Automation.Core.Recorder.RouteNormalizer.Normalize(url ?? rawRoute, pathname, fragment, baseUrlEnv);
+
+                        _recorder.RecordNavigate(canonical, url, pathname, fragment);
                         break;
 
                     case "click":

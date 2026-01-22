@@ -165,6 +165,10 @@ async Task<int> ValidateCommand(string[] cmdArgs)
                 var byLine = reportFindings.GroupBy(f => f.GetProperty("draftLine").GetInt32())
                     .ToDictionary(g => g.Key, g => g.Select(x => x.GetProperty("severity").GetString() ?? "").ToList());
 
+                // Map draftLine -> list of finding codes (useful for special-casing info findings like route-not-mapped)
+                var codesByLine = reportFindings.GroupBy(f => f.GetProperty("draftLine").GetInt32())
+                    .ToDictionary(g => g.Key, g => g.Select(x => x.GetProperty("code").GetString() ?? "").ToList());
+
                 foreach (var step in resolvedJson.GetProperty("steps").EnumerateArray())
                 {
                     var draftLine = step.GetProperty("draftLine").GetInt32();
@@ -201,7 +205,11 @@ async Task<int> ValidateCommand(string[] cmdArgs)
                     // coverage checks
                     if (status == "unresolved")
                     {
-                        if (!byLine.TryGetValue(draftLine, out var severities) || !severities.Contains("error"))
+                        // If there is an explicit 'error' finding for this step, it's fine.
+                        // Special-case: routes not mapped are considered 'info' by design (UIGAP_ROUTE_NOT_MAPPED) and should not trigger CROSS_UNRESOLVED_NO_ERROR.
+                        var hasError = byLine.TryGetValue(draftLine, out var severities) && severities.Contains("error");
+                        var hasRouteInfo = codesByLine.TryGetValue(draftLine, out var codes) && codes.Contains("UIGAP_ROUTE_NOT_MAPPED");
+                        if (!hasError && !hasRouteInfo)
                             combinedResult.AddError(new ValidationError("CROSS_UNRESOLVED_NO_ERROR", $"Step {draftLine} is 'unresolved' but no error-finding in ui-gaps.report.json", resolvedPath));
                     }
 
