@@ -247,6 +247,11 @@ public sealed class DraftGenerator
         if (normalized.Contains("('") || normalized.Contains("(role=") || normalized.Contains("(label="))
             return false;
 
+        // Treat data-testid-like tokens (e.g., page.login.username, login-username) as specific.
+        // Accept alphanumeric and common separators as identifiers.
+        if (System.Text.RegularExpressions.Regex.IsMatch(normalized, "^[A-Za-z0-9_.:-]+$"))
+            return false;
+
         return true;
     }
 

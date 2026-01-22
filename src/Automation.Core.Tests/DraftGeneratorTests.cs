@@ -54,5 +54,38 @@ namespace Automation.Core.Tests
 
             Directory.Delete(dir, true);
         }
+
+        [Fact]
+        public void Generates_steps_for_elements_with_data_testid()
+        {
+            var session = new Automation.Core.Recorder.RecorderSession();
+            session.SessionId = "S-test";
+            session.StartedAt = System.DateTimeOffset.Now;
+            session.EndedAt = System.DateTimeOffset.Now;
+            session.Events = new System.Collections.Generic.List<Automation.Core.Recorder.RecorderEvent>();
+
+            session.Events.Add(new Automation.Core.Recorder.RecorderEvent { T = "00:00.000", Type = "navigate", Route = "/" });
+            session.Events.Add(new Automation.Core.Recorder.RecorderEvent { T = "00:01.000", Type = "click", Target = new System.Collections.Generic.Dictionary<string, object?> { ["hint"] = "[data-testid='page.login.username']", ["attributes"] = new System.Collections.Generic.Dictionary<string, object?> { ["data-testid"] = "page.login.username" } } });
+            session.Events.Add(new Automation.Core.Recorder.RecorderEvent { T = "00:02.000", Type = "fill", Target = new System.Collections.Generic.Dictionary<string, object?> { ["hint"] = "[data-testid='page.login.username']", ["attributes"] = new System.Collections.Generic.Dictionary<string, object?> { ["data-testid"] = "page.login.username" } }, Value = new System.Collections.Generic.Dictionary<string, object?> { ["literal"] = "fasdfsd" } });
+
+            var dir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            Directory.CreateDirectory(dir);
+
+            var gen = new Automation.Core.Recorder.Draft.DraftGenerator(
+                new Automation.Core.Recorder.Draft.SessionSanityChecker(),
+                new Automation.Core.Recorder.Draft.ActionGrouper(),
+                new Automation.Core.Recorder.Draft.StepInferenceEngine(),
+                new Automation.Core.Recorder.Draft.EscapeHatchRenderer(),
+                new Automation.Core.Recorder.Draft.DraftWriter());
+
+            var result = gen.Generate(session, dir);
+            Assert.True(result.IsSuccess, $"Generation failed: {result.Warning}");
+
+            var draft = File.ReadAllText(Path.Combine(dir, "draft.feature"));
+            // The click may be merged with the subsequent fill into a single action; ensure at least the fill step is generated.
+            Assert.Contains("Quando eu preencho \"page.login.username\" com \"fasdfsd\"", draft);
+
+            Directory.Delete(dir, true);
+        }
     }
 }
