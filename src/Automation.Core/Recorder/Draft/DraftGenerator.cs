@@ -103,8 +103,11 @@ public sealed class DraftGenerator
                 var primaryEvent = actions[i].PrimaryEvent;
                 if (primaryEvent?.WaitMs != null)
                 {
-                    var seconds = (primaryEvent.WaitMs.Value / 1000.0).ToString("0.###", CultureInfo.InvariantCulture);
-                    lines.Add(indent + $"E eu espero {seconds} segundos");
+                    var secondsInt = primaryEvent.WaitMs.Value / 1000;
+                    if (secondsInt >= 1)
+                    {
+                        lines.Add(indent + $"E eu espero {secondsInt} segundos");
+                    }
                 }
 
                 lines.Add(indent + text);
@@ -128,8 +131,11 @@ public sealed class DraftGenerator
             var primaryEventForEscape = actions[i].PrimaryEvent;
             if (primaryEventForEscape?.WaitMs != null)
             {
-                var seconds = (primaryEventForEscape.WaitMs.Value / 1000.0).ToString("0.###", CultureInfo.InvariantCulture);
-                lines.Add(indent + $"E eu espero {seconds} segundos");
+                var secondsInt = primaryEventForEscape.WaitMs.Value / 1000;
+                if (secondsInt >= 1)
+                {
+                    lines.Add(indent + $"E eu espero {secondsInt} segundos");
+                }
             }
 
             lines.AddRange(IndentLines(escapeResult.Lines, indent));
@@ -258,14 +264,37 @@ public sealed class DraftGenerator
 
     private static string? TryGetHint(object? target)
     {
-        if (target is Dictionary<string, object?> dict && dict.TryGetValue("hint", out var hint))
-            return hint?.ToString();
+            // Prefer attributes.data-testid when available
+            if (target is Dictionary<string, object?> dict)
+            {
+                if (dict.TryGetValue("attributes", out var attrsObj) && attrsObj is Dictionary<string, object?> attrsDict && attrsDict.TryGetValue("data-testid", out var dt) && dt != null)
+                {
+                    return dt.ToString();
+                }
 
-        if (target is System.Text.Json.JsonElement json && json.ValueKind == System.Text.Json.JsonValueKind.Object)
-        {
-            if (json.TryGetProperty("hint", out var hintProp))
-                return hintProp.GetString();
-        }
+                if (dict.TryGetValue("hint", out var hint))
+                {
+                    var hintStr = hint?.ToString();
+                    // try extract data-testid from hint like [data-testid='x']
+                    var m = System.Text.RegularExpressions.Regex.Match(hintStr ?? string.Empty, "data-testid\\s*=\\s*[\'\"](?<id>[^\'\"]+)[\'\"]", System.Text.RegularExpressions.RegexOptions.Compiled);
+                    if (m.Success) return m.Groups["id"].Value;
+                    return hintStr;
+                }
+            }
+
+            if (target is System.Text.Json.JsonElement json && json.ValueKind == System.Text.Json.JsonValueKind.Object)
+            {
+                if (json.TryGetProperty("attributes", out var attrs) && attrs.ValueKind == System.Text.Json.JsonValueKind.Object && attrs.TryGetProperty("data-testid", out var dtv) && dtv.ValueKind == System.Text.Json.JsonValueKind.String)
+                    return dtv.GetString();
+
+                if (json.TryGetProperty("hint", out var hintProp) && hintProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                {
+                    var hintStr = hintProp.GetString();
+                    var m = System.Text.RegularExpressions.Regex.Match(hintStr ?? string.Empty, "data-testid\\s*=\\s*[\'\"](?<id>[^\'\"]+)[\'\"]", System.Text.RegularExpressions.RegexOptions.Compiled);
+                    if (m.Success) return m.Groups["id"].Value;
+                    return hintStr;
+                }
+            }
 
         return null;
     }

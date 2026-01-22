@@ -11,3 +11,10 @@ Estes arquivos são exemplos **válidos** e **inválidos** para exercitar o Vali
 - `datamap.example.yaml` (válido)
 - `datamap.invalid-missing-default.yaml` (inválido: `contexts.default` ausente)
 - `datamap.invalid-bad-strategy.yaml` (inválido: `strategy` fora do enum)
+
+
+## Semantic Resolution (Delta 3)
+- `resolved.feature.example.feature`
+- `resolved.metadata.example.json`
+- `ui-gaps.report.example.json`
+- `ui-gaps.report.example.md`

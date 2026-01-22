@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ui-gaps.report.json",
+  "type": "object",
+  "required": [
+    "version",
+    "generatedAt",
+    "findings"
+  ],
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "generatedAt": {
+      "type": "string"
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "draftLine",
+          "severity",
+          "code",
+          "message",
+          "stepText"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^UIGAP-\\d{4}$"
+          },
+          "draftLine": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "error",
+              "warn",
+              "info"
+            ]
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "UIGAP_ROUTE_NOT_MAPPED",
+              "UIGAP_ROUTE_AMBIGUOUS",
+              "UIGAP_PAGE_CONTEXT_MISSING",
+              "UIGAP_ELEMENT_NOT_MAPPED",
+              "UIGAP_ELEMENT_AMBIGUOUS",
+              "UIGAP_TESTID_MISSING",
+              "UIGAP_TESTID_AMBIGUOUS",
+              "UIGAP_TESTID_NOT_FOUND",
+              "UI_MAP_KEY_NOT_FOUND",
+              "TESTID_NOT_FOUND_IN_UIMAP",
+              "AMBIGUOUS_MATCH",
+              "CANDIDATES_TRUNCATED"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "stepText": {
+            "type": "string"
+          },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "pageKey",
+                "elementKey"
+              ],
+              "properties": {
+                "pageKey": {
+                  "type": "string"
+                },
+                "elementKey": {
+                  "type": "string"
+                },
+                "testId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

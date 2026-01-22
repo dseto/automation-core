@@ -48,6 +48,17 @@ public sealed class EscapeHatchRenderer
             $"# RAW: {rawJson}"
         };
 
+        // If any event in the action specifies a wait >= 1s, surface it as a draft line
+        var waitMs = System.Linq.Enumerable.Where(action.Events.Select(e => e.WaitMs), w => w.HasValue && w.Value >= 1000)
+            .Select(w => w!.Value)
+            .FirstOrDefault();
+
+        if (waitMs > 0)
+        {
+            var seconds = waitMs / 1000;
+            lines.Insert(0, $"E eu espero {seconds} segundos");
+        }
+
         return new EscapeHatchResult(lines, warnings);
     }
 }

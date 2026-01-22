@@ -43,6 +43,13 @@ pages:
     view-all-processes:
       test_id: page.dashboard.view-all-processes
 
+  home:
+    __meta:
+      route: /
+      anchor: page.home
+    page:
+      test_id: page.home.page
+
   login:
     __meta:
       route: /login

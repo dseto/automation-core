@@ -1,0 +1,88 @@
+{
+  "version": "1.0",
+  "generatedAt": "2026-01-22T00:00:00Z",
+  "source": {
+    "draftFeaturePath": "api/examples/draft.feature.example.feature",
+    "uiMapPath": "api/examples/uimap.example.yaml",
+    "sessionPath": "api/examples/recorder.session.login.example.json"
+  },
+  "steps": [
+    {
+      "draftLine": 5,
+      "status": "resolved",
+      "stepText": "Given I open the \"Login\" page",
+      "chosen": {
+        "pageKey": "login",
+        "elementKey": "page",
+        "testId": null
+      },
+      "candidates": [],
+      "findings": []
+    },
+    {
+      "draftLine": 7,
+      "status": "unresolved",
+      "stepText": "When I fill \"login.username\" with \"demo\"",
+      "chosen": null,
+      "candidates": [],
+      "findings": [
+        {
+          "severity": "error",
+          "code": "UI_MAP_KEY_NOT_FOUND",
+          "message": "Element key não encontrada no UIMap"
+        }
+      ]
+    },
+    {
+      "draftLine": 8,
+      "status": "resolved",
+      "stepText": "When I fill \"login.password\" with \"demo\"",
+      "chosen": {
+        "pageKey": "login",
+        "elementKey": "password",
+        "testId": "input-password"
+      },
+      "candidates": [],
+      "findings": []
+    },
+    {
+      "draftLine": 10,
+      "status": "partial",
+      "stepText": "And I click \"login.submit\"",
+      "chosen": null,
+      "candidates": [
+        {
+          "pageKey": "login",
+          "elementKey": "submitPrimary",
+          "testId": "btn-login"
+        },
+        {
+          "pageKey": "login",
+          "elementKey": "submitSecondary",
+          "testId": "btn-login"
+        }
+      ],
+      "findings": [
+        {
+          "severity": "warn",
+          "code": "AMBIGUOUS_MATCH",
+          "message": "Mais de um candidato para o testId \"btn-login\""
+        }
+      ]
+    },
+    {
+      "draftLine": 12,
+      "status": "unresolved",
+      "stepText": "Dado que estou na página \"/not-found\"",
+      "chosen": null,
+      "candidates": [],
+      "findings": [
+        {
+          "severity": "info",
+          "code": "UIGAP_ROUTE_NOT_MAPPED",
+          "message": "Rota '/not-found' não mapeada no UiMap"
+        }
+      ]
+    }
+  ]
+}

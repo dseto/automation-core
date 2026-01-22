@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>SeguroSim • Automation Core (Static SPA)</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<header class="topbar" data-testid="layout.topbar">
+  <button class="icon-btn" id="btnToggleSidebar" aria-label="Menu" data-testid="layout.topbar.menu">☰</button>
+
+  <div class="brand" data-testid="layout.topbar.brand">
+    <span class="brand-dot" aria-hidden="true"></span>
+    <div class="brand-text">
+      <div class="brand-title">SeguroSim</div>
+      <div class="brand-subtitle">Static SPA • Recorder playground</div>
+    </div>
+  </div>
+
+  <div class="topbar-actions">
+    <button class="btn ghost" id="btnOpenNotifications" data-testid="layout.topbar.notifications">Notificações</button>
+    <button class="btn ghost" id="btnOpenHelp" data-testid="layout.topbar.help">Ajuda</button>
+    <div class="user-pill" id="userPill" data-testid="layout.topbar.user">Visitante</div>
+  </div>
+</header>
+
+<div class="shell">
+  <aside class="sidebar" id="sidebar" data-testid="layout.sidebar">
+    <div class="sidebar-head">
+      <div class="sidebar-title" data-testid="layout.sidebar.title">Navegação</div>
+      <div class="sidebar-sub" data-testid="layout.sidebar.sub">Rotas via hash (#/...)</div>
+    </div>
+
+    <nav class="nav" data-testid="layout.sidebar.nav">      <a class="nav-item" href="#/dashboard" data-testid="nav.dashboard">Dashboard</a>
+      <a class="nav-item" href="#/quote" data-testid="nav.quote">Nova cotação</a>
+      <a class="nav-item" href="#/search" data-testid="nav.search">Pesquisar</a>
+      <a class="nav-item" href="#/policies" data-testid="nav.policies">Apólices</a>
+      <a class="nav-item" href="#/settings" data-testid="nav.settings">Configurações</a>
+      <div class="nav-sep"></div>
+      <button class="nav-item nav-btn" id="btnOpenContextMenu" data-testid="nav.more">Mais ▾</button>
+    </nav>
+
+    <div class="sidebar-footer" data-testid="layout.sidebar.footer">
+      <span class="chip" data-testid="sidebar.env">ENV: static</span>
+      <span class="chip" data-testid="sidebar.version">v1.3</span>
+      <button class="btn tiny" id="btnLogout" data-testid="auth.logout">Sair</button>
+    </div>
+  </aside>
+
+  <main class="main" data-testid="layout.main">
+    <div class="page-head" data-testid="layout.pagehead">
+      <div class="breadcrumbs" id="breadcrumbs" data-testid="layout.breadcrumbs"></div>
+      <div class="page-actions" id="pageActions" data-testid="layout.pageActions"></div>
+    </div>
+    <section id="view" class="view" data-testid="router.outlet"></section>
+  </main>
+</div>
+
+<!-- Context menu popup -->
+<div class="context-menu" id="contextMenu" role="menu" aria-hidden="true" data-testid="popup.contextMenu">
+  <button class="context-item" data-action="openAbout" data-testid="popup.contextMenu.about">Sobre</button>
+  <button class="context-item" data-action="openChangelog" data-testid="popup.contextMenu.changelog">Changelog</button>
+  <button class="context-item" data-action="openShortcuts" data-testid="popup.contextMenu.shortcuts">Atalhos</button>
+</div>
+
+<!-- Notifications popup -->
+<div class="panel" id="notifPanel" aria-hidden="true" data-testid="popup.notifications">
+  <div class="panel-head">
+    <div class="panel-title">Notificações</div>
+    <button class="icon-btn" id="btnCloseNotifications" data-testid="popup.notifications.close">✕</button>
+  </div>
+  <div class="panel-body" id="notifList" data-testid="popup.notifications.list"></div>
+</div>
+
+<!-- Loading overlay -->
+<div class="loading" id="loadingOverlay" aria-hidden="true" data-testid="loading.overlay">
+  <div class="loading-card" data-testid="loading.card">
+    <div class="spinner" data-testid="loading.spinner"></div>
+    <div class="loading-text" id="loadingText" data-testid="loading.text">Carregando…</div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-backdrop" id="modalBackdrop" aria-hidden="true" data-testid="modal.backdrop">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" data-testid="modal.container">
+    <div class="modal-head">
+      <div class="modal-title" id="modalTitle" data-testid="modal.title">Modal</div>
+      <button class="icon-btn" id="btnCloseModal" data-testid="modal.close">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody" data-testid="modal.body"></div>
+    <div class="modal-foot" id="modalFoot" data-testid="modal.footer"></div>
+  </div>
+</div>
+
+<!-- Toasts -->
+<div class="toasts" id="toasts" data-testid="toast.area"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

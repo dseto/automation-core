@@ -105,6 +105,119 @@ async Task<int> ValidateCommand(string[] cmdArgs)
             }
         }
 
+        // Validate resolved metadata and ui-gaps report if provided
+        string? resolvedPath = null;
+        string? uiGapsPath = null;
+        string? resolvedFeaturePath = null;
+        for (int i = 0; i < cmdArgs.Length; i++)
+        {
+            if ((cmdArgs[i] == "--resolved") && i + 1 < cmdArgs.Length) resolvedPath = cmdArgs[++i];
+            if ((cmdArgs[i] == "--ui-gaps") && i + 1 < cmdArgs.Length) uiGapsPath = cmdArgs[++i];
+            if ((cmdArgs[i] == "--resolved-feature") && i + 1 < cmdArgs.Length) resolvedFeaturePath = cmdArgs[++i];
+        }
+
+        if (!string.IsNullOrEmpty(resolvedPath))
+        {
+            var resolvedValidator = new ResolvedMetadataValidator();
+            var resolvedResult = resolvedValidator.Validate(resolvedPath);
+            foreach (var error in resolvedResult.Errors) combinedResult.AddError(error);
+            foreach (var warning in resolvedResult.Warnings) combinedResult.AddWarning(warning);
+
+            // If resolved-feature provided or exists alongside metadata, validate feature against metadata
+            string? featurePath = resolvedFeaturePath;
+            if (string.IsNullOrWhiteSpace(featurePath))
+            {
+                var dir = Path.GetDirectoryName(resolvedPath) ?? ".";
+                var candidate = Path.Combine(dir, "resolved.feature");
+                if (File.Exists(candidate)) featurePath = candidate;
+            }
+
+            if (!string.IsNullOrWhiteSpace(featurePath))
+            {
+                var rfValidator = new ResolvedFeatureValidator();
+                var rfResult = rfValidator.Validate(featurePath, resolvedPath);
+                foreach (var error in rfResult.Errors) combinedResult.AddError(error);
+                foreach (var warning in rfResult.Warnings) combinedResult.AddWarning(warning);
+            }
+        }
+
+        if (!string.IsNullOrEmpty(uiGapsPath))
+        {
+            var uiGapsValidator = new UiGapsReportValidator();
+            var uiGapsResult = uiGapsValidator.Validate(uiGapsPath);
+            foreach (var error in uiGapsResult.Errors) combinedResult.AddError(error);
+            foreach (var warning in uiGapsResult.Warnings) combinedResult.AddWarning(warning);
+        }
+
+        // Cross-checks when both resolved metadata and ui-gaps provided
+        if (!string.IsNullOrEmpty(resolvedPath) && !string.IsNullOrEmpty(uiGapsPath))
+        {
+            try
+            {
+                var resolvedJson = System.Text.Json.JsonDocument.Parse(File.ReadAllText(resolvedPath)).RootElement;
+                var reportJson = System.Text.Json.JsonDocument.Parse(File.ReadAllText(uiGapsPath)).RootElement;
+
+                // Build map: id -> finding
+                var reportFindings = reportJson.GetProperty("findings").EnumerateArray().ToList();
+                var idSet = new HashSet<string>(reportFindings.Select(f => f.GetProperty("id").GetString() ?? ""));
+
+                // Map draftLine -> list of severities
+                var byLine = reportFindings.GroupBy(f => f.GetProperty("draftLine").GetInt32())
+                    .ToDictionary(g => g.Key, g => g.Select(x => x.GetProperty("severity").GetString() ?? "").ToList());
+
+                foreach (var step in resolvedJson.GetProperty("steps").EnumerateArray())
+                {
+                    var draftLine = step.GetProperty("draftLine").GetInt32();
+                    var status = step.GetProperty("status").GetString() ?? "";
+
+                    // findings in metadata may be objects (with code) or strings (legacy IDs)
+                    if (step.TryGetProperty("findings", out var findings) && findings.ValueKind == System.Text.Json.JsonValueKind.Array)
+                    {
+                        foreach (var f in findings.EnumerateArray())
+                        {
+                            if (f.ValueKind == System.Text.Json.JsonValueKind.String)
+                            {
+                                var val = f.GetString() ?? "";
+                                if (val.StartsWith("UIGAP-") && !idSet.Contains(val))
+                                {
+                                    combinedResult.AddError(new ValidationError("CROSS_ORPHAN_FINDING", $"Finding ID {val} declared in resolved.metadata.json not found in ui-gaps.report.json", resolvedPath));
+                                }
+                            }
+                            else if (f.ValueKind == System.Text.Json.JsonValueKind.Object)
+                            {
+                                if (f.TryGetProperty("code", out var codeEl) && codeEl.ValueKind == System.Text.Json.JsonValueKind.String)
+                                {
+                                    var code = codeEl.GetString() ?? "";
+                                    // ensure ui-gaps report has this code for the draftLine
+                                    if (!reportFindings.Any(rf => rf.GetProperty("draftLine").GetInt32() == draftLine && rf.GetProperty("code").GetString() == code))
+                                    {
+                                        combinedResult.AddError(new ValidationError("CROSS_MISSING_FINDING", $"Finding code {code} declared in resolved.metadata.json not found in ui-gaps.report.json for step {draftLine}", resolvedPath));
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // coverage checks
+                    if (status == "unresolved")
+                    {
+                        if (!byLine.TryGetValue(draftLine, out var severities) || !severities.Contains("error"))
+                            combinedResult.AddError(new ValidationError("CROSS_UNRESOLVED_NO_ERROR", $"Step {draftLine} is 'unresolved' but no error-finding in ui-gaps.report.json", resolvedPath));
+                    }
+
+                    if (status == "partial")
+                    {
+                        if (!byLine.TryGetValue(draftLine, out var severities) || !severities.Contains("warn"))
+                            combinedResult.AddError(new ValidationError("CROSS_PARTIAL_NO_WARNING", $"Step {draftLine} is 'partial' but no warning-finding in ui-gaps.report.json", resolvedPath));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                combinedResult.AddError(new ValidationError("CROSSCHECK_FAILED", ex.Message, resolvedPath));
+            }
+        }
+
         if (jsonOutput)
         {
             var json = reportService.GenerateJsonReport(combinedResult);

@@ -46,4 +46,30 @@ public class SessionRecorderTests
         Assert.Single(session.Events);
         Assert.Null(session.Events[0].WaitMs);
     }
+
+    [Theory]
+    [InlineData("[data-testid='page.login.username']")]
+    [InlineData("[data-testid=\"page.login.username\"]")]
+    [InlineData("[data-testid = 'page.login.username']")]
+    public void Recorder_Normalizes_DataTestId_FromHint(string hint)
+    {
+        var recorder = new SessionRecorder();
+        recorder.Start();
+
+        recorder.RecordClick(hint);
+
+        var session = recorder.GetSession();
+        Assert.Single(session.Events);
+
+        var ev = session.Events[0];
+        Assert.Equal("click", ev.Type);
+        Assert.NotNull(ev.Target);
+        Assert.IsType<Dictionary<string, object?>>(ev.Target);
+        var dict = (Dictionary<string, object?>)ev.Target!;
+        Assert.True(dict.ContainsKey("attributes"), "Expected attributes key to be present");
+        Assert.IsType<Dictionary<string, object?>>(dict["attributes"]);
+        var attrs = (Dictionary<string, object?>)dict["attributes"]!;
+        Assert.True(attrs.ContainsKey("data-testid"));
+        Assert.Equal("page.login.username", attrs["data-testid"]);
+    }
 }

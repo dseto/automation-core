@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Automation.Core\Automation.Core.csproj" />
+    <ProjectReference Include="..\Automation.Validator\Automation.Validator.csproj" />
   </ItemGroup>
 
   <ItemGroup>

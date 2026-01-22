@@ -19,6 +19,14 @@ public sealed record RunSettings(
     string RecordOutputDir)
 {
     public double RecordWaitLogThresholdSeconds { get; init; } = 1.0;
+
+    // Semantic Resolution settings (additive; init-only to avoid breaking constructor)
+    public string UiMapPath { get; init; } = "specs/frontend/uimap.yaml";
+    public string SemResOutputDir { get; init; } = "artifacts/semantic-resolution";
+    public int SemResMaxCandidates { get; init; } = 5;
+    public double SemResConfidenceResolvedMin { get; init; } = 0.85;
+    public double SemResConfidencePartialMin { get; init; } = 0.60;
+
     public static RunSettings FromEnvironment()
     {
         static string Get(string key, string def) => Environment.GetEnvironmentVariable(key) ?? def;
@@ -46,7 +54,12 @@ public sealed record RunSettings(
         if (isCi && uiDebug) uiDebug = false; // debug visual is local-only
         var headless = GetBool("HEADLESS", true);
         if (uiDebug) headless = false; // debug requires headed
-            var browser = Get("BROWSER", "edge");
+        var browser = Get("BROWSER", "edge");
+
+        // Resolve UiMap path with precedence: UI_MAP_PATH (canonical) > UIMAP_PATH (alias) > default
+        var uiMapPath = Environment.GetEnvironmentVariable("UI_MAP_PATH");
+        if (string.IsNullOrWhiteSpace(uiMapPath)) uiMapPath = Environment.GetEnvironmentVariable("UIMAP_PATH");
+        if (string.IsNullOrWhiteSpace(uiMapPath)) uiMapPath = "specs/frontend/uimap.yaml";
 
         var settings = new RunSettings(
             BaseUrl: Get("BASE_URL", ""),
@@ -62,7 +75,15 @@ public sealed record RunSettings(
             EnvironmentName: Get("TEST_ENV", "default"),
             RecordEnabled: GetBool("AUTOMATION_RECORD", false),
             RecordOutputDir: Get("RECORD_OUTPUT_DIR", "artifacts/recorder")
-        ) { RecordWaitLogThresholdSeconds = GetDouble("RECORD_WAIT_LOG_THRESHOLD_SECONDS", 1.0) };
+        )
+        {
+            RecordWaitLogThresholdSeconds = GetDouble("RECORD_WAIT_LOG_THRESHOLD_SECONDS", 1.0),
+            UiMapPath = uiMapPath,
+            SemResOutputDir = Get("SEMRES_OUTPUT_DIR", "artifacts/semantic-resolution"),
+            SemResMaxCandidates = GetInt("SEMRES_MAX_CANDIDATES", 5),
+            SemResConfidenceResolvedMin = GetDouble("SEMRES_CONFIDENCE_RESOLVED_MIN", 0.85),
+            SemResConfidencePartialMin = GetDouble("SEMRES_CONFIDENCE_PARTIAL_MIN", 0.60)
+        };
 
         return settings;
     }

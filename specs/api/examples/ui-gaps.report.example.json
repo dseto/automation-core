@@ -1,0 +1,52 @@
+{
+  "version": "0.1.0",
+  "sessionId": "S1",
+  "generatedAt": "2026-01-22T00:00:00Z",
+  "draftPath": "specs/api/examples/draft.feature.example.feature",
+  "uimapPath": "specs/api/examples/uimap.example.yaml",
+  "findings": [
+    {
+      "id": "UIGAP-0001",
+      "draftLine": 7,
+      "severity": "error",
+      "code": "UI_MAP_KEY_NOT_FOUND",
+      "message": "Element key não encontrada no UIMap",
+      "stepText": "When I fill \"login.username\" with \"demo\""
+    },
+    {
+      "id": "UIGAP-0002",
+      "draftLine": 10,
+      "severity": "warn",
+      "code": "AMBIGUOUS_MATCH",
+      "message": "Mais de um candidato para o testId \"btn-login\"",
+      "stepText": "And I click \"login.submit\"",
+      "candidates": [
+        {
+          "pageKey": "login",
+          "elementKey": "submitPrimary",
+          "testId": "btn-login"
+        },
+        {
+          "pageKey": "login",
+          "elementKey": "submitSecondary",
+          "testId": "btn-login"
+        }
+      ]
+    },
+    {
+      "id": "UIGAP-0003",
+      "draftLine": 12,
+      "severity": "info",
+      "code": "UIGAP_ROUTE_NOT_MAPPED",
+      "message": "Rota '/not-found' não mapeada no UiMap.",
+      "stepText": "Dado que estou na página \"/not-found\"",
+      "route": "/not-found"
+    }
+  ],
+  "stats": {
+    "errors": 1,
+    "warnings": 1,
+    "infos": 1,
+    "total": 3
+  }
+}

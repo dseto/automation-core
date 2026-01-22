@@ -35,6 +35,9 @@ public class Program
       if (args.Length > 0 && args[0].Equals("generate-draft", StringComparison.OrdinalIgnoreCase))
         return RunGenerateDraft(args.Skip(1).ToArray());
 
+      if (args.Length > 0 && args[0].Equals("resolve-draft", StringComparison.OrdinalIgnoreCase))
+        return RunResolveDraft(args.Skip(1).ToArray());
+
         // 1) Verificar se modo exploratório está ativado
         var recordEnabled = Environment.GetEnvironmentVariable("AUTOMATION_RECORD")
                             ?.Equals("true", StringComparison.OrdinalIgnoreCase) ?? false;
@@ -164,6 +167,126 @@ public class Program
         Console.WriteLine($"[DraftGenerator] Erro: {ex.Message}");
         return 1;
       }
+    }
+
+    private static int RunResolveDraft(string[] args)
+    {
+      string? draftPath = null;
+      string? metadataPath = null;
+      string? uimapPath = null;
+      string? sessionPath = null;
+      string? output = null;
+
+      for (int i = 0; i < args.Length; i++)
+      {
+        if ((args[i] == "--draft") && i + 1 < args.Length) draftPath = args[++i];
+        else if ((args[i] == "--metadata") && i + 1 < args.Length) metadataPath = args[++i];
+        else if ((args[i] == "--ui-map" || args[i] == "--uimap") && i + 1 < args.Length) uimapPath = args[++i];
+        else if ((args[i] == "--session") && i + 1 < args.Length) sessionPath = args[++i];
+        else if ((args[i] == "--output") && i + 1 < args.Length) output = args[++i];
+      }
+
+      // SEMRES feature toggle: if SEMRES_ENABLED is explicitly set and not 'true' or '1', disable the resolution run
+      var semresFlag = Environment.GetEnvironmentVariable("SEMRES_ENABLED");
+      if (!string.IsNullOrWhiteSpace(semresFlag) && !(semresFlag.Equals("true", StringComparison.OrdinalIgnoreCase) || semresFlag == "1"))
+      {
+        Console.WriteLine($"[ResolveDraft] SEMRES_ENABLED is set to '{semresFlag}'. Semantic resolution disabled.");
+        return 1;
+      }
+
+      if (string.IsNullOrWhiteSpace(draftPath) || string.IsNullOrWhiteSpace(metadataPath))
+      {
+        Console.WriteLine("Uso: resolve-draft --draft <draft.feature> --metadata <draft.metadata.json> [--session <session.json>] [--ui-map <ui-map.yaml>] [--output <dir>]");
+        return 1;
+      }
+
+      try
+      {
+        var draftContent = File.ReadAllText(draftPath);
+        var metadataJson = File.ReadAllText(metadataPath);
+        var draftMetadata = System.Text.Json.JsonSerializer.Deserialize<Automation.Core.Recorder.Draft.DraftMetadata>(metadataJson);
+
+        if (draftMetadata == null) throw new Exception("draft.metadata.json inválido");
+
+        // Load UiMap using YamlLoader from Automation.Validator
+        var loader = new Automation.Validator.Services.YamlLoader();
+        var validatorUiMap = loader.LoadUiMap(uimapPath ?? System.Environment.GetEnvironmentVariable("UI_MAP_PATH") ?? "specs/frontend/uimap.yaml");
+        var uiMap = ConvertValidatorUiMapToCore(validatorUiMap);
+
+        Automation.Core.Recorder.RecorderSession? session = null;
+        if (!string.IsNullOrWhiteSpace(sessionPath))
+        {
+          var sr = new SessionReader();
+          session = sr.Read(sessionPath);
+        }
+
+        var resolver = new Automation.Core.Recorder.Semantic.SemanticResolver(uiMap, session, System.Environment.GetEnvironmentVariable("SEMRES_MAX_CANDIDATES") is string s && int.TryParse(s, out var mi) ? mi : 5, draftPath, uimapPath ?? "specs/frontend/uimap.yaml");
+        var writer = new Automation.Core.Recorder.Semantic.SemanticWriter();
+
+        // Optional debug: if SEMRES_DEBUG is set to 'true', emit mapping diagnostics to help trace data-testid extraction
+        var semresDebug = (Environment.GetEnvironmentVariable("SEMRES_DEBUG") ?? "").Equals("true", StringComparison.OrdinalIgnoreCase);
+        if (semresDebug && session != null && draftMetadata != null)
+        {
+            Console.WriteLine("[ResolveDraft][DEBUG] Mapping eventIndex -> extractedTestId -> candidatesCount");
+            var getTestIdMi = typeof(Automation.Core.Recorder.Semantic.SemanticResolver).GetMethod("TryGetTestIdFromSession", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
+            var buildIndexMi = typeof(Automation.Core.Recorder.Semantic.SemanticResolver).GetMethod("BuildTestIdIndex", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!;
+                var idx = (System.Collections.IDictionary)buildIndexMi.Invoke(null, new object[] { uiMap })!;
+            foreach (var m in draftMetadata.Mappings)
+            {
+                var evIdx = m.EventIndex;
+                var extracted = (string?)getTestIdMi.Invoke(resolver, new object[] { evIdx });
+                var candidatesCount = 0;
+                if (!string.IsNullOrWhiteSpace(extracted))
+                {
+                    if (idx.Contains(extracted)) candidatesCount = ((System.Collections.IList)idx[extracted]).Count;
+                }
+                Console.WriteLine($"[ResolveDraft][DEBUG] eventIndex={evIdx}, draftLine={m.DraftLine}, extracted='{extracted}', candidates={candidatesCount}");
+            }
+        }
+
+        var (resolvedMeta, report, resolvedFeature) = resolver.Resolve(draftContent, draftMetadata);
+
+        var outDir = output ?? System.Environment.GetEnvironmentVariable("SEMRES_OUTPUT_DIR") ?? "artifacts/semantic-resolution";
+        Directory.CreateDirectory(outDir);
+
+        var rf = writer.WriteResolvedFeature(resolvedFeature, outDir);
+        var rm = writer.WriteResolvedMetadata(resolvedMeta, outDir);
+        var rg = writer.WriteUiGapsReport(report, outDir);
+
+        Console.WriteLine($"[ResolveDraft] resolved.feature: {rf}");
+        Console.WriteLine($"[ResolveDraft] resolved.metadata.json: {rm}");
+        Console.WriteLine($"[ResolveDraft] ui-gaps.report.json: {rg}");
+
+        return 0;
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine($"[ResolveDraft] Erro: {ex.Message}");
+        return 1;
+      }
+    }
+
+    private static Automation.Core.UiMap.UiMapModel ConvertValidatorUiMapToCore(Automation.Validator.Models.UiMapModel vmap)
+    {
+      var core = new Automation.Core.UiMap.UiMapModel();
+      foreach (var (pageName, page) in vmap.Pages)
+      {
+        var pageDict = new System.Collections.Generic.Dictionary<string, object>();
+        var meta = new System.Collections.Generic.Dictionary<string, object>();
+        if (!string.IsNullOrWhiteSpace(page.Route)) meta["route"] = page.Route;
+        if (!string.IsNullOrWhiteSpace(page.Anchor)) meta["anchor"] = page.Anchor;
+        if (meta.Count > 0) pageDict["__meta"] = meta;
+
+        foreach (var (elementName, element) in page.Elements)
+        {
+          var elementDict = new System.Collections.Generic.Dictionary<string, object>();
+          if (!string.IsNullOrWhiteSpace(element.TestId)) elementDict["testId"] = element.TestId;
+          pageDict[elementName] = elementDict;
+        }
+
+        core.Pages[pageName] = pageDict;
+      }
+      return core;
     }
 
     private static string? GetArgValue(string[] args, string key)

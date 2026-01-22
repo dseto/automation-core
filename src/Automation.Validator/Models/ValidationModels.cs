@@ -4,16 +4,16 @@ namespace Automation.Validator.Models;
 /// Resultado de validação com lista de erros e avisos.
 /// </summary>
 public record ValidationResult(
-    bool IsValid,
     List<ValidationError> Errors,
     List<ValidationWarning> Warnings
 )
 {
-    public static ValidationResult Success() => new(true, [], []);
-    
-    public static ValidationResult WithErrors(params ValidationError[] errors) => 
-        new(false, errors.ToList(), []);
-    
+    public bool IsValid => Errors.Count == 0;
+
+    public static ValidationResult Success() => new(new List<ValidationError>(), new List<ValidationWarning>());
+
+    public static ValidationResult WithErrors(params ValidationError[] errors) => new(errors.ToList(), new List<ValidationWarning>());
+
     public void AddError(ValidationError error) => Errors.Add(error);
     public void AddWarning(ValidationWarning warning) => Warnings.Add(warning);
 }

@@ -146,6 +146,23 @@ namespace Automation.Core.UiMap
                 }
             }
 
+            // Enforce policy: UiMap must define a root route '/'
+            bool hasRootRoute = false;
+            foreach (var (pageName, pageDef) in pages)
+            {
+                var route = GetRouteFromPageDef(pageDef);
+                if (!string.IsNullOrWhiteSpace(route) && string.Equals(route.Trim(), "/", StringComparison.Ordinal))
+                {
+                    hasRootRoute = true;
+                    break;
+                }
+            }
+
+            if (!hasRootRoute)
+            {
+                errors.Add("UiMap must include a page with __meta.route = '/'. This repository chooses the policy that '/' should be explicitly mapped.");
+            }
+
             if (errors.Count > 0)
             {
                 var msg =
@@ -281,6 +298,30 @@ namespace Automation.Core.UiMap
         private static bool IsMetaKey(string key) =>
             string.Equals(key, "__meta", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(key, "meta", StringComparison.OrdinalIgnoreCase);
+
+        private static string? GetRouteFromPageDef(object pageDef)
+        {
+            // 1) Try to read Route property (if the page is deserialized into a typed object)
+            var routeProp = GetProp(pageDef, "Route");
+            if (routeProp is string s1) return s1;
+
+            // 2) Try __meta.route via dictionary
+            var pageDict = AsStringKeyDictionary(pageDef);
+            if (pageDict != null && pageDict.TryGetValue("__meta", out var metaObj))
+            {
+                // meta can be dictionary-like or typed object
+                if (metaObj is IDictionary metaDict)
+                {
+                    if (metaDict.Contains("route") && metaDict["route"] is string metaRoute)
+                        return metaRoute;
+                }
+
+                var metaRouteProp = GetProp(metaObj, "route") ?? GetProp(metaObj, "Route");
+                if (metaRouteProp is string s2) return s2;
+            }
+
+            return null;
+        }
     }
 
     public sealed class UiMapValidationException : Exception

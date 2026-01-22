@@ -1,0 +1,3 @@
+- specs/backend/rules/semantic-resolution.md
+- specs/backend/implementation/run-settings.md
+- specs/tests/validation/free-hands-semantic-resolution.md

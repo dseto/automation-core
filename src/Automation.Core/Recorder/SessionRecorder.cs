@@ -203,7 +203,26 @@ public sealed class SessionRecorder
         return $"{minutes:00}:{ts.Seconds:00}.{ts.Milliseconds:000}";
     }
 
-    private static Dictionary<string, object?> TargetHint(string hint) => new() { ["hint"] = hint };
+    private static Dictionary<string, object?> TargetHint(string hint)
+    {
+        var dict = new Dictionary<string, object?> { ["hint"] = hint };
+        // If hint contains a data-testid like [data-testid='xxx'] or [data-testid="xxx"], populate attributes.data-testid for downstream tools
+        try
+        {
+            var m = System.Text.RegularExpressions.Regex.Match(hint ?? string.Empty, "data-testid\\s*=\\s*[\'\"](?<id>[^\'\"]+)[\'\"]", System.Text.RegularExpressions.RegexOptions.Compiled);
+            if (m.Success)
+            {
+                var attrs = new Dictionary<string, object?> { ["data-testid"] = m.Groups["id"].Value };
+                dict["attributes"] = attrs;
+            }
+        }
+        catch
+        {
+            // swallow regex errors and fall back to hint-only behavior
+        }
+
+        return dict;
+    }
 
     private static string TypeValue(RecorderEventType type) => type switch
     {

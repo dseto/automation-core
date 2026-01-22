@@ -18,3 +18,8 @@ Ver `api/examples/` para YAMLs válidos e inválidos.
 
 ## Estratégias de dataset
 O schema de DataMap aceita `sequential`, `random` e `unique` (espelho do Validator).
+
+
+## Semantic Resolution (Delta 3)
+- `resolved.metadata.schema.json`
+- `ui-gaps.report.schema.json`
