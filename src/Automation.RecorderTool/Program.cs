@@ -441,6 +441,9 @@ public class Program
     version: 'mvp-1',
     drain: () => buffer.splice(0, buffer.length)
   };
+
+  // Emit initial navigate event for current document (helps capture full navigations)
+  try { push('navigate', document.body, { literal: location.pathname + (location.hash || '') }); } catch(e) { }
 })();
 """;
 
@@ -464,6 +467,16 @@ public class Program
 
         try
         {
+            // Garantir que o script de captura esteja presente na página atual (tratamento de full navigations)
+            var hasRecorderObj = ((IJavaScriptExecutor)_driver).ExecuteScript("return typeof window.__fhRecorder !== 'undefined';");
+            if (!(hasRecorderObj is bool has && has))
+            {
+                _logger?.LogInformation("[BrowserCapture] __fhRecorder não encontrado. Tentando injetar script...");
+                InjectBrowserCaptureScript();
+                // Pequeno delay para o script ser executado no contexto da página
+                Thread.Sleep(100);
+            }
+
             var result = ((IJavaScriptExecutor)_driver).ExecuteScript(
                 "return window.__fhRecorder?.drain?.() ?? [];"
             );

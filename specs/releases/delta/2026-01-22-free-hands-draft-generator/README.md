@@ -2,8 +2,8 @@
 # Delta Pack — 2026-01-22-free-hands-draft-generator (v2)
 
 > Status: RELEASED  
-> Versão: v0.5.0  
-> Data de fechamento: 2026-01-21  
+> Versão: v0.5.2  
+> Data de fechamento: 2026-01-22  
 > Fase: FREE-HANDS Recorder — Delta 2 (Draft Generator)
 
 ## Objetivo

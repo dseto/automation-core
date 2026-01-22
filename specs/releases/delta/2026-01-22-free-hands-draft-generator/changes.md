@@ -6,6 +6,13 @@ Este patch normaliza e fortalece o contrato do `free-hands-draft-generator`, det
 ---
 
 ## Implementado
+
+### Fixes
+- Corrigido: o Draft Generator não inferia steps corretamente quando `target.hint` continha `data-testid` com pontos (ex.: `page.login.username`); agora são tratados como identificadores específicos e geram steps ao invés de escape-hatch.
+- Corrigido: `SemanticResolver` deixava de tentar lookup por `testId` quando um `inputRef` continha pontos; agora apenas interpreta `page.element` quando `page` existe no `UiMap`.
+- Refatorado: unificação das heurísticas de normalização e classificação de hints em `HintHelpers` para evitar divergências entre `ActionGrouper` e `DraftGenerator`.
+
+## Implementado
 - RF11 — Agrupamento semântico
   - Janela temporal para eventos consecutivos
   - Regras de merge: focus+fill, click+submit, genérico→específico
