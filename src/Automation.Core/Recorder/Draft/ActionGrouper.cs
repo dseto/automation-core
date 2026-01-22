@@ -109,35 +109,14 @@ public sealed class ActionGrouper
         return null;
     }
 
-    private static string NormalizeHint(string? hint)
-    {
-        if (hint == null) return string.Empty;
+    private static string NormalizeHint(string? hint) => HintHelpers.NormalizeHint(hint);
 
-        var normalized = hint.Trim();
-        normalized = Regex.Replace(normalized, "\\s+", " ");
-        if (normalized.Contains('[') && normalized.Contains(']'))
-            normalized = normalized.Replace('"', '\'');
 
-        return normalized;
-    }
+    private static bool IsGenericHint(string hint) => HintHelpers.IsGenericHint(hint);
 
-    private static bool IsGenericHint(string hint)
-    {
-        if (string.IsNullOrWhiteSpace(hint)) return true;
+    
 
-        var normalized = NormalizeHint(hint);
 
-        if (normalized is "div" or "main" or "body" or "html")
-            return true;
-
-        if (normalized.Contains("#") || normalized.Contains("["))
-            return false;
-
-        if (normalized.Contains("('") || normalized.Contains("(role=") || normalized.Contains("(label="))
-            return false;
-
-        return true;
-    }
 
     private static bool IsDataTestIdHint(string hint)
     {

@@ -87,5 +87,26 @@ namespace Automation.Core.Tests
 
             Directory.Delete(dir, true);
         }
+
+        [Fact]
+        public void ActionGrouper_Merges_GenericClickAndDataTestIdFill()
+        {
+            var session = new Automation.Core.Recorder.RecorderSession();
+            session.SessionId = "S-merge";
+            session.StartedAt = System.DateTimeOffset.Now;
+            session.EndedAt = System.DateTimeOffset.Now;
+            session.Events = new System.Collections.Generic.List<Automation.Core.Recorder.RecorderEvent>();
+
+            session.Events.Add(new Automation.Core.Recorder.RecorderEvent { T = "00:00.000", Type = "navigate", Route = "/" });
+            session.Events.Add(new Automation.Core.Recorder.RecorderEvent { T = "00:01.000", Type = "click", Target = new System.Collections.Generic.Dictionary<string, object?> { ["hint"] = "div" } });
+            session.Events.Add(new Automation.Core.Recorder.RecorderEvent { T = "00:01.500", Type = "fill", Target = new System.Collections.Generic.Dictionary<string, object?> { ["hint"] = "[data-testid='page.login.username']", ["attributes"] = new System.Collections.Generic.Dictionary<string, object?> { ["data-testid"] = "page.login.username" } }, Value = new System.Collections.Generic.Dictionary<string, object?> { ["literal"] = "x" } });
+
+            var grouper = new Automation.Core.Recorder.Draft.ActionGrouper();
+            var actions = grouper.Group(session);
+
+            // click + fill should be merged into a single grouped action (navigate stays separate)
+            Assert.Equal(2, System.Linq.Enumerable.Count(actions));
+            Assert.True(System.Linq.Enumerable.Any(actions, a => a.EventIndexes.Contains(1) && a.EventIndexes.Contains(2)));
+        }
     }
 }

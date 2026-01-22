@@ -233,39 +233,11 @@ public sealed class DraftGenerator
         return elementRef.Replace('"', '\'');
     }
 
-    private static bool IsGenericHint(string hint)
-    {
-        var normalized = NormalizeHint(hint);
-        if (string.IsNullOrWhiteSpace(normalized)) return true;
+    private static bool IsGenericHint(string hint) => HintHelpers.IsGenericHint(hint);
 
-        if (normalized is "div" or "main" or "body" or "html")
-            return true;
 
-        if (normalized.Contains("#") || normalized.Contains("["))
-            return false;
+    private static string NormalizeHint(string? hint) => HintHelpers.NormalizeHint(hint);
 
-        if (normalized.Contains("('") || normalized.Contains("(role=") || normalized.Contains("(label="))
-            return false;
-
-        // Treat data-testid-like tokens (e.g., page.login.username, login-username) as specific.
-        // Accept alphanumeric and common separators as identifiers.
-        if (System.Text.RegularExpressions.Regex.IsMatch(normalized, "^[A-Za-z0-9_.:-]+$"))
-            return false;
-
-        return true;
-    }
-
-    private static string NormalizeHint(string? hint)
-    {
-        if (hint == null) return string.Empty;
-
-        var normalized = hint.Trim();
-        normalized = System.Text.RegularExpressions.Regex.Replace(normalized, "\\s+", " ");
-        if (normalized.Contains('[') && normalized.Contains(']'))
-            normalized = normalized.Replace('"', '\'');
-
-        return normalized;
-    }
 
     private static string? TryGetHint(object? target)
     {
