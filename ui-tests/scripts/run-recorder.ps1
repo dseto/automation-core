@@ -1,14 +1,17 @@
 
 param(
-  [string]$TestProject = "$PSScriptRoot\..\UiTests.csproj"
+  [string]$TestProject = ""
 )
 
 $ErrorActionPreference = "Stop"
-. "$PSScriptRoot\_env.ps1"
+
+if (-not $PSScriptRoot) { $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition } else { $ScriptDir = $PSScriptRoot }
+. (Join-Path $ScriptDir "_env.ps1")
 
 # Habilitar gravação de sessão
 $env:AUTOMATION_RECORD = "true"
-$env:RECORD_OUTPUT_DIR = "$PSScriptRoot\..\artifacts\recorder"
+if (-not $TestProject) { $TestProject = (Resolve-Path (Join-Path $ScriptDir "..\UiTests.csproj") -ErrorAction SilentlyContinue).Path }
+$env:RECORD_OUTPUT_DIR = (Join-Path $ScriptDir "..\artifacts\recorder") | Resolve-Path -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Path
 
 # Debug visual para ver o que está sendo gravado
 $env:HEADLESS = "false"

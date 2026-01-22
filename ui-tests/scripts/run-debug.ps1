@@ -1,11 +1,20 @@
 
 param(
-  [string]$TestProject = "$PSScriptRoot\..\UiTests.csproj",
+  [string]$TestProject = "",
   [string]$Scenario = ""
 )
 
 $ErrorActionPreference = "Stop"
-. "$PSScriptRoot\_env.ps1"
+
+# Resolve script directory robustly so the script can be executed from any working directory
+if (-not $PSScriptRoot) { $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition } else { $ScriptDir = $PSScriptRoot }
+
+# Default test project path relative to this script (resolved to absolute)
+if (-not $TestProject) {
+  $TestProject = (Resolve-Path (Join-Path $ScriptDir "..\UiTests.csproj") -ErrorAction SilentlyContinue).Path
+}
+
+. (Join-Path $ScriptDir "_env.ps1")
 
 # Debug visual local
 $env:UI_DEBUG = "true"

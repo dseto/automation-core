@@ -1,6 +1,8 @@
 ---
 agent: spec-driven-implementer
 ---
+Objetivo: Implementar as correções/melhorias do delta pack informado pelo usuário baseado nos arquivos README.md, changes.md e migration.md.
+
 Implemente o plano etapa a etapa.
 
 Regras:

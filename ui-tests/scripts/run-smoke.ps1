@@ -1,11 +1,13 @@
 
 param(
   # Caminho para o projeto de testes (xUnit + Reqnroll bindings)
-  [string]$TestProject = "$PSScriptRoot\..\UiTests.csproj"
+  [string]$TestProject = ""
 )
 
 $ErrorActionPreference = "Stop"
-. "$PSScriptRoot\_env.ps1"
+if (-not $PSScriptRoot) { $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition } else { $ScriptDir = $PSScriptRoot }
+. (Join-Path $ScriptDir "_env.ps1")
+if (-not $TestProject) { $TestProject = (Resolve-Path (Join-Path $ScriptDir "..\UiTests.csproj") -ErrorAction SilentlyContinue).Path }
 
 # CI-like (explícito, sem operador ??)
 $env:HEADLESS = "true"

@@ -5,12 +5,7 @@ Você é o spec-driven-implementer.
 
 Objetivo: executar o fechamento da release de forma spec-driven.
 
-Release alvo:
-`specs\releases\delta\2026-01-22-free-hands-draft-generator`.
-
 Tarefas obrigatórias (siga nesta ordem):
-
-
 
 ────────────────────────────────────
 3) Fechamento do delta pack

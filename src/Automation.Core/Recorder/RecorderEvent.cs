@@ -21,4 +21,7 @@ public sealed class RecorderEvent
 
     [JsonPropertyName("rawAction")]
     public object? RawAction { get; init; }
+
+    [JsonPropertyName("waitMs")]
+    public int? WaitMs { get; init; }
 }

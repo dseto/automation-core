@@ -83,7 +83,7 @@ public class Program
         };
 
         // 7) Iniciar recorder
-        _recorder = new SessionRecorder();
+        _recorder = new SessionRecorder(_settings?.RecordWaitLogThresholdSeconds ?? 1.0);
         _recorder.Start();
         _logger.LogInformation("Recorder iniciado. SessionId: {SessionId}", _recorder.GetSession().SessionId);
 

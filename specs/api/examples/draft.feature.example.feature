@@ -5,6 +5,7 @@ Funcionalidade: Fluxo de login (draft)
 Cenário: Cenário draft gerado pelo Recorder
 
   Dado que estou na página "/login"
+  E eu espero 2.1 segundos
   Quando eu preencho "username" com "admin"
   E eu preencho "password" com "***"
   # TODO: revisar ação não inferida

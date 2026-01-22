@@ -11,17 +11,20 @@ param(
 $ErrorActionPreference = "Stop"
 
 # 1) Carregar variaveis base
-. "$PSScriptRoot\_env.ps1"
+if (-not $PSScriptRoot) { $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition } else { $ScriptDir = $PSScriptRoot }
+. (Join-Path $ScriptDir "_env.ps1")
 
 # 2) Habilitar recorder (modo exploratorio)
 $env:AUTOMATION_RECORD = "true"
 
-# 3) Diretório de saída
+# 3) Diretório de saída (resolver para caminho absoluto e garantir existencia)
 if ($OutputDir -ne "") {
-    $env:RECORD_OUTPUT_DIR = (Resolve-Path $OutputDir -Relative)
+    if ([System.IO.Path]::IsPathRooted($OutputDir)) { $env:RECORD_OUTPUT_DIR = $OutputDir } else { $env:RECORD_OUTPUT_DIR = Join-Path (Get-Location) $OutputDir }
 } elseif (-not $env:RECORD_OUTPUT_DIR) {
-    $env:RECORD_OUTPUT_DIR = (Resolve-Path "$PSScriptRoot\..\..\artifacts\recorder" -Relative)
+    $env:RECORD_OUTPUT_DIR = Join-Path (Join-Path $ScriptDir "..\..") "artifacts\recorder"
 }
+if (-not (Test-Path $env:RECORD_OUTPUT_DIR)) { New-Item -ItemType Directory -Path $env:RECORD_OUTPUT_DIR -Force | Out-Null }
+$env:RECORD_OUTPUT_DIR = (Resolve-Path -Path $env:RECORD_OUTPUT_DIR).Path
 
 # 4) URL inicial
 if ($Url -ne "") {

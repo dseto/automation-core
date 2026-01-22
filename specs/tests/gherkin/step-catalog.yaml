@@ -498,3 +498,15 @@ steps:
   parameters:
   - name: pageName
     type: string
+- bdd:
+  - When
+  patterns:
+  - eu espero ([0-9]+(?:\.[0-9]+)?) segundos?
+  handler:
+    file: InteractionSteps.cs
+    method: QuandoEuEsperoSegundos
+  summary: Aguarda um número específico de segundos (aceita decimal). Use com moderação;
+    prefira waits implícitos sempre que possível.
+  parameters:
+  - name: seconds
+    type: double

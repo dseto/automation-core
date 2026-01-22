@@ -57,3 +57,34 @@ Interações semânticas geram `select`/`toggle`/`submit`. Se realizado por JS, 
 
 ## RF06 — Modal open / close
 Quando detectável, gera `modal_open`/`modal_close`.
+## RF07 — Registrar espera entre eventos no `session.json` (Normativo)
+
+### Intenção
+Preservar o tempo real de inatividade entre eventos capturados, para permitir geração de espera explícita no draft e execução determinística.
+
+### Regras objetivas
+1. Para cada evento `events[i]` (i > 0), o Recorder DEVE calcular `gapMs = t(i) - t(i-1)` usando a mesma base temporal já usada em `t`.
+2. Deve existir o parâmetro configurável `RECORD_WAIT_LOG_THRESHOLD_SECONDS` (float) com default **1.0**.
+3. Defina `thresholdMs = RECORD_WAIT_LOG_THRESHOLD_SECONDS * 1000`.
+4. Se `gapMs > thresholdMs`, o Recorder DEVE incluir no evento atual: `waitMs = gapMs` (inteiro em milissegundos, >= 0).
+5. Se `gapMs <= thresholdMs`, o campo `waitMs` NÃO DEVE ser emitido.
+6. `waitMs` é opcional e consumidores que não suportarem DEVEM ignorar o campo.
+
+### Exemplo normativo
+```json
+{
+  "t": "00:02.100",
+  "type": "fill",
+  "waitMs": 2100,
+  "target": { "hint": "username" },
+  "value": { "literal": "admin" }
+}
+```
+
+### Critérios de aceite
+- Com `RECORD_WAIT_LOG_THRESHOLD_SECONDS=1.0`, um gap de 2100ms DEVE gerar `waitMs: 2100`.
+- Um gap de 900ms NÃO DEVE gerar `waitMs`.
+
+### Anti-exemplo
+- ❌ Emitir `waitMs` em todos os eventos (gera ruído e drift no draft).
+- ❌ Emitir `waitSeconds` como string sem contrato (o contrato é `waitMs` inteiro).

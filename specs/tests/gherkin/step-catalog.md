@@ -70,3 +70,9 @@ Isso garante reutilização máxima e evita fragmentação.
 
 ## Contrato machine-readable
 - `tests/gherkin/step-catalog.yaml` é a versão parseável (usada por validação automatizada).
+
+### Espera explícita (forçada)
+
+- **Step:** `E eu espero <segundos> segundos`
+- **Aceita:** inteiro ou decimal com ponto (ex.: `2`, `0.5`, `2.1`)
+- **Uso:** somente quando necessário; prefira waits implícitos.

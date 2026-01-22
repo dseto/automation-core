@@ -30,3 +30,4 @@ A prioridade é: (1) correção funcional, (2) compatibilidade, (3) testes, (4) 
 - resumo do que foi implementado
 - comandos executados e resultado (pass/fail)
 - próximos passos se algo ficar pendente
+

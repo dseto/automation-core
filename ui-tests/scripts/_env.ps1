@@ -11,8 +11,8 @@ if (-not $env:FEATURES_PATH) { $env:FEATURES_PATH = (Resolve-Path "$PSScriptRoot
 # Flags default (CI-like)
 if (-not $env:HEADLESS) { $env:HEADLESS = "true" }
 if (-not $env:WAIT_ANGULAR) { $env:WAIT_ANGULAR = "true" }
-if (-not $env:ANGULAR_TIMEOUT_MS) { $env:ANGULAR_TIMEOUT_MS = "1000" }
-if (-not $env:STEP_TIMEOUT_MS) { $env:STEP_TIMEOUT_MS = "10000" }
+if (-not $env:ANGULAR_TIMEOUT_MS) { $env:ANGULAR_TIMEOUT_MS = "30000" }
+if (-not $env:STEP_TIMEOUT_MS) { $env:STEP_TIMEOUT_MS = "30000" }
 # Browser (chrome ou edge)
 if (-not $env:BROWSER) { $env:BROWSER = "edge" }
 

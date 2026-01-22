@@ -1,5 +1,5 @@
 #language: pt-BR
-@login
+@smoke
 Funcionalidade: Login - Acesso à aplicação
 
   Contexto:
@@ -30,3 +30,15 @@ Funcionalidade: Login - Acesso à aplicação
     Então o atributo "type" de "password" deve ser "text"
     Quando eu clico em "toggle-password"
     Então o atributo "type" de "password" deve ser "password"
+
+  @interaction
+  Cenário: Login com esperas explícitas
+    Dado que estou na página "login"
+    E eu aguardo 1 segundos
+    Quando eu preencho "username" com "admin"
+    E eu aguardo 1 segundos
+    Quando eu preencho "password" com "ChangeMe123!"
+    E eu aguardo 1 segundos
+    E eu clico em "submit" e aguardo a rota "/dashboard"
+    Então estou na página "dashboard"
+    E o elemento "stat-total" deve estar visível

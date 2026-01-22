@@ -19,12 +19,14 @@ namespace UiTests.Features
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "2.0.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
+    [Xunit.TraitAttribute("Category", "login")]
     public partial class ValidacaoDoContratoDeDadosDataMapFeature : object, Xunit.IClassFixture<ValidacaoDoContratoDeDadosDataMapFeature.FixtureData>, Xunit.IAsyncLifetime
     {
         
         private global::Reqnroll.ITestRunner testRunner;
         
-        private static string[] featureTags = ((string[])(null));
+        private static string[] featureTags = new string[] {
+                "login"};
         
         private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new System.Globalization.CultureInfo("pt-BR"), "features", "Validação do Contrato de Dados (DataMap)", null, global::Reqnroll.ProgrammingLanguage.CSharp, featureTags);
         
@@ -84,9 +86,9 @@ namespace UiTests.Features
         
         public virtual async System.Threading.Tasks.Task FeatureBackgroundAsync()
         {
-#line 4
-  #line hidden
 #line 5
+  #line hidden
+#line 6
     await testRunner.GivenAsync("que a aplicação está em \"${BASE_URL}\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Dado ");
 #line hidden
         }
@@ -109,7 +111,7 @@ namespace UiTests.Features
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Login usando objeto de dados do DataMap", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 7
+#line 8
   this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -119,19 +121,19 @@ namespace UiTests.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 4
+#line 5
   await this.FeatureBackgroundAsync();
 #line hidden
-#line 8
+#line 9
     await testRunner.GivenAsync("que estou na página \"login\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Dado ");
 #line hidden
-#line 9
+#line 10
     await testRunner.WhenAsync("eu preencho os campos com os dados de \"@user_admin\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Quando ");
 #line hidden
-#line 10
+#line 11
     await testRunner.AndAsync("eu clico em \"submit\" e aguardo a rota \"/dashboard\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "E ");
 #line hidden
-#line 11
+#line 12
     await testRunner.ThenAsync("estou na página \"dashboard\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Então ");
 #line hidden
             }
@@ -146,7 +148,7 @@ namespace UiTests.Features
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Login com dados inválidos usando DataMap", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 13
+#line 14
   this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -156,19 +158,19 @@ namespace UiTests.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 4
+#line 5
   await this.FeatureBackgroundAsync();
 #line hidden
-#line 14
+#line 15
     await testRunner.GivenAsync("que estou na página \"login\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Dado ");
 #line hidden
-#line 15
+#line 16
     await testRunner.WhenAsync("eu preencho os campos com os dados de \"@invalid_user\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Quando ");
 #line hidden
-#line 16
+#line 17
     await testRunner.AndAsync("eu clico em \"submit\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "E ");
 #line hidden
-#line 17
+#line 18
     await testRunner.ThenAsync("o elemento \"error\" deve estar visível", ((string)(null)), ((global::Reqnroll.Table)(null)), "Então ");
 #line hidden
             }
@@ -183,7 +185,7 @@ namespace UiTests.Features
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Uso de coleções (DataSets) sequenciais", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 19
+#line 20
   this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -193,20 +195,23 @@ namespace UiTests.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 4
+#line 5
   await this.FeatureBackgroundAsync();
 #line hidden
-#line 20
+#line 21
     await testRunner.GivenAsync("que estou na página \"login\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Dado ");
 #line hidden
-#line 21
+#line 22
     await testRunner.WhenAsync("eu preencho \"username\" com \"{{cpfs_teste}}\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Quando ");
 #line hidden
-#line 22
+#line 23
     await testRunner.AndAsync("eu limpo o campo \"username\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "E ");
 #line hidden
-#line 23
+#line 24
     await testRunner.AndAsync("eu preencho \"username\" com \"{{cpfs_teste}}\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "E ");
+#line hidden
+#line 25
+    await testRunner.AndAsync("eu aguardo 5 segundos", ((string)(null)), ((global::Reqnroll.Table)(null)), "E ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

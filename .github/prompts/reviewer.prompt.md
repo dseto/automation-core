@@ -5,9 +5,6 @@ Você é o spec-driven-implementer.
 
 Objetivo: Revisar a implementação das correções/melhorias da release de forma spec-driven.
 
-Release alvo:
-`specs\releases\delta\2026-01-22-free-hands-draft-generator`.
-
 Tarefas obrigatórias (siga nesta ordem):
 
 ────────────────────────────────────
@@ -17,6 +14,10 @@ Tarefas obrigatórias (siga nesta ordem):
   dotnet restore
   dotnet build
   dotnet test
+
+  - rode os smoke tests com este script e não pode falhar nenhum teste
+  ui-tests\scripts\run-smoke.ps1
+
 - Registre os resultados.
 - Se algum falhar: pare, corrija e não prossiga.
 

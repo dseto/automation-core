@@ -77,6 +77,11 @@
             "null"
           ],
           "additionalProperties": true
+        },
+        "waitMs": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Tempo de inatividade (idle) desde o evento anterior, em milissegundos. Emitido apenas quando acima do threshold configurado."
         }
       },
       "additionalProperties": false

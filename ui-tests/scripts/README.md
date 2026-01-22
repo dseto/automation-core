@@ -2,17 +2,26 @@
 
 Conjunto de scripts PowerShell para executar testes de UI com diferentes configurações.
 
-## ⚠️ Pré-requisito OBRIGATÓRIO
+## ⚠️ Observação importante
 
-**Sempre execute `.\_env.ps1` antes de rodar qualquer script de teste:**
+Os scripts foram atualizados para serem executados a partir de **qualquer diretório**. Eles carregam automaticamente o arquivo de variáveis `_env.ps1` relativo à pasta `ui-tests\scripts` quando necessário.
+
+Exemplos de execução a partir do diretório raiz do repositório:
+
+```powershell
+# Executar smoke (headless)
+powershell -NoProfile -ExecutionPolicy Bypass -File .\ui-tests\scripts\run-smoke.ps1
+
+# Executar debug visual com cenário específico
+powershell -NoProfile -ExecutionPolicy Bypass -File .\ui-tests\scripts\run-debug.ps1 -Scenario "LoginComSucesso"
+```
+
+Ainda é possível usar o modo interativo (carregar `_env.ps1` manualmente) para customizar variáveis na sessão atual:
 
 ```powershell
 cd ui-tests\scripts
 . .\_env.ps1
 ```
-
-Este arquivo configura todas as variáveis de ambiente necessárias (`BASE_URL`, `UI_MAP_PATH`, `HEADLESS`, etc.).
-
 ## Scripts Disponíveis
 
 ### `run-smoke.ps1`

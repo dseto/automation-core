@@ -10,6 +10,17 @@ public sealed class SessionRecorder
     private readonly Stopwatch _clock = new();
     private RecorderSession? _session;
 
+    // Configurable threshold (seconds). Default kept backwards-compatible.
+    private readonly double _recordWaitLogThresholdSeconds;
+
+    // Last event timestamp (ms elapsed from session start) — used to compute gaps deterministically.
+    private long _lastEventMs = -1;
+
+    public SessionRecorder(double recordWaitLogThresholdSeconds = 1.0)
+    {
+        _recordWaitLogThresholdSeconds = recordWaitLogThresholdSeconds;
+    }
+
     public void Start()
     {
         lock (_sync)
@@ -24,6 +35,7 @@ public sealed class SessionRecorder
             };
 
             _clock.Restart();
+            _lastEventMs = -1;
         }
     }
 
@@ -137,17 +149,49 @@ public sealed class SessionRecorder
         {
             if (_session == null) return;
 
+            var currentMs = _clock.ElapsedMilliseconds;
+
+            // Consolidation: replace last fill for same target (preserve prior behavior),
+            // but update the _lastEventMs to the replacement time.
             if (consolidateKey != null && _session.Events.Count > 0)
             {
                 var last = _session.Events[^1];
                 if (last.Type == TypeValue(RecorderEventType.Fill) && TargetHintKey(last) == consolidateKey)
                 {
                     _session.Events[^1] = ev;
+                    _lastEventMs = currentMs;
                     return;
                 }
             }
 
+            // If there is a previous event, compute the idle gap and emit waitMs when above threshold.
+            if (_session.Events.Count > 0 && _lastEventMs >= 0)
+            {
+                var gapMs = (int)(currentMs - _lastEventMs);
+                var thresholdMs = (int)(_recordWaitLogThresholdSeconds * 1000.0);
+                if (gapMs > thresholdMs)
+                {
+                    // copy ev and include waitMs (RecorderEvent is init-only; create new instance)
+                    var evWithWait = new RecorderEvent
+                    {
+                        T = ev.T,
+                        Type = ev.Type,
+                        Route = ev.Route,
+                        Target = ev.Target,
+                        Value = ev.Value,
+                        RawAction = ev.RawAction,
+                        WaitMs = gapMs
+                    };
+
+                    _session.Events.Add(evWithWait);
+                    _lastEventMs = currentMs;
+                    return;
+                }
+            }
+
+            // Default: add event as-is and update last timestamp
             _session.Events.Add(ev);
+            _lastEventMs = currentMs;
         }
     }
 

@@ -19,14 +19,14 @@ namespace UiTests.Features
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "2.0.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [Xunit.TraitAttribute("Category", "login")]
+    [Xunit.TraitAttribute("Category", "smoke")]
     public partial class Login_AcessoAAplicacaoFeature : object, Xunit.IClassFixture<Login_AcessoAAplicacaoFeature.FixtureData>, Xunit.IAsyncLifetime
     {
         
         private global::Reqnroll.ITestRunner testRunner;
         
         private static string[] featureTags = new string[] {
-                "login"};
+                "smoke"};
         
         private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new System.Globalization.CultureInfo("pt-BR"), "features", "Login - Acesso à aplicação", null, global::Reqnroll.ProgrammingLanguage.CSharp, featureTags);
         
@@ -230,6 +230,60 @@ namespace UiTests.Features
 #line hidden
 #line 32
     await testRunner.ThenAsync("o atributo \"type\" de \"password\" deve ser \"password\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Então ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [Xunit.SkippableFactAttribute(DisplayName="Login com esperas explícitas")]
+        [Xunit.TraitAttribute("FeatureTitle", "Login - Acesso à aplicação")]
+        [Xunit.TraitAttribute("Description", "Login com esperas explícitas")]
+        [Xunit.TraitAttribute("Category", "interaction")]
+        public async System.Threading.Tasks.Task LoginComEsperasExplicitas()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "interaction"};
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Login com esperas explícitas", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 35
+  this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 5
+  await this.FeatureBackgroundAsync();
+#line hidden
+#line 36
+    await testRunner.GivenAsync("que estou na página \"login\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Dado ");
+#line hidden
+#line 37
+    await testRunner.AndAsync("eu aguardo 1 segundos", ((string)(null)), ((global::Reqnroll.Table)(null)), "E ");
+#line hidden
+#line 38
+    await testRunner.WhenAsync("eu preencho \"username\" com \"admin\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Quando ");
+#line hidden
+#line 39
+    await testRunner.AndAsync("eu aguardo 1 segundos", ((string)(null)), ((global::Reqnroll.Table)(null)), "E ");
+#line hidden
+#line 40
+    await testRunner.WhenAsync("eu preencho \"password\" com \"ChangeMe123!\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Quando ");
+#line hidden
+#line 41
+    await testRunner.AndAsync("eu aguardo 1 segundos", ((string)(null)), ((global::Reqnroll.Table)(null)), "E ");
+#line hidden
+#line 42
+    await testRunner.AndAsync("eu clico em \"submit\" e aguardo a rota \"/dashboard\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "E ");
+#line hidden
+#line 43
+    await testRunner.ThenAsync("estou na página \"dashboard\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Então ");
+#line hidden
+#line 44
+    await testRunner.AndAsync("o elemento \"stat-total\" deve estar visível", ((string)(null)), ((global::Reqnroll.Table)(null)), "E ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

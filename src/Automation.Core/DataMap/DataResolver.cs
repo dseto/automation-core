@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Automation.Core.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace Automation.Core.DataMap;
 
@@ -12,20 +13,32 @@ public class DataResolver
     private readonly RunSettings _settings;
     private readonly Dictionary<string, int> _dataSetIndices = new();
     private readonly Random _random = new();
+    private readonly Microsoft.Extensions.Logging.ILogger? _logger;
 
-    public DataResolver(DataMapModel model, RunSettings settings)
+    public DataResolver(DataMapModel model, RunSettings settings, Microsoft.Extensions.Logging.ILogger? logger = null)
     {
         _model = model;
         _settings = settings;
+        _logger = logger;
     }
 
     public object Resolve(string dataKey)
     {
         if (string.IsNullOrWhiteSpace(dataKey)) return null;
 
-        // 1. Checa por referência de objeto (@)
+        // 1. Checa por referência de objeto (@). Se não existir, trata como literal
         if (dataKey.StartsWith("@"))
-            return ResolveObjectReference(dataKey);
+        {
+            try
+            {
+                return ResolveObjectReference(dataKey);
+            }
+            catch (InvalidOperationException)
+            {
+                _logger?.LogInformation($"[DataResolver] Object reference '{dataKey}' not found. Treating as literal.");
+                return dataKey; // treat as literal when reference not found
+            }
+        }
 
         // 2. Checa por referência de dataset ({{...}})
         if (dataKey.StartsWith("{{") && dataKey.EndsWith("}}"))
@@ -35,7 +48,18 @@ public class DataResolver
         if (dataKey.StartsWith("${") && dataKey.EndsWith("}"))
             return ResolveEnvironmentVariable(dataKey);
 
-        // 4. Se nenhum prefixo corresponde, trata como literal
+        // 4. Se nenhum prefixo corresponde, tenta resolver por dataset direto (sem delimitadores)
+        if (_model.Datasets != null)
+        {
+            var dataSetObj = GetFromDictionary(_model.Datasets, dataKey);
+            if (dataSetObj is IDictionary dataSet)
+            {
+                _logger?.LogInformation($"[DataResolver] Resolving dataset by name without braces: '{dataKey}'");
+                return ResolveFromDataSet(dataKey, dataSet);
+            }
+        }
+
+        // Se não for dataset, trata como literal
         return dataKey;
     }
 
@@ -71,13 +95,19 @@ public class DataResolver
     {
         var key = input.Substring(2, input.Length - 4);
 
+        _logger?.LogInformation($"[DataResolver] ResolveDatasetReference: key='{key}'");
+
         if (_model.Datasets == null)
             throw new InvalidOperationException($"Dataset '{{{{{key}}}}}' não encontrado: nenhum dataset definido.");
 
         var dataSetObj = GetFromDictionary(_model.Datasets, key);
         if (dataSetObj is not IDictionary dataSet)
+        {
+            _logger?.LogWarning($"[DataResolver] Dataset object for '{key}' is not a dictionary (type: {dataSetObj?.GetType().Name ?? "null"}).");
             throw new InvalidOperationException($"Dataset '{{{{{key}}}}}' não encontrado no DataMap.");
+        }
 
+        _logger?.LogInformation($"[DataResolver] Found dataset '{key}'. Delegating to ResolveFromDataSet.");
         return ResolveFromDataSet(key, dataSet);
     }
 
@@ -118,7 +148,12 @@ public class DataResolver
     {
         var itemsObj = GetFromDictionary(dataSet, "items");
         if (itemsObj is not IList items || items.Count == 0)
+        {
+            _logger?.LogWarning($"[DataResolver] Dataset '{key}' has no items or items is not a list.");
             return null;
+        }
+
+        _logger?.LogInformation($"[DataResolver] Dataset '{key}' contains {items.Count} item(s).");
 
         var strategyObj = GetFromDictionary(dataSet, "strategy");
         var strategy = strategyObj?.ToString()?.ToLower() ?? "sequential";
@@ -126,12 +161,15 @@ public class DataResolver
         switch (strategy)
         {
             case "random":
-                return items[_random.Next(items.Count)];
+                var randomItem = items[_random.Next(items.Count)];
+                _logger?.LogInformation($"[DataResolver] Dataset '{key}' random selected item: '{randomItem}'");
+                return randomItem;
             default:
                 if (!_dataSetIndices.TryGetValue(key, out var index))
                     index = 0;
                 var item = items[index % items.Count];
                 _dataSetIndices[key] = index + 1;
+                _logger?.LogInformation($"[DataResolver] Dataset '{key}' sequential selected item: '{item}' (index {index})");
                 return item;
         }
     }

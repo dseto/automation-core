@@ -294,3 +294,33 @@ Considerar **ambíguo** quando:
 ### Critérios de aceite
 - Um `session.json` válido gera sempre `draft.metadata.json` (mesmo que o `draft.feature` tenha TODO/RAW).
 - Não há dependências de assemblies/projetos de UIMap/DataMap no Delta 2.
+## RF17 — Materializar `waitMs` em step de espera no draft.feature (Normativo)
+
+### Intenção
+Garantir que esperas relevantes capturadas no `session.json` sejam representadas no `draft.feature` de forma determinística.
+
+### Regras objetivas
+1. Para cada evento que gere um step no draft:
+   - Se `event.waitMs` existir, o Draft Generator DEVE inserir um step de espera **imediatamente antes** do step do evento.
+2. O step gerado DEVE ter o formato:
+   - `E eu espero <segundos> segundos`
+3. `<segundos>` DEVE ser calculado como `waitMs / 1000` e formatado com:
+   - separador decimal `.`
+   - até 3 casas decimais
+   - sem zeros à direita (ex.: `2.100` → `2.1`).
+4. O Draft Generator NÃO DEVE inventar esperas; apenas materializa `waitMs` existentes.
+
+### Exemplo normativo
+```gherkin
+  Dado que estou na página "/login"
+  E eu espero 2.1 segundos
+  Quando eu preencho "username" com "admin"
+```
+
+### Critérios de aceite
+- `waitMs=2100` → `E eu espero 2.1 segundos`.
+- O step de espera aparece antes do step do evento que contém `waitMs`.
+
+### Anti-exemplo
+- ❌ Inserir a espera após o step do evento (muda semântica).
+- ❌ Arredondar para inteiro sem regra.

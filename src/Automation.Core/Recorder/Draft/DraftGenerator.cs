@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Automation.Core.Recorder;
 
@@ -98,6 +99,14 @@ public sealed class DraftGenerator
 
                 text = NormalizeStepText(text, lastKeyword, out var keyword);
                 lastKeyword = keyword;
+
+                var primaryEvent = actions[i].PrimaryEvent;
+                if (primaryEvent?.WaitMs != null)
+                {
+                    var seconds = (primaryEvent.WaitMs.Value / 1000.0).ToString("0.###", CultureInfo.InvariantCulture);
+                    lines.Add(indent + $"E eu espero {seconds} segundos");
+                }
+
                 lines.Add(indent + text);
 
                 mappings.Add(new DraftMapping
@@ -115,6 +124,14 @@ public sealed class DraftGenerator
                 lines.Add("");
 
             var escapeResult = EscapeHatchRenderer.Render(actions[i]);
+
+            var primaryEventForEscape = actions[i].PrimaryEvent;
+            if (primaryEventForEscape?.WaitMs != null)
+            {
+                var seconds = (primaryEventForEscape.WaitMs.Value / 1000.0).ToString("0.###", CultureInfo.InvariantCulture);
+                lines.Add(indent + $"E eu espero {seconds} segundos");
+            }
+
             lines.AddRange(IndentLines(escapeResult.Lines, indent));
             warnings.AddRange(escapeResult.Warnings);
             escapeHatchCount++;

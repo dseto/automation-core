@@ -52,6 +52,8 @@
   Habilita gravação de sessão (session.json).
 - `RECORD_OUTPUT_DIR` (string, default: `"artifacts/recorder"`)  
   Diretório de saída para o session.json.
+- `RECORD_WAIT_LOG_THRESHOLD_SECONDS` (float, default: `1.0`)  
+  Threshold em segundos usado pelo Recorder para decidir quando emitir `waitMs` em eventos. Se o gap entre eventos for maior que `RECORD_WAIT_LOG_THRESHOLD_SECONDS*1000`, o Recorder inclui `waitMs` (inteiro em ms) no evento. Valores decimais são aceitos.
 
 ## Observações importantes
 - Defaults dependentes de `UI_DEBUG` estão implementados diretamente em `RunSettings.FromEnvironment()`.

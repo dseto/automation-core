@@ -9,11 +9,12 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-. "$PSScriptRoot\_env.ps1"
+if (-not $PSScriptRoot) { $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition } else { $ScriptDir = $PSScriptRoot }
+. (Join-Path $ScriptDir "_env.ps1")
 
 # Resolver paths com data-map se necessário
 if (-not $env:DATA_MAP_PATH) { 
-  $env:DATA_MAP_PATH = (Resolve-Path "$PSScriptRoot\..\data\data-map.yaml" -ErrorAction SilentlyContinue).Path
+  $env:DATA_MAP_PATH = (Resolve-Path (Join-Path $ScriptDir "..\data\data-map.yaml") -ErrorAction SilentlyContinue).Path
 }
 
 Write-Host "== Validation with Automation.Validator =="

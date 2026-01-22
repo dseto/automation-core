@@ -1,4 +1,5 @@
 #language: pt-BR
+@login
 Funcionalidade: Validação do Contrato de Dados (DataMap)
 
   Contexto:
@@ -21,4 +22,4 @@ Funcionalidade: Validação do Contrato de Dados (DataMap)
     Quando eu preencho "username" com "{{cpfs_teste}}"
     E eu limpo o campo "username"
     E eu preencho "username" com "{{cpfs_teste}}"
-    # O segundo preenchimento deve usar o próximo item da lista
+    E eu aguardo 5 segundos

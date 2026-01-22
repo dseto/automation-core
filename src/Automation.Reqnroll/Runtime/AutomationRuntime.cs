@@ -39,7 +39,7 @@ public sealed class AutomationRuntime : IDisposable
         // Carregar DataMap
         var dataMapPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "data-map.yaml");
         DataMap = new DataMapLoader().Load(dataMapPath);
-        Data = new DataResolver(DataMap, settings);
+        Data = new DataResolver(DataMap, settings, Logger);
 
         Waits = new WaitService(settings, logger);
         Evidence = new EvidenceManager(logger);
@@ -48,7 +48,7 @@ public sealed class AutomationRuntime : IDisposable
         Resolver = new ElementResolver(map, PageContext);
 
         if (settings.RecordEnabled)
-            Recorder = new SessionRecorder();
+            Recorder = new SessionRecorder(settings.RecordWaitLogThresholdSeconds);
     }
 
     public void Dispose()

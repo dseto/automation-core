@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Automation.Reqnroll.Runtime;
 using OpenQA.Selenium;
 using Reqnroll;
+using Microsoft.Extensions.Logging;
 
 namespace Automation.Reqnroll.Steps;
 
@@ -376,6 +377,31 @@ public sealed class InteractionSteps
         _rt.Debug.MaybeSlowMo();
     }
 
+    [Given(@"eu aguardo (\d+) segundos?")]
+    public void DadoEuAguardoSegundos(int seconds)
+    {
+        QuandoEuAguardoSegundos(seconds);
+    }
+
+    /// <summary>
+    /// Aguarda um número (decimal) de segundos (step runner decimal, para drafts e step-catalog).
+    /// </summary>
+    [When(@"eu espero ([0-9]+(?:\\.[0-9]+)?) segundos?")]
+    public void QuandoEuEsperoSegundos(double seconds)
+    {
+        // Clamp para evitar sleeps negativos ou excessivos
+        if (seconds < 0) seconds = 0;
+        if (seconds > 120) seconds = 120; // Limite de 2 minutos para evitar travamentos
+        System.Threading.Thread.Sleep((int)(seconds * 1000));
+        _rt.Debug.MaybeSlowMo();
+    }
+
+    [Given(@"eu espero ([0-9]+(?:\\.[0-9]+)?) segundos?")]
+    public void DadoEuEsperoSegundos(double seconds)
+    {
+        QuandoEuEsperoSegundos(seconds);
+    }
+
     /// <summary>
     /// Aguarda um elemento estar visível.
     /// </summary>
@@ -463,27 +489,37 @@ public sealed class InteractionSteps
     {
         if (string.IsNullOrWhiteSpace(value)) return value;
 
+        _rt.Logger.LogInformation($"[ResolveValue] Input: '{value}'");
+
         // 1. Suporta ${VAR_NAME} (Variáveis de Ambiente)
         if (value.StartsWith("${") && value.EndsWith("}"))
         {
             var varName = value[2..^1];
-            return Environment.GetEnvironmentVariable(varName) ?? "";
+            var resolved = Environment.GetEnvironmentVariable(varName) ?? "";
+            _rt.Logger.LogInformation($"[ResolveValue] Environment var: '{varName}' -> '{resolved}'");
+            return resolved;
         }
 
         // 2. Suporta {{DATA_KEY}} (DataMap)
         if (value.StartsWith("{{") && value.EndsWith("}}"))
         {
-            var dataKey = value[2..^1];
-            return _rt.Data.Resolve(dataKey)?.ToString() ?? "";
+            var dataKey = value[2..^2]; // Corrigido: remove 2 do início e 2 do fim
+            _rt.Logger.LogInformation($"[ResolveValue] Detected dataset: '{dataKey}'");
+            var resolved = _rt.Data.Resolve(dataKey)?.ToString() ?? "";
+            _rt.Logger.LogInformation($"[ResolveValue] Dataset '{dataKey}' resolved to: '{resolved}'");
+            return resolved;
         }
 
         // 3. Suporta @OBJECT_KEY (Referência de objeto no DataMap)
         if (value.StartsWith("@"))
         {
-            return _rt.Data.Resolve(value)?.ToString() ?? "";
+            var resolved = _rt.Data.Resolve(value)?.ToString() ?? "";
+            _rt.Logger.LogInformation($"[ResolveValue] Object reference '{value}' resolved to: '{resolved}'");
+            return resolved;
         }
 
         // 4. Valor literal - NÃO re-resolver via DataResolver
+        _rt.Logger.LogInformation($"[ResolveValue] Treating as literal: '{value}'");
         return value;
     }
 
