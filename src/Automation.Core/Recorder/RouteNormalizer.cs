@@ -17,9 +17,23 @@ namespace Automation.Core.Recorder
             if (!string.IsNullOrWhiteSpace(url))
             {
                 candidate = url;
-                if (!string.IsNullOrWhiteSpace(baseUrl) && candidate.StartsWith(baseUrl, StringComparison.OrdinalIgnoreCase))
+                if (!string.IsNullOrWhiteSpace(baseUrl))
                 {
-                    candidate = candidate.Substring(baseUrl.Length);
+                    // Normalize baseUrl comparison to be tolerant to trailing slashes
+                    var baseNorm = baseUrl.TrimEnd('/');
+                    if (candidate.StartsWith(baseNorm, StringComparison.OrdinalIgnoreCase))
+                    {
+                        var tail = candidate.Substring(baseNorm.Length);
+                        // If tail is empty or just a slash, treat as root
+                        if (string.IsNullOrWhiteSpace(tail) || tail == "/")
+                        {
+                            candidate = "/";
+                        }
+                        else
+                        {
+                            candidate = tail;
+                        }
+                    }
                 }
             }
 

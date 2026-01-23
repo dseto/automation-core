@@ -96,8 +96,9 @@ public class Program
         {
             _driver.Navigate().GoToUrl(baseUrl);
             var ab = new Uri(baseUrl);
-            var initialRoute = ab.AbsolutePath + (string.IsNullOrEmpty(ab.Fragment) ? string.Empty : ab.Fragment);
-            _recorder.RecordNavigate(initialRoute, ab.AbsoluteUri, ab.AbsolutePath, string.IsNullOrEmpty(ab.Fragment) ? null : ab.Fragment);
+            // Normalize the initial route using RouteNormalizer so that baseUrl itself maps to '/'
+            var canonical = Automation.Core.Recorder.RouteNormalizer.Normalize(ab.AbsoluteUri, ab.AbsolutePath, string.IsNullOrEmpty(ab.Fragment) ? null : ab.Fragment, baseUrl);
+            _recorder.RecordNavigate(canonical, ab.AbsoluteUri, ab.AbsolutePath, string.IsNullOrEmpty(ab.Fragment) ? null : ab.Fragment);
             _logger.LogInformation("Navegou para: {Url}", baseUrl);
             
             // 8.1) Injetar script de captura de browser (RC01)

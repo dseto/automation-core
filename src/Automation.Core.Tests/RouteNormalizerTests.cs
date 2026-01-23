@@ -37,5 +37,21 @@ namespace Automation.Core.Tests
             var outp = Automation.Core.Recorder.RouteNormalizer.Normalize(null, pathname, null, null);
             Assert.Equal("/login", outp);
         }
+
+        [Fact]
+        public void Normalize_UrlEqualsBaseUrl_ReturnsRoot()
+        {
+            var url = "http://localhost/insurance-quote-spa-static";
+            var outp = Automation.Core.Recorder.RouteNormalizer.Normalize(url, null, null, "http://localhost/insurance-quote-spa-static");
+            Assert.Equal("/", outp);
+        }
+
+        [Fact]
+        public void Normalize_UrlEqualsBaseUrl_WithTrailingSlash_ReturnsRoot()
+        {
+            var url = "http://localhost/insurance-quote-spa-static/";
+            var outp = Automation.Core.Recorder.RouteNormalizer.Normalize(url, null, null, "http://localhost/insurance-quote-spa-static/");
+            Assert.Equal("/", outp);
+        }
     }
 }
