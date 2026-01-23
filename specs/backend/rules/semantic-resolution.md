@@ -44,3 +44,6 @@ This section refines the navigation mapping rules to remove ambiguity.
   - code: `UIGAP_ROUTE_NOT_MAPPED`
   - severity: `info`
   - The step remains unresolved at page-level.
+
+### Safe Fill Value Preservation
+- Rewrite only element reference.

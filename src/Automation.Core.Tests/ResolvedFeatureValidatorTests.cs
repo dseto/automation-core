@@ -37,6 +37,16 @@ namespace Automation.Core.Tests
             var draft = Path.Combine(dir, "draft.feature");
             File.WriteAllText(draft, "#language: pt\n\nFuncionalidade: X\n\nCenário: Y\n\n  Dado que estou na página \"Login\"\n  Quando eu preencho \"login.username\" com \"demo\"\n");
 
+            // Additional test case: navigation step that contains multiple quoted literals — replacement must only affect first quoted string
+            var draft2 = Path.Combine(dir, "draft2.feature");
+            File.WriteAllText(draft2, "#language: pt\n\nFuncionalidade: Z\n\nCenário: Q\n\n  Dado que estou na página \"/login\" com token \"abc123\"\n");
+
+            var resolved2 = Path.Combine(dir, "resolved2.feature");
+            File.WriteAllText(resolved2, "#language: pt\n\nFuncionalidade: Z\n\nCenário: Q\n\n  Dado que estou na página \"login\" com token \"abc123\"\n");
+
+            var meta2 = Path.Combine(dir, "resolved2.metadata.json");
+            File.WriteAllText(meta2, "{\n  \"version\": \"1.0\",\n  \"generatedAt\": \"now\",\n  \"source\": { \"draftFeaturePath\": \"draft2.feature\", \"uiMapPath\": \"uimap.yaml\", \"sessionPath\": null },\n  \"steps\": [\n    { \"draftLine\": 7, \"status\": \"resolved\", \"stepText\": \"  Dado que estou na página \\\"/login\\\" com token \\\"abc123\\\"\", \"chosen\": { \"pageKey\": \"login\", \"elementKey\": \"page\", \"testId\": null }, \"findings\": [] }\n  ]\n}");
+
             var resolved = Path.Combine(dir, "resolved.feature");
             File.WriteAllText(resolved, "#language: pt\n\nFuncionalidade: X\n\nCenário: Y\n\n  Dado que estou na página \"Login\"\n  Quando eu preencho \"login.username\" com \"demo\"\n");
 

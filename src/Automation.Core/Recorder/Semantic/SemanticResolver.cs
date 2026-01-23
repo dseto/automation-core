@@ -371,8 +371,9 @@ namespace Automation.Core.Recorder.Semantic
                     var idx = s.DraftLine - 1;
                     if (idx >= 0 && idx < lines.Count)
                     {
-                        // replace the first quoted string with the page key (keeps other parts intact)
-                        lines[idx] = System.Text.RegularExpressions.Regex.Replace(lines[idx], "\"([^\"]+)\"", $"\"{s.Chosen.PageKey}\"");
+                        // replace only the FIRST quoted string with the page key (keeps other parts intact) — RF-SR-40
+                        var regex = new System.Text.RegularExpressions.Regex("\"([^\"]+)\"");
+                        lines[idx] = regex.Replace(lines[idx], $"\"{s.Chosen.PageKey}\"", 1);
                     }
                 }
             }
@@ -386,13 +387,26 @@ namespace Automation.Core.Recorder.Semantic
                     if (!string.IsNullOrWhiteSpace(quoted) && quoted.Contains('.') )
                     {
                         var parts = quoted.Split('.', 2, StringSplitOptions.RemoveEmptyEntries);
+                        var newRef = $"{s.Chosen.PageKey}.{s.Chosen.ElementKey}";
+                        var idx = s.DraftLine - 1;
+
+                        // Case A: quoted is in form "page.element.*" (e.g., "login.pass.label") — rewrite when page matches
                         if (parts.Length == 2 && string.Equals(parts[0], s.Chosen.PageKey, StringComparison.OrdinalIgnoreCase))
                         {
-                            var newRef = $"{s.Chosen.PageKey}.{s.Chosen.ElementKey}";
-                            var idx = s.DraftLine - 1;
                             if (idx >= 0 && idx < lines.Count)
                             {
-                                lines[idx] = System.Text.RegularExpressions.Regex.Replace(lines[idx], "\"([^\"]+)\"", $"\"{newRef}\"");
+                                // replace only the FIRST quoted string (the reference) so literal values in subsequent quoted strings are preserved — RF-SR-40
+                                var regex = new System.Text.RegularExpressions.Regex("\"([^\"]+)\"");
+                                lines[idx] = regex.Replace(lines[idx], $"\"{newRef}\"", 1);
+                            }
+                        }
+                        // Case B: quoted contains the resolved testId (e.g., "[data-testid='page.login.username']"), rewrite to element ref
+                        else if (!string.IsNullOrWhiteSpace(s.Chosen.TestId) && quoted.Contains(s.Chosen.TestId, StringComparison.Ordinal))
+                        {
+                            if (idx >= 0 && idx < lines.Count)
+                            {
+                                var regex = new System.Text.RegularExpressions.Regex("\"([^\"]+)\"");
+                                lines[idx] = regex.Replace(lines[idx], $"\"{newRef}\"", 1);
                             }
                         }
                     }

@@ -234,6 +234,45 @@ namespace Automation.Core.Tests
         }
 
         [Fact]
+        public void Resolved_Fill_Preserves_Literal_When_Element_Rewritten()
+        {
+            var ui = BuildUiMap(new[] { ("login", "username", "page.login.username") });
+            var draft = "#language: pt\n\nFuncionalidade: X\n\nCenário: Y\n\n  Quando eu preencho \"[data-testid='page.login.username']\" com \"admin\"\n";
+            var metadata = BuildDraftMetadata((0, 7));
+            var session = BuildSessionWithHints("[data-testid='page.login.username']");
+            var resolver = new SemanticResolver(ui, session, 5, "draft.feature", "ui-map.yaml");
+            var (resolvedMeta, report, resolvedFeature) = resolver.Resolve(draft, metadata);
+
+            Assert.Single(resolvedMeta.Steps);
+            var s = resolvedMeta.Steps[0];
+            Assert.Equal("resolved", s.Status);
+            Assert.NotNull(s.Chosen);
+            Assert.Equal("login", s.Chosen!.PageKey);
+            Assert.Equal("username", s.Chosen!.ElementKey);
+            Assert.Equal("page.login.username", s.Chosen!.TestId);
+
+            // literal should be preserved verbatim
+            Assert.Contains("com \"admin\"", resolvedFeature);
+            Assert.Contains("Quando eu preencho \"login.username\" com \"admin\"", resolvedFeature);
+            Assert.DoesNotContain("[data-testid='page.login.username']", resolvedFeature);
+        }
+
+        [Fact]
+        public void Only_First_Quoted_String_Is_Rewritten()
+        {
+            var ui = BuildUiMap(new[] { ("login", "username", "page.login.username") });
+            var draft = "#language: pt\n\nFuncionalidade: X\n\nCenário: Y\n\n  Quando eu preencho \"[data-testid='page.login.username']\" com \"x\" e depois digo \"y\"\n";
+            var metadata = BuildDraftMetadata((0, 7));
+            var session = BuildSessionWithHints("[data-testid='page.login.username']");
+            var resolver = new SemanticResolver(ui, session, 5, "draft.feature", "ui-map.yaml");
+            var (resolvedMeta, report, resolvedFeature) = resolver.Resolve(draft, metadata);
+
+            Assert.Single(resolvedMeta.Steps);
+            // only the first quoted string (the reference) should be rewritten; subsequent quoted strings must remain as-is
+            Assert.Contains("Quando eu preencho \"login.username\" com \"x\" e depois digo \"y\"", resolvedFeature);
+        }
+
+        [Fact]
         public void Navigate_Unmapped_Route_Produces_Info_Finding()
         {
             var ui = BuildUiMap(new[] { ("home", "btnLogin", "btn-login") });

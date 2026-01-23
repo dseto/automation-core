@@ -24,3 +24,7 @@ Additional rule:
 Signals of failure:
 - Resolver “fixes” a route (e.g., strips `.html` or concatenates segments) without an exact match.
 - Missing `UIGAP_ROUTE_NOT_MAPPED` when unmapped.
+
+
+## V-SR-40
+- Literal values unchanged.

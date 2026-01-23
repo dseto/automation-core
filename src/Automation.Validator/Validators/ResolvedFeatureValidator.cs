@@ -113,7 +113,9 @@ namespace Automation.Validator.Validators
                             var pageKey = pageKeyEl.GetString();
                             if (!string.IsNullOrWhiteSpace(pageKey) && draftStepText.IndexOf("estou na página", StringComparison.OrdinalIgnoreCase) >= 0)
                             {
-                                altDraftText = System.Text.RegularExpressions.Regex.Replace(draftStepText, "\"([^\"]+)\"", $"\"{pageKey}\"");
+                                // replace only the FIRST quoted string with the page key (preserve other quoted literals) — RF-SR-40
+                                var regex = new System.Text.RegularExpressions.Regex("\"([^\"]+)\"");
+                                altDraftText = regex.Replace(draftStepText, $"\"{pageKey}\"", 1);
                             }
                         }
 

@@ -195,3 +195,7 @@ pages:
 ### Anti-exemplo (proibido)
 - Resolver `/login.html` para uma página com `__meta.route="/login"` **sem** match exato ou regra normativa adicional.
 
+
+
+## RF-SR-40 – Safe Fill Value Preservation
+- Preserve literal values.

@@ -1,7 +1,7 @@
 
 param(
   [string]$TestProject = "",
-  [string]$Scenario = ""
+  [string]$Scenario = "drift"
 )
 
 $ErrorActionPreference = "Stop"

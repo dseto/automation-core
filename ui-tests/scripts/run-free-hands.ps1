@@ -4,15 +4,23 @@
 #   .\run-free-hands.ps1 -Url "https://example.com" -OutputDir ".\artifacts\recorder-custom"
 
 param(
-    [string]$Url = "",
-    [string]$OutputDir = ""
+    [string]$Url = "https://gray-mushroom-0d87c190f.1.azurestaticapps.net",
+    [string]$OutputDir = "C:\Projetos\automation-core\ui-tests\artifacts\recorder"
 )
 
 $ErrorActionPreference = "Stop"
 
 # 1) Carregar variaveis base
 if (-not $PSScriptRoot) { $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition } else { $ScriptDir = $PSScriptRoot }
-. (Join-Path $ScriptDir "_env.ps1")
+
+# Debug visual local
+$env:UI_DEBUG = "true"
+$env:HEADLESS = "false"
+$env:PAUSE_ON_FAILURE = "false"
+$env:SLOWMO_MS = "1000"
+$env:HIGHLIGHT = "true"
+$env:BROWSER = "edge"
+$env:UI_MAP_PATH = "C:\\Projetos\\automation-core\\ui-tests\\ui\\ui-map.yaml"
 
 # 2) Habilitar recorder (modo exploratorio)
 $env:AUTOMATION_RECORD = "true"
