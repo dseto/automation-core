@@ -32,7 +32,7 @@ public sealed class DraftGenerator
 
     public DraftWriter Writer { get; }
 
-    public DraftGenerationResult Generate(RecorderSession session, string outputDir)
+    public DraftGenerationResult Generate(RecorderSession session, string outputDir, string? scenarioTitle = null)
     {
         var sanity = SanityChecker.Check(session);
         if (!sanity.IsValid)
@@ -60,11 +60,43 @@ public sealed class DraftGenerator
         }
 
         var actions = Grouper.Group(session);
+
+        // Ensure every recorded navigate event is represented by an action so draft preserves page navigations
+        for (int evIdx = 0; evIdx < session.Events.Count; evIdx++)
+        {
+            var ev = session.Events[evIdx];
+            if (ev.Type != "navigate") continue;
+            // if no action includes this event index, insert a synthetic navigate action
+            if (!System.Linq.Enumerable.Any(actions, a => System.Linq.Enumerable.Contains(a.EventIndexes, evIdx)))
+            {
+                var newAction = new DraftAction(new System.Collections.Generic.List<RecorderEvent> { ev }, new System.Collections.Generic.List<int> { evIdx });
+                // find insertion position (first action whose min index > evIdx)
+                var pos = -1;
+                for (int ai = 0; ai < actions.Count; ai++)
+                {
+                    var minIdx = System.Linq.Enumerable.Min(actions[ai].EventIndexes);
+                    if (minIdx > evIdx) { pos = ai; break; }
+                }
+                if (pos >= 0)
+                {
+                    var list = new System.Collections.Generic.List<DraftAction>(actions);
+                    list.Insert(pos, newAction);
+                    actions = list;
+                }
+                else
+                {
+                    var list = new System.Collections.Generic.List<DraftAction>(actions);
+                    list.Add(newAction);
+                    actions = list;
+                }
+            }
+        }
+
         var steps = InferenceEngine.InferSteps(actions);
         var stepsByIndex = steps.ToDictionary(s => s.EventIndexes.First(), s => s);
 
         var featureName = "Fluxo de login (draft)";
-        var scenarioName = "Cenário draft gerado pelo Recorder";
+        var scenarioName = !string.IsNullOrWhiteSpace(scenarioTitle) ? scenarioTitle : "Cenário draft gerado pelo Recorder";
         var lines = new List<string>
         {
             "#language: pt",
@@ -108,6 +140,60 @@ public sealed class DraftGenerator
                     {
                         lines.Add(indent + $"E eu espero {secondsInt} segundos");
                     }
+                }
+
+                // If this step targets a specific element with a dotted target (page.element or page-prefixed testId),
+                // insert a synthetic navigation step to the inferred page BEFORE the step when a preceding page step is missing.
+                try
+                {
+                    var pageCandidate = (primaryEvent != null) ? TryGetHint(primaryEvent.Target) : null;
+                    if (!string.IsNullOrWhiteSpace(pageCandidate) && pageCandidate.Contains('.'))
+                    {
+                        string inferredPage = pageCandidate.StartsWith("page.") ? pageCandidate.Split('.', 3)[1] : pageCandidate.Split('.', 2)[0];
+
+                        // find last non-empty line
+                        var lastNonEmpty = lines.Count > 0 ? lines.FindLast(l => !string.IsNullOrWhiteSpace(l)) : null;
+                        var alreadyOnPage = false;
+                        if (!string.IsNullOrWhiteSpace(lastNonEmpty) && lastNonEmpty.IndexOf("estou na página", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                        {
+                            var m = System.Text.RegularExpressions.Regex.Match(lastNonEmpty, "\"([^\"]+)\"");
+                            if (m.Success)
+                            {
+                                var lastPage = m.Groups[1].Value;
+                                if (string.Equals(lastPage, inferredPage, System.StringComparison.OrdinalIgnoreCase))
+                                    alreadyOnPage = true;
+                            }
+                        }
+
+                        if (!alreadyOnPage)
+                        {
+                            lines.Add(indent + $"Dado que estou na página \"{inferredPage}\"");
+                        }
+
+                        // If the step's target is unqualified (no dot) but we inferred a page, qualify it as page.element so the resolver can find it later
+                        try
+                        {
+                            var originalTarget = (primaryEvent != null) ? TryGetHint(primaryEvent.Target) : null;
+                            if (!string.IsNullOrWhiteSpace(originalTarget) && !originalTarget.Contains('.') && !string.IsNullOrWhiteSpace(inferredPage))
+                            {
+                                // replace only the first occurrence inside quotes
+                                var q = System.Text.RegularExpressions.Regex.Escape($"\"{originalTarget}\"");
+                                var re = new System.Text.RegularExpressions.Regex(q);
+                                if (re.IsMatch(text))
+                                {
+                                    text = re.Replace(text, $"\"{inferredPage}.{originalTarget}\"", 1);
+                                }
+                            }
+                        }
+                        catch
+                        {
+                            // swallow any replacement errors
+                        }
+                    }
+                }
+                catch
+                {
+                    // conservative: swallow any heuristics failure and proceed
                 }
 
                 lines.Add(indent + text);

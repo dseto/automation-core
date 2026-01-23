@@ -135,5 +135,6 @@ A lista abaixo representa as entregas já criadas no spec deck.
 - 2026-01-21-free-hands-recorder-exploratory-mode — RF00 exploratory mode (RELEASED v0.4.0 em 2026-01-21)
 - 2026-01-22-free-hands-draft-generator — Draft Generator (RELEASED v0.5.2 em 2026-01-22)
 - 2026-01-22-free-hands-deterministic-routes — Deterministic Routes (RELEASED v0.6.1 em 2026-01-22)
+- 2026-01-22-free-hands-semres-fill-safe-rewrite — Semantic resolution: Safe fill-value preservation (RELEASED v0.6.2 em 2026-01-23)
 - 2026-01-21-forced-waits — Recorder forced waits + Draft materialization (RELEASED v0.6.0 em 2026-01-21)
 

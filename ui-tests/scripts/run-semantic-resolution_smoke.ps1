@@ -1,7 +1,8 @@
 param(
     [string]$SessionExample = "ui-tests/artifacts/recorder/session.json",
     [string]$UiMap = "ui-tests/ui/ui-map.yaml",
-    [string]$OutputDir = "ui-tests/artifacts/semantic-resolution-e2e"
+    [string]$OutputDir = "ui-tests/artifacts/semantic-resolution-e2e",
+    [string]$ScenarioName = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -14,9 +15,10 @@ $outDir = Join-Path $root $OutputDir
 if (-not (Test-Path $outDir)) { New-Item -ItemType Directory -Path $outDir | Out-Null }
 
 Write-Host "Generating draft from session: $sessionPath"
-$cmd = "dotnet run --project src/Automation.RecorderTool generate-draft --input `"$sessionPath`" --output `"$outDir`""
+if ([string]::IsNullOrWhiteSpace($ScenarioName)) { $scenarioArg = "" } else { $scenarioArg = " --scenario `"$ScenarioName`"" }
+$cmd = "dotnet run --project src/Automation.RecorderTool generate-draft --input `"$sessionPath`" --output `"$outDir`"$scenarioArg"
 Write-Host $cmd
-$exit = & dotnet run --project src/Automation.RecorderTool generate-draft --input "$sessionPath" --output "$outDir"
+$exit = & dotnet run --project src/Automation.RecorderTool generate-draft --input "$sessionPath" --output "$outDir"$scenarioArg
 if ($LASTEXITCODE -ne 0) { Write-Host "generate-draft failed (exit $LASTEXITCODE)"; exit $LASTEXITCODE }
 
 $draftPath = Join-Path $outDir "draft.feature"
@@ -40,4 +42,17 @@ Write-Host "Validating outputs with Automation.Validator"
 if ($LASTEXITCODE -ne 0) { Write-Host "Validation failed (exit $LASTEXITCODE)"; exit $LASTEXITCODE }
 
 Write-Host "Semantic resolution E2E succeeded. Outputs in: $resolvedOut" -ForegroundColor Green
+
+# Cleanup temporary draft artifacts to avoid polluting workspace and test discovery filters
+$draftPath = Join-Path $outDir "draft.feature"
+$draftMeta = Join-Path $outDir "draft.metadata.json"
+$draftCs = Join-Path $outDir "draft.feature.cs"
+try {
+    if (Test-Path $draftPath) { Remove-Item -Path $draftPath -Force; Write-Host "Removed temporary $draftPath" }
+    if (Test-Path $draftMeta) { Remove-Item -Path $draftMeta -Force; Write-Host "Removed temporary $draftMeta" }
+    if (Test-Path $draftCs) { Remove-Item -Path $draftCs -Force; Write-Host "Removed temporary $draftCs" }
+} catch {
+    Write-Host "Warning: failed to remove draft artifacts: $_" -ForegroundColor Yellow
+}
+
 exit 0

@@ -108,21 +108,43 @@ namespace Automation.Validator.Validators
                         bool found = false;
                         // build alternative draft text when chosen.pageKey exists (for navigation substitutions)
                         string? altDraftText = null;
-                        if (step.TryGetProperty("chosen", out var chosenEl) && chosenEl.ValueKind == JsonValueKind.Object && chosenEl.TryGetProperty("pageKey", out var pageKeyEl) && pageKeyEl.ValueKind == JsonValueKind.String)
+                        string? altDraftText2 = null;
+                        if (step.TryGetProperty("chosen", out var chosenEl) && chosenEl.ValueKind == JsonValueKind.Object)
                         {
-                            var pageKey = pageKeyEl.GetString();
-                            if (!string.IsNullOrWhiteSpace(pageKey) && draftStepText.IndexOf("estou na página", StringComparison.OrdinalIgnoreCase) >= 0)
+                            if (chosenEl.TryGetProperty("pageKey", out var pageKeyEl) && pageKeyEl.ValueKind == JsonValueKind.String)
                             {
-                                // replace only the FIRST quoted string with the page key (preserve other quoted literals) — RF-SR-40
-                                var regex = new System.Text.RegularExpressions.Regex("\"([^\"]+)\"");
-                                altDraftText = regex.Replace(draftStepText, $"\"{pageKey}\"", 1);
+                                var pageKey = pageKeyEl.GetString();
+                                if (!string.IsNullOrWhiteSpace(pageKey) && draftStepText.IndexOf("estou na página", StringComparison.OrdinalIgnoreCase) >= 0)
+                                {
+                                    // replace only the FIRST quoted string with the page key (preserve other quoted literals) — RF-SR-40
+                                    var regex = new System.Text.RegularExpressions.Regex("\"([^\"]+)\"");
+                                    altDraftText = regex.Replace(draftStepText, $"\"{pageKey}\"", 1);
+                                }
+                            }
+
+                            // Also allow element substitutions: replace first quoted string with either page.elementKey or elementKey alone
+                            if (chosenEl.TryGetProperty("elementKey", out var elementKeyEl) && elementKeyEl.ValueKind == JsonValueKind.String)
+                            {
+                                var elementKey = elementKeyEl.GetString();
+                                var pageKey = chosenEl.TryGetProperty("pageKey", out var pk) && pk.ValueKind == JsonValueKind.String ? pk.GetString() : null;
+                                if (!string.IsNullOrWhiteSpace(elementKey))
+                                {
+                                    var regex = new System.Text.RegularExpressions.Regex("\"([^\"]+)\"");
+                                    // page-prefixed alternative (page.element)
+                                    if (!string.IsNullOrWhiteSpace(pageKey))
+                                        altDraftText = altDraftText ?? regex.Replace(draftStepText, $"\"{pageKey}.{elementKey}\"", 1);
+                                    // element-only alternative
+                                    altDraftText2 = regex.Replace(draftStepText, $"\"{elementKey}\"", 1);
+                                }
                             }
                         }
 
                         for (int i = lastFoundIndex + 1; i < resolvedLines.Count; i++)
                         {
                             var candidate = resolvedLines[i].TrimEnd();
-                            if (candidate.Equals(draftStepText, StringComparison.Ordinal) || (altDraftText != null && candidate.Equals(altDraftText, StringComparison.Ordinal)))
+                            if (candidate.Equals(draftStepText, StringComparison.Ordinal) ||
+                                (altDraftText != null && candidate.Equals(altDraftText, StringComparison.Ordinal)) ||
+                                (altDraftText2 != null && candidate.Equals(altDraftText2, StringComparison.Ordinal)))
                             {
                                 found = true;
                                 lastFoundIndex = i;

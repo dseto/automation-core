@@ -129,10 +129,11 @@ public class Program
     {
       var input = GetArgValue(args, "--input");
       var output = GetArgValue(args, "--output");
+      var scenario = GetArgValue(args, "--scenario") ?? GetArgValue(args, "--name");
 
       if (string.IsNullOrWhiteSpace(input) || string.IsNullOrWhiteSpace(output))
       {
-        Console.WriteLine("Uso: generate-draft --input <session.json> --output <output-dir>");
+        Console.WriteLine("Uso: generate-draft --input <session.json> --output <output-dir> [--scenario <name>]");
         return 1;
       }
 
@@ -148,7 +149,7 @@ public class Program
           new EscapeHatchRenderer(),
           new DraftWriter());
 
-        var result = generator.Generate(session, output);
+        var result = generator.Generate(session, output, scenario);
         if (!result.IsSuccess)
         {
           Console.WriteLine("[DraftGenerator] Sessão inválida. Draft não gerado.");

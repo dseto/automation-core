@@ -384,8 +384,32 @@ namespace Automation.Core.Tests
             var resolver = new SemanticResolver(ui, null, 5, "draft.feature", "ui-map.yaml");
             var (resolvedMeta, report, resolvedFeature) = resolver.Resolve(draft, metadata);
 
-            // After resolution we expect the step to use the element key (pass-label) so runtime's ElementResolver can find it
+            // After resolution we expect the step to use the element key (pass-label) with page prefix when no page context exists
             Assert.Contains("Quando eu clico em \"login.pass-label\"", resolvedFeature);
+            Assert.DoesNotContain("login.pass.label", resolvedFeature);
+
+        }
+
+        [Fact]
+        public void Resolved_Feature_Rewrites_Element_Refs_To_ElementKey_When_PageContext_Exists()
+        {
+            // UiMap: element 'pass-label' exists with test_id 'login.pass.label'
+            var ui = new UiMapModel();
+            var pageDict = new Dictionary<string, object>
+            {
+                ["pass-label"] = new Dictionary<string, object> { ["testId"] = "login.pass.label" }
+            };
+            ui.Pages["login"] = pageDict;
+
+            var draft = "#language: pt\n\nFuncionalidade: X\n\nCenário: Y\n\n  Dado que estou na página \"login\"\n  Quando eu clico em \"login.pass.label\"\n";
+            // mapping: page step is line 7, click step is line 8
+            var metadata = BuildDraftMetadata((0, 8));
+
+            var resolver = new SemanticResolver(ui, null, 5, "draft.feature", "ui-map.yaml");
+            var (resolvedMeta, report, resolvedFeature) = resolver.Resolve(draft, metadata);
+
+            // When a preceding page step exists we expect the resolved step to use only the element key (pass-label)
+            Assert.Contains("Quando eu clico em \"pass-label\"", resolvedFeature);
             Assert.DoesNotContain("login.pass.label", resolvedFeature);
         }
 

@@ -1,7 +1,7 @@
 
 param(
   [string]$TestProject = "",
-  [string]$Scenario = "drift"
+  [string]$Scenario = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -38,7 +38,7 @@ Write-Host "UI_DEBUG=$env:UI_DEBUG HEADLESS=$env:HEADLESS SLOWMO_MS=$env:SLOWMO_
 Write-Host "HIGHLIGHT=$env:HIGHLIGHT PAUSE_ON_FAILURE=$env:PAUSE_ON_FAILURE"
 
 if ([string]::IsNullOrWhiteSpace($Scenario)) {
-  dotnet test $TestProject --filter "Category=login" -- RunConfiguration.MaxCpuCount=1
+  dotnet test $TestProject --filter "Category=smoke" -- RunConfiguration.MaxCpuCount=1
 } else {
   dotnet test $TestProject --filter "FullyQualifiedName~$Scenario" -- RunConfiguration.MaxCpuCount=1
 }

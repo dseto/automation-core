@@ -21,6 +21,30 @@ public sealed class ActionGrouper
             var time = ParseTimestamp(ev.T);
             var rawScript = TryGetRawScript(ev.RawAction);
 
+            // Special-case navigate: only merge navigates if they represent the same route
+            if (ev.Type == "navigate")
+            {
+                if (groups.Count > 0 && groups[^1].LastEvent.Type == "navigate")
+                {
+                    var lastRoute = groups[^1].LastEvent.Route ?? groups[^1].LastEvent.Url ?? string.Empty;
+                    var nextRoute = ev.Route ?? ev.Url ?? string.Empty;
+                    if (string.Equals(lastRoute, nextRoute, StringComparison.OrdinalIgnoreCase))
+                    {
+                        groups[^1].Add(ev, i, time, rawScript);
+                    }
+                    else
+                    {
+                        groups.Add(new GroupBuffer(ev, i, time, rawScript));
+                    }
+                }
+                else
+                {
+                    groups.Add(new GroupBuffer(ev, i, time, rawScript));
+                }
+
+                continue;
+            }
+
             if (groups.Count == 0 || !CanMerge(groups[^1], ev, time))
             {
                 groups.Add(new GroupBuffer(ev, i, time, rawScript));
@@ -64,7 +88,18 @@ public sealed class ActionGrouper
         var nextIsNavigate = next.Type == "navigate";
 
         if (lastIsNavigate || nextIsNavigate)
-            return lastIsNavigate && nextIsNavigate;
+        {
+            // Only merge two navigate events when they represent the SAME route.
+            // This prevents losing a navigation step (e.g., base -> login) when two distinct navigations occur in close succession.
+            if (lastIsNavigate && nextIsNavigate)
+            {
+                var lastRoute = last.Route ?? last.Url ?? string.Empty;
+                var nextRoute = next.Route ?? next.Url ?? string.Empty;
+                return string.Equals(lastRoute, nextRoute, System.StringComparison.OrdinalIgnoreCase);
+            }
+
+            return false;
+        }
 
         if (!IsSemanticType(next.Type) || !IsSemanticType(last.Type))
             return false;

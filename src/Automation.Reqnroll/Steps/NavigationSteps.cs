@@ -4,6 +4,7 @@ using Automation.Core.Waits;
 using Automation.Reqnroll.Runtime;
 using Reqnroll;
 using OpenQA.Selenium;
+using Microsoft.Extensions.Logging;
 
 namespace Automation.Reqnroll.Steps;
 
@@ -51,8 +52,30 @@ public class NavigationSteps
             throw new InvalidOperationException("BASE_URL não definida. Use o step 'Dado que a aplicação está em...' primeiro.");
 
         var route = page.Route ?? "";
+
+        // If route is a wildcard or not specified, do not attempt navigation — it represents a page fragment/component
+        if (string.IsNullOrWhiteSpace(route) || route.Trim() == "*" || route.Contains("*"))
+        {
+            // If an anchor is defined for this page, wait for it as a heuristic that the page/fragment is available
+            if (!string.IsNullOrWhiteSpace(page.Anchor))
+            {
+                try
+                {
+                    // Try a short wait for anchor; don't fail the scenario if it's not present (wildcard pages may be present across routes)
+                    _waitService.WaitPageAnchor(_driver, page.Anchor, 2000);
+                }
+                catch (OpenQA.Selenium.WebDriverTimeoutException)
+                {
+                    _rt?.Logger?.LogWarning("Anchor '{Anchor}' not found within short timeout for page '{Page}'. Continuing without navigation.", page.Anchor, pageName);
+                }
+            }
+
+            _pageContext.SetCurrentPage(pageName);
+            return;
+        }
+
         var fullUrl = $"{baseUrl.TrimEnd('/')}/{route.TrimStart('/')}";
-        
+
         _pageContext.NavigateTo(fullUrl);
         _pageContext.SetCurrentPage(pageName);
         _rt.Recorder?.RecordNavigate(route);

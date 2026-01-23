@@ -28,6 +28,11 @@ Write-Host "== Debug Visual (headed) =="
 Write-Host "UI_DEBUG=$env:UI_DEBUG HEADLESS=$env:HEADLESS SLOWMO_MS=$env:SLOWMO_MS"
 Write-Host "HIGHLIGHT=$env:HIGHLIGHT PAUSE_ON_FAILURE=$env:PAUSE_ON_FAILURE"
 
+# NOTE: For safety, tests invoked by this debug script will temporarily disable recorder (AUTOMATION_RECORD)
+# while running `dotnet test`. This prevents accidental overwrites of sample session files (e.g., ui-tests/artifacts/seguro-sim/session.json)
+# in case the environment or CI has recording enabled globally.
+# We restore the original AUTOMATION_RECORD value after the test completes.
+
 if ([string]::IsNullOrWhiteSpace($Scenario)) {
   $resolvedFeature = "C:\\Projetos\\automation-core\\ui-tests\\artifacts\\semantic-resolution-segurosim\\resolved\\resolved.feature"
   if (Test-Path $resolvedFeature) {
@@ -37,16 +42,40 @@ if ([string]::IsNullOrWhiteSpace($Scenario)) {
       $filterParts = $scenarios | ForEach-Object { "FullyQualifiedName~`"$_`"" }
       $filter = $filterParts -join '|'
       Write-Host "Filter: $filter"
-      dotnet test $TestProject --filter "$filter" -- RunConfiguration.MaxCpuCount=1
+      $__oldAutomationRecord = $env:AUTOMATION_RECORD
+      try {
+        $env:AUTOMATION_RECORD = "false"
+        dotnet test $TestProject --filter "$filter" -- RunConfiguration.MaxCpuCount=1
+      } finally {
+        if ($null -eq $__oldAutomationRecord) { Remove-Item env:AUTOMATION_RECORD -ErrorAction SilentlyContinue } else { $env:AUTOMATION_RECORD = $__oldAutomationRecord }
+      }
     } else {
       Write-Host "No scenarios found in $resolvedFeature. Running default Category=login"
-      dotnet test $TestProject --filter "Category=login" -- RunConfiguration.MaxCpuCount=1
+      $__oldAutomationRecord = $env:AUTOMATION_RECORD
+      try {
+        $env:AUTOMATION_RECORD = "false"
+        dotnet test $TestProject --filter "Category=login" -- RunConfiguration.MaxCpuCount=1
+      } finally {
+        if ($null -eq $__oldAutomationRecord) { Remove-Item env:AUTOMATION_RECORD -ErrorAction SilentlyContinue } else { $env:AUTOMATION_RECORD = $__oldAutomationRecord }
+      }
     }
   } else {
     Write-Host "Resolved feature not found at $resolvedFeature. Running default Category=login"
-    dotnet test $TestProject --filter "Category=login" -- RunConfiguration.MaxCpuCount=1
+    $__oldAutomationRecord = $env:AUTOMATION_RECORD
+    try {
+      $env:AUTOMATION_RECORD = "false"
+      dotnet test $TestProject --filter "Category=login" -- RunConfiguration.MaxCpuCount=1
+    } finally {
+      if ($null -eq $__oldAutomationRecord) { Remove-Item env:AUTOMATION_RECORD -ErrorAction SilentlyContinue } else { $env:AUTOMATION_RECORD = $__oldAutomationRecord }
+    }
   }
 } else {
-  dotnet test $TestProject --filter "FullyQualifiedName~$Scenario" -- RunConfiguration.MaxCpuCount=1
+  $__oldAutomationRecord = $env:AUTOMATION_RECORD
+  try {
+    $env:AUTOMATION_RECORD = "false"
+    dotnet test $TestProject --filter "FullyQualifiedName~$Scenario" -- RunConfiguration.MaxCpuCount=1
+  } finally {
+    if ($null -eq $__oldAutomationRecord) { Remove-Item env:AUTOMATION_RECORD -ErrorAction SilentlyContinue } else { $env:AUTOMATION_RECORD = $__oldAutomationRecord }
+  }
 }
 exit $LASTEXITCODE

@@ -387,8 +387,31 @@ namespace Automation.Core.Recorder.Semantic
                     if (!string.IsNullOrWhiteSpace(quoted) && quoted.Contains('.') )
                     {
                         var parts = quoted.Split('.', 2, StringSplitOptions.RemoveEmptyEntries);
-                        var newRef = $"{s.Chosen.PageKey}.{s.Chosen.ElementKey}";
+                        var pagePrefixedRef = $"{s.Chosen.PageKey}.{s.Chosen.ElementKey}";
+                        var elementOnlyRef = s.Chosen.ElementKey;
                         var idx = s.DraftLine - 1;
+
+                        // Determine if a preceding page step matching the PageKey exists before this line
+                        bool HasPrecedingPageContext()
+                        {
+                            for (int back = idx - 1; back >= 0; back--)
+                            {
+                                var l = lines[back];
+                                if (string.IsNullOrWhiteSpace(l)) continue;
+                                if (l.IndexOf("estou na página", StringComparison.OrdinalIgnoreCase) >= 0)
+                                {
+                                    var m = System.Text.RegularExpressions.Regex.Match(l, "\"([^\"]+)\"");
+                                    if (m.Success && string.Equals(m.Groups[1].Value, s.Chosen.PageKey, StringComparison.OrdinalIgnoreCase))
+                                        return true;
+                                }
+                                // if we encounter other content (non-page step) stop searching to keep heuristic local
+                                break;
+                            }
+                            return false;
+                        }
+
+                        // If a page context is present, prefer OTR (element key only) to avoid redundant page prefix in resolved feature
+                        var chosenRef = HasPrecedingPageContext() ? elementOnlyRef : pagePrefixedRef;
 
                         // Case A: quoted is in form "page.element.*" (e.g., "login.pass.label") — rewrite when page matches
                         if (parts.Length == 2 && string.Equals(parts[0], s.Chosen.PageKey, StringComparison.OrdinalIgnoreCase))
@@ -397,7 +420,7 @@ namespace Automation.Core.Recorder.Semantic
                             {
                                 // replace only the FIRST quoted string (the reference) so literal values in subsequent quoted strings are preserved — RF-SR-40
                                 var regex = new System.Text.RegularExpressions.Regex("\"([^\"]+)\"");
-                                lines[idx] = regex.Replace(lines[idx], $"\"{newRef}\"", 1);
+                                lines[idx] = regex.Replace(lines[idx], $"\"{chosenRef}\"", 1);
                             }
                         }
                         // Case B: quoted contains the resolved testId (e.g., "[data-testid='page.login.username']"), rewrite to element ref
@@ -406,7 +429,7 @@ namespace Automation.Core.Recorder.Semantic
                             if (idx >= 0 && idx < lines.Count)
                             {
                                 var regex = new System.Text.RegularExpressions.Regex("\"([^\"]+)\"");
-                                lines[idx] = regex.Replace(lines[idx], $"\"{newRef}\"", 1);
+                                lines[idx] = regex.Replace(lines[idx], $"\"{chosenRef}\"", 1);
                             }
                         }
                     }

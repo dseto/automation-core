@@ -23,3 +23,5 @@ O schema de DataMap aceita `sequential`, `random` e `unique` (espelho do Validat
 ## Semantic Resolution (Delta 3)
 - `resolved.metadata.schema.json`
 - `ui-gaps.report.schema.json`
+
+> Nota: Schemas ajustados e validados como parte do delta `2026-01-22-free-hands-semres-fill-safe-rewrite` (RELEASED v0.6.2 em 2026-01-23).

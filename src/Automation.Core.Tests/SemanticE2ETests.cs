@@ -40,6 +40,24 @@ namespace Automation.Core.Tests
             Directory.Delete(temp, true);
         }
 
+        [Fact]
+        public void GenerateDraft_UsesScenarioNameParameter()
+        {
+            var temp = Path.Combine(Path.GetTempPath(), "semres-e2e-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(temp);
+
+            var scenario = "cenariosegurotest";
+            var gen = RunDotnet($"run --project src/Automation.RecorderTool generate-draft --input specs/api/examples/recorder.session.login.example.json --output {temp} --scenario \"{scenario}\"");
+            Assert.True(gen.ExitCode == 0, $"generate-draft failed. STDOUT:\n{gen.StdOut}\nSTDERR:\n{gen.StdErr}");
+
+            var draft = Path.Combine(temp, "draft.feature");
+            Assert.True(File.Exists(draft));
+            var content = File.ReadAllText(draft);
+            Assert.Contains($"Cenário: {scenario}", content);
+
+            Directory.Delete(temp, true);
+        }
+
         private (int ExitCode, string StdOut, string StdErr) RunDotnet(string args)
         {
             var psi = new ProcessStartInfo("dotnet", args)

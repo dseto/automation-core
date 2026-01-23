@@ -18,3 +18,5 @@ Estes arquivos são exemplos **válidos** e **inválidos** para exercitar o Vali
 - `resolved.metadata.example.json`
 - `ui-gaps.report.example.json`
 - `ui-gaps.report.example.md`
+
+> Nota: Exemplos atualizados em `2026-01-22-free-hands-semres-fill-safe-rewrite` (RELEASED v0.6.2 em 2026-01-23).

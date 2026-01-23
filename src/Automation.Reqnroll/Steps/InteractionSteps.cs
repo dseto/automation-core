@@ -25,8 +25,11 @@ public sealed class InteractionSteps
     /// Preenche um campo com um valor resolvido pelo DataResolver.
     /// Suporta literais, variáveis de ambiente ou chaves do DataMap.
     /// </summary>
+    [Given(@"eu preencho ""(.*)"" com ""(.*)""")]
     [When(@"eu preencho ""(.*)"" com ""(.*)""")]
+    [Given(@"eu preencho o campo ""(.*)"" com ""(.*)""")]
     [When(@"eu preencho o campo ""(.*)"" com ""(.*)""")]
+    [Given(@"eu digito ""(.*)"" em ""(.*)""")]
     [When(@"eu digito ""(.*)"" em ""(.*)""")]
     public void QuandoEuPreenchoCom(string elementRef, string dataKey)
     {
@@ -153,8 +156,11 @@ public sealed class InteractionSteps
     /// Clica em um elemento (botão, link, etc).
     /// Aguarda automaticamente a navegação se houver mudança de URL.
     /// </summary>
+    [Given(@"^eu clico em ""([^""]+)""$")]
     [When(@"^eu clico em ""([^""]+)""$")]
+    [Given(@"eu clico no botão ""(.*)""")]
     [When(@"eu clico no botão ""(.*)""")]
+    [Given(@"eu clico no elemento ""(.*)""")]
     [When(@"eu clico no elemento ""(.*)""")]
     public void QuandoEuClicoEm(string elementRef)
     {
@@ -200,7 +206,9 @@ public sealed class InteractionSteps
     /// <summary>
     /// Clica em um elemento e aguarda navegação para uma rota específica.
     /// </summary>
+    [Given(@"eu clico em ""(.*)"" e aguardo a rota ""(.*)""")]
     [When(@"eu clico em ""(.*)"" e aguardo a rota ""(.*)""")]
+    [Given(@"eu clico no botão ""(.*)"" e aguardo a rota ""(.*)""")]
     [When(@"eu clico no botão ""(.*)"" e aguardo a rota ""(.*)""")]
     public void QuandoEuClicoEAguardoRota(string elementRef, string expectedRoute)
     {
