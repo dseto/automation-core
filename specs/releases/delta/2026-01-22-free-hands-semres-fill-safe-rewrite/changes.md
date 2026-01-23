@@ -1,28 +1,27 @@
 # Changes
 
-## Summary
-This release fixes unsafe semantic rewriting that could change literal fill values and normalizes route handling for initial navigations.
+## Resumo
+Esta entrega corrige uma reescrita semântica insegura que poderia alterar valores literais de preenchimento (`fill`) e normaliza o tratamento de rotas iniciais para evitar emissão de caminhos base nas gravações.
 
-## Highlights
-- **RF-SR-40 (Behavioral fix):** Semantic Resolver now preserves literal fill values by limiting replacement to the first quoted literal when appropriate.
-- **RF-RN-01 (Bugfix):** Route Normalizer maps initial navigations equal to the configured `BASE_URL` to `route: "/"` to avoid emitting base paths in recorded routes.
-- **Draft materialization:** `DraftGenerator` now preserves explicit navigation steps and qualifies unqualified targets to reduce UI gaps in generated drafts.
-- **Reqnroll bindings & stability:** Added `Given` variants for interaction steps, improved wildcard-route handling to avoid invalid navigations, and added script improvements (`--scenario` support, draft cleanup, recorder-safety during debug runs).
+## Destaques
+- **RF-SR-40 (Correção comportamental):** O `SemanticResolver` agora preserva valores literais em passos de preenchimento substituindo apenas a primeira ocorrência entre aspas quando aplicável.
+- **RF-RN-01 (Correção):** `RouteNormalizer` mapeia navegações iniciais cujo `url` seja igual ao `BASE_URL` para `route: "/"` (root), evitando rotas base no `session.json`.
+- **Draft materialization:** `DraftGenerator` preserva passos de navegação explícitos e qualifica alvos não qualificados para reduzir gaps em drafts gerados.
+- **Resolução semântica (referências de elemento):** As features resolvidas preferem referências `element-only` (ex.: `client-name`) quando possível; se a mesma chave de elemento existir em várias páginas, o resolvedor emite um aviso `UIGAP_ELEMENT_AMBIGUOUS` e mantém a forma `element-only` para concisão.
+- **Estabilidade e bindings:** Adicionados variantes `Given` para steps de interação, melhor tratamento de rotas wildcard, suporte a `--scenario` nos scripts, limpeza de drafts temporários e medidas de segurança para evitar sobrescrita de `session.json` durante runs de debug.
+- **Recorder (robustez de captura):** Persistência do buffer de captura no `localStorage` (`__fhRecorder_pending`) para preservar eventos que ocorrem imediatamente antes de uma navegação completa.
 
-## Implementation
-Files modified include (non-exhaustive):
+## Implementação (arquivos principais)
 - `src/Automation.Core/Recorder/Semantic/SemanticResolver.cs`
 - `src/Automation.Core/Recorder/Draft/DraftGenerator.cs`
 - `src/Automation.Core/Driver/RouteNormalizer.cs`
 - `src/Automation.Reqnroll/Steps/InteractionSteps.cs`
 - `src/Automation.Reqnroll/Steps/NavigationSteps.cs`
 - `src/Automation.RecorderTool/Program.cs`
-- Updated scripts: `ui-tests/scripts/run-debug-segurosim.ps1`, `run-semantic-resolution_*.ps1`
-- Tests: `SemanticResolutionTests`, `RouteNormalizerTests`, `ActionGrouperTests`, `SemanticE2ETests`
+- Scripts atualizados: `ui-tests/scripts/run-debug-segurosim.ps1`, `ui-tests/scripts/run-semantic-resolution_*.ps1`
+- Testes: `SemanticResolutionTests`, `RouteNormalizerTests`, `ActionGrouperTests`, `SemanticE2ETests`
 
-## Validation
-- Unit and integration tests added/updated and executed locally.
-- Manual debug run (`ui-tests/scripts/run-debug-segurosim.ps1`) executed and validated local success.
+## Validação
+- Testes unitários e de integração adicionados/atualizados e executados localmente.
+- Execução manual de debug (`ui-tests/scripts/run-debug-segurosim.ps1`) validou o fluxo com sucesso.
 
-## Migration
-No migration steps are required.

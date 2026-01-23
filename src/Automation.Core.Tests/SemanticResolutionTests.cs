@@ -253,7 +253,7 @@ namespace Automation.Core.Tests
 
             // literal should be preserved verbatim
             Assert.Contains("com \"admin\"", resolvedFeature);
-            Assert.Contains("Quando eu preencho \"login.username\" com \"admin\"", resolvedFeature);
+            Assert.Contains("Quando eu preencho \"username\" com \"admin\"", resolvedFeature);
             Assert.DoesNotContain("[data-testid='page.login.username']", resolvedFeature);
         }
 
@@ -269,7 +269,7 @@ namespace Automation.Core.Tests
 
             Assert.Single(resolvedMeta.Steps);
             // only the first quoted string (the reference) should be rewritten; subsequent quoted strings must remain as-is
-            Assert.Contains("Quando eu preencho \"login.username\" com \"x\" e depois digo \"y\"", resolvedFeature);
+            Assert.Contains("Quando eu preencho \"username\" com \"x\" e depois digo \"y\"", resolvedFeature);
         }
 
         [Fact]
@@ -384,8 +384,8 @@ namespace Automation.Core.Tests
             var resolver = new SemanticResolver(ui, null, 5, "draft.feature", "ui-map.yaml");
             var (resolvedMeta, report, resolvedFeature) = resolver.Resolve(draft, metadata);
 
-            // After resolution we expect the step to use the element key (pass-label) with page prefix when no page context exists
-            Assert.Contains("Quando eu clico em \"login.pass-label\"", resolvedFeature);
+            // After resolution we expect the step to use the element key only (pass-label) even when no page context exists
+            Assert.Contains("Quando eu clico em \"pass-label\"", resolvedFeature);
             Assert.DoesNotContain("login.pass.label", resolvedFeature);
 
         }

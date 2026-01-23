@@ -142,59 +142,6 @@ public sealed class DraftGenerator
                     }
                 }
 
-                // If this step targets a specific element with a dotted target (page.element or page-prefixed testId),
-                // insert a synthetic navigation step to the inferred page BEFORE the step when a preceding page step is missing.
-                try
-                {
-                    var pageCandidate = (primaryEvent != null) ? TryGetHint(primaryEvent.Target) : null;
-                    if (!string.IsNullOrWhiteSpace(pageCandidate) && pageCandidate.Contains('.'))
-                    {
-                        string inferredPage = pageCandidate.StartsWith("page.") ? pageCandidate.Split('.', 3)[1] : pageCandidate.Split('.', 2)[0];
-
-                        // find last non-empty line
-                        var lastNonEmpty = lines.Count > 0 ? lines.FindLast(l => !string.IsNullOrWhiteSpace(l)) : null;
-                        var alreadyOnPage = false;
-                        if (!string.IsNullOrWhiteSpace(lastNonEmpty) && lastNonEmpty.IndexOf("estou na página", System.StringComparison.OrdinalIgnoreCase) >= 0)
-                        {
-                            var m = System.Text.RegularExpressions.Regex.Match(lastNonEmpty, "\"([^\"]+)\"");
-                            if (m.Success)
-                            {
-                                var lastPage = m.Groups[1].Value;
-                                if (string.Equals(lastPage, inferredPage, System.StringComparison.OrdinalIgnoreCase))
-                                    alreadyOnPage = true;
-                            }
-                        }
-
-                        if (!alreadyOnPage)
-                        {
-                            lines.Add(indent + $"Dado que estou na página \"{inferredPage}\"");
-                        }
-
-                        // If the step's target is unqualified (no dot) but we inferred a page, qualify it as page.element so the resolver can find it later
-                        try
-                        {
-                            var originalTarget = (primaryEvent != null) ? TryGetHint(primaryEvent.Target) : null;
-                            if (!string.IsNullOrWhiteSpace(originalTarget) && !originalTarget.Contains('.') && !string.IsNullOrWhiteSpace(inferredPage))
-                            {
-                                // replace only the first occurrence inside quotes
-                                var q = System.Text.RegularExpressions.Regex.Escape($"\"{originalTarget}\"");
-                                var re = new System.Text.RegularExpressions.Regex(q);
-                                if (re.IsMatch(text))
-                                {
-                                    text = re.Replace(text, $"\"{inferredPage}.{originalTarget}\"", 1);
-                                }
-                            }
-                        }
-                        catch
-                        {
-                            // swallow any replacement errors
-                        }
-                    }
-                }
-                catch
-                {
-                    // conservative: swallow any heuristics failure and proceed
-                }
 
                 lines.Add(indent + text);
 

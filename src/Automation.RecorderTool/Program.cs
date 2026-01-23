@@ -352,6 +352,20 @@ public class Program
   const fillTimers = new WeakMap();
   const startTime = Date.now();
 
+  // Restore pending buffer from previous full navigation (if any). This helps
+  // preserve events (e.g., clicks that trigger window.location changes)
+  // across page loads by using localStorage as a short-lived transport.
+  try {
+    const pending = localStorage.getItem('__fhRecorder_pending');
+    if (pending) {
+      const arr = JSON.parse(pending);
+      if (Array.isArray(arr) && arr.length) {
+        arr.forEach(ev => buffer.push(ev));
+        localStorage.removeItem('__fhRecorder_pending');
+      }
+    }
+  } catch (e) { }
+
   function shortText(el) {
     const text = (el.textContent || '').trim();
     return text.length > 80 ? text.substring(0, 77) + '...' : text;
@@ -438,6 +452,19 @@ public class Program
   // RC04: Capture submit
   document.addEventListener('submit', (e) => {
     push('submit', e.target);
+  }, true);
+
+  // Persist buffer across full navigations so events (e.g., clicks that trigger
+  // window.location changes) aren't lost. We write to localStorage on pagehide
+  // and attempt to restore on the next page load.
+  window.addEventListener('pagehide', () => {
+    try {
+      if (buffer.length) {
+        localStorage.setItem('__fhRecorder_pending', JSON.stringify(buffer));
+      } else {
+        localStorage.removeItem('__fhRecorder_pending');
+      }
+    } catch (e) {}
   }, true);
 
   // RC06: Expose drain API

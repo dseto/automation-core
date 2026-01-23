@@ -1,4 +1,5 @@
 # Changelog
+- v0.6.2 (2026-01-23): Semantic resolution — preservação segura de valores de `fill`; persistência do buffer de captura para evitar perda de eventos em navegações completas; preferência por referências `element-only` e emissão de `UIGAP_ELEMENT_AMBIGUOUS` quando ambíguo; ajustes no `DraftGenerator`, `RouteNormalizer` e estabilidade dos scripts; testes e validação local aprovados. ✅
 - 0.1.0: bootstrap do Core + spec deck + implementação MVP inicial
 - v0.5.0 (2026-01-21): Adiciona Draft Generator (session.json → draft.feature), escape hatch automático, preservação de rawAction e metadata; RF11/RF13/RF15 implementados.
 - v0.5.1 (2026-01-21): Corrige interpretação de literais no DataMap: valores que começam com '@' agora são tratados como literais quando não existe uma referência de contexto correspondente. Adicionado testes unitários para o `DataResolver`. ✅

@@ -331,37 +331,6 @@ namespace Automation.Core.Recorder.Semantic
                 metadata.Steps.Add(step);
             }
 
-            // Assign deterministic IDs and sort as specified in SSOT
-            var ordered = findings
-                .OrderBy(f => f.DraftLine)
-                .ThenBy(f => SeverityRank(f.Severity)) // error > warn > info
-                .ThenBy(f => f.Code, StringComparer.Ordinal)
-                .ToList();
-
-            for (int i = 0; i < ordered.Count; i++)
-            {
-                ordered[i].Id = $"UIGAP-{(i + 1).ToString("D4")}";
-            }
-
-            // Build report and stats
-            report.Findings = ordered;
-            report.Stats = new UiGapStats
-            {
-                Errors = ordered.Count(f => f.Severity == "error"),
-                Warnings = ordered.Count(f => f.Severity == "warn"),
-                Infos = ordered.Count(f => f.Severity == "info"),
-                Total = ordered.Count
-            };
-
-            // Map findings back to metadata (attach findings objects to step entries)
-            foreach (var f in ordered)
-            {
-                var step = metadata.Steps.FirstOrDefault(s => s.DraftLine == f.DraftLine);
-                if (step != null)
-                {
-                    step.Findings.Add(new ResolvedFinding { Severity = f.Severity, Code = f.Code, Message = f.Message });
-                }
-            }
 
             // Rewrite navigation step lines to use pageKey when the step was resolved to a page
             foreach (var s in metadata.Steps)
@@ -410,8 +379,12 @@ namespace Automation.Core.Recorder.Semantic
                             return false;
                         }
 
-                        // If a page context is present, prefer OTR (element key only) to avoid redundant page prefix in resolved feature
-                        var chosenRef = HasPrecedingPageContext() ? elementOnlyRef : pagePrefixedRef;
+                        // Prefer to use element-only reference when safe:
+                        // - if a preceding page context exists for the same page, or
+                        // - if the element key is unique across the UiMap (no collision with other pages).
+                        // Fallback to the page-prefixed reference when ambiguous.
+                        // Always prefer element-only reference by default. Ambiguity will be reported as a UIGAP (warning) later.
+                        var chosenRef = elementOnlyRef;
 
                         // Case A: quoted is in form "page.element.*" (e.g., "login.pass.label") — rewrite when page matches
                         if (parts.Length == 2 && string.Equals(parts[0], s.Chosen.PageKey, StringComparison.OrdinalIgnoreCase))
@@ -431,6 +404,35 @@ namespace Automation.Core.Recorder.Semantic
                                 var regex = new System.Text.RegularExpressions.Regex("\"([^\"]+)\"");
                                 lines[idx] = regex.Replace(lines[idx], $"\"{chosenRef}\"", 1);
                             }
+                        }
+
+                        // If the element key occurs in multiple pages, register a warning UIGAP but still prefer element-only reference
+                        var occurrences = 0;
+                        var pagesWithElement = new System.Collections.Generic.List<string>();
+                        var elementKey = s.Chosen.ElementKey;
+                        foreach (var kvp2 in _uiMap.Pages)
+                        {
+                            if (kvp2.Value is System.Collections.IDictionary pd && pd.Contains(elementKey))
+                            {
+                                occurrences++;
+                                pagesWithElement.Add(kvp2.Key);
+                            }
+                        }
+
+                        if (occurrences > 1)
+                        {
+                            var msg = $"Ambiguidade: chave de elemento '{elementKey}' encontrada em múltiplas páginas: {string.Join(',', pagesWithElement)}. Usando referência em forma de elemento ('{elementKey}') no resolved feature.";
+                            var ambFinding = new UiGapFinding
+                            {
+                                Severity = "warn",
+                                Code = "UIGAP_ELEMENT_AMBIGUOUS",
+                                Message = msg,
+                                DraftLine = s.DraftLine,
+                                InputRef = quoted,
+                                StepText = s.StepText
+                            };
+
+                            findings.Add(ambFinding);
                         }
                     }
                 }
@@ -465,6 +467,38 @@ namespace Automation.Core.Recorder.Semantic
                     insertedPositions = new System.Collections.Generic.List<int> { insertLineNumber };
                     // Note: We do NOT modify the DraftLine values in the findings (they must remain draft-file-based). Instead
                     // InsertFindingsComments will map draftLine -> resolvedLine accounting for these insertions.
+                }
+            }
+
+            // Assign deterministic IDs and sort as specified in SSOT
+            var ordered = findings
+                .OrderBy(f => f.DraftLine)
+                .ThenBy(f => SeverityRank(f.Severity)) // error > warn > info
+                .ThenBy(f => f.Code, StringComparer.Ordinal)
+                .ToList();
+
+            for (int i = 0; i < ordered.Count; i++)
+            {
+                ordered[i].Id = $"UIGAP-{(i + 1).ToString("D4")}";
+            }
+
+            // Build report and stats
+            report.Findings = ordered;
+            report.Stats = new UiGapStats
+            {
+                Errors = ordered.Count(f => f.Severity == "error"),
+                Warnings = ordered.Count(f => f.Severity == "warn"),
+                Infos = ordered.Count(f => f.Severity == "info"),
+                Total = ordered.Count
+            };
+
+            // Map findings back to metadata (attach findings objects to step entries)
+            foreach (var f in ordered)
+            {
+                var step = metadata.Steps.FirstOrDefault(s => s.DraftLine == f.DraftLine);
+                if (step != null)
+                {
+                    step.Findings.Add(new ResolvedFinding { Severity = f.Severity, Code = f.Code, Message = f.Message });
                 }
             }
 

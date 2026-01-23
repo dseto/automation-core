@@ -20,6 +20,25 @@ public class UiMapModel
         
         throw new ArgumentException($"Página ou Modal '{pageName}' não encontrada no ui-map.yaml.");
     }
+
+    /// <summary>
+    /// Retorna os nomes de páginas/modais que contêm o elemento fornecido.
+    /// Usado como fallback quando um elemento simples não existe na página atual.
+    /// </summary>
+    public IEnumerable<string> FindPagesContainingElement(string elementName)
+    {
+        foreach (var kv in Pages)
+        {
+            if (kv.Value is IDictionary pageDict && pageDict.Contains(elementName))
+                yield return kv.Key;
+        }
+
+        foreach (var kv in Modals)
+        {
+            if (kv.Value is IDictionary modalDict && modalDict.Contains(elementName))
+                yield return kv.Key;
+        }
+    }
 }
 
 public class UiPage

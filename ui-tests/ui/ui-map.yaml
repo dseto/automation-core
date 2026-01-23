@@ -54,15 +54,15 @@ pages:
     __meta:
       route: /login
       anchor: page.login
-    error:
+    login-error:
       test_id: page.login.error
-    password:
+    login-password:
       test_id: page.login.password
-    submit:
+    login-submit:
       test_id: page.login.submit
-    toggle-password:
+    login-toggle-password:
       test_id: page.login.toggle-password
-    username:
+    login-username:
       test_id: page.login.username
 
   preview:

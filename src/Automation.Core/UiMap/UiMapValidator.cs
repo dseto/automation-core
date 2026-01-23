@@ -192,6 +192,13 @@ namespace Automation.Core.UiMap
                     continue;
                 }
 
+                // Element keys MUST NOT contain '.' to avoid ambiguity with page.element notation
+                if (elementKey.Contains('.'))
+                {
+                    errors.Add($"'{scopeName}.{elementKey}' contains invalid character '.' in element key. Element keys MUST NOT contain '.'.");
+                    continue;
+                }
+
                 // elementValue can be:
                 // - string testid
                 // - object with TestId/DataTestId property

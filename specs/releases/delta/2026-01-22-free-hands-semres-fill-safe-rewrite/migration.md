@@ -1,3 +1,3 @@
-# Migration
+# Migração
 
-No migration steps are required.
+Nenhuma etapa de migração é necessária.

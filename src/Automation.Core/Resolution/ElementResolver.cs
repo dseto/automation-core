@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Automation.Core.UiMap;
 
 namespace Automation.Core.Resolution;
@@ -75,7 +76,41 @@ public sealed class ElementResolver
         }
         else
         {
-            testId = page.GetTestIdOrThrow(friendlyName);
+            try
+            {
+                testId = page.GetTestIdOrThrow(friendlyName);
+            }
+            catch (ArgumentException)
+            {
+                // Fallback: procura em outras páginas/modais que contenham o elemento.
+                var candidates = _map.FindPagesContainingElement(friendlyName).ToList();
+                if (candidates.Count == 1)
+                {
+                    pageName = candidates[0];
+                    page = _map.GetPageOrThrow(pageName);
+                    testId = page.GetTestIdOrThrow(friendlyName);
+                }
+                else if (candidates.Count > 1)
+                {
+                    // Prefere páginas com route='*' (topbar / auth / layout)
+                    var wildcard = candidates.FirstOrDefault(pn => _map.GetPageOrThrow(pn).Route == "*");
+                    if (wildcard != null)
+                    {
+                        pageName = wildcard;
+                        page = _map.GetPageOrThrow(pageName);
+                        testId = page.GetTestIdOrThrow(friendlyName);
+                    }
+                    else
+                    {
+                        throw new ArgumentException($"Elemento '{friendlyName}' não encontrado na página atual '{pageName}', existe em várias páginas: {string.Join(", ", candidates)}. Use 'pagina.{friendlyName}' para desambiguar.");
+                    }
+                }
+                else
+                {
+                    // Repropaga a exceção original para manter a mensagem padrão
+                    throw;
+                }
+            }
         }
 
         var css = $"[data-testid='{testId}']";

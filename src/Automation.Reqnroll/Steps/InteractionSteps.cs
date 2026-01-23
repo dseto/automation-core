@@ -41,10 +41,36 @@ public sealed class InteractionSteps
         _rt.Debug.TryHighlight(_rt.Driver, el);
 
         var value = ResolveValue(dataKey);
-        el.Clear();
-        el.SendKeys(value);
 
-        _rt.Recorder?.RecordFill(elementRef, value);
+        if (IsToggle(el))
+        {
+            // Checkbox / radio / toggle: interpret value as on/true/1 to check, otherwise uncheck
+            var wantChecked = !string.IsNullOrEmpty(value) && (
+                value.Equals("on", StringComparison.OrdinalIgnoreCase) ||
+                value.Equals("true", StringComparison.OrdinalIgnoreCase) ||
+                value.Equals("1", StringComparison.OrdinalIgnoreCase) ||
+                value.Equals("checked", StringComparison.OrdinalIgnoreCase)
+            );
+
+            var isChecked = el.Selected;
+            if (wantChecked != isChecked)
+            {
+                el.Click();
+                _rt.Recorder?.RecordToggle(elementRef);
+            }
+            else
+            {
+                // Ainda registra o valor para auditoria
+                _rt.Recorder?.RecordFill(elementRef, value);
+            }
+        }
+        else
+        {
+            el.Clear();
+            el.SendKeys(value);
+
+            _rt.Recorder?.RecordFill(elementRef, value);
+        }
 
         _rt.Debug.MaybeSlowMo();
     }

@@ -32,7 +32,7 @@ pages:
       test_id: login.pass
     pass-label:
       test_id: login.pass.label
-    submit:
+    login-submit:
       test_id: login.submit
     title:
       test_id: login.title
@@ -46,8 +46,8 @@ pages:
       anchor: dashboard.title
     card:
       test_id: dashboard.card
-    go-quote:
-      test_id: dashboard.goQuote
+    nav-quote:
+      test_id: nav.quote
     kpi-policies:
       test_id: dashboard.kpi.policies
     kpi-policies-value:
@@ -244,13 +244,13 @@ pages:
       test_id: quote.simulation.totalPremium
     simulation-total-row:
       test_id: quote.simulation.totalRow
-    submit:
+    quote-submit:
       test_id: quote.submit
-    submit-cancel:
+    quote-submit-cancel:
       test_id: quote.submit.cancel
-    submit-confirm:
+    quote-submit-confirm:
       test_id: quote.submit.confirm
-    submit-text:
+    quote-submit-text:
       test_id: quote.submit.text
     tab-body:
       test_id: quote.tab.body
@@ -471,7 +471,7 @@ pages:
     policies:
       test_id: nav.policies
     quote:
-      test_id: nav.quote
+      test_id: navigation.quote
     search:
       test_id: nav.search
     settings:
